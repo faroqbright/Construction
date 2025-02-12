@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f6f6f6;
+}
+.scrollbar-custom::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: rgb(75 85 99);
+  border-radius: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background-color: rgb(156 163 175);
+  border-radius: 8px;
+}
+
+.scrollbar-custom {
+  overflow-y: auto;
+  /* padding-right: 4px; */
+}
+.custom-calendar {
+  font-family: Arial, sans-serif;
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.custom-calendar .react-datepicker__header {
+  background-color: white;
+  color: black;
+  border-bottom: 1px solid #ddd;
+}
+
+.custom-calendar .react-datepicker__day--selected {
+  background-color: red;
+  color: black;
+  border-radius: 50%;
+}
+
+.custom-calendar .react-datepicker__day {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+}
+
+.custom-calendar .react-datepicker__navigation {
+  top: 10px;
+}
+
+.custom-calendar .react-datepicker__day-name {
+  font-weight: bold;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+}
+
+.app {
+  width: 80%;
+  margin: 20px auto;
+}
+
+.deliverables h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.deliverable-list {
+  display: flex;
+  gap: 20px;
+}
+
+.deliverable-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 200px;
+}
+
+.pdf-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.deliverable-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.deliverable-title {
+  font-weight: bold;
+  margin: 0;
+}
+
+.submitted-by {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.progress-meters {
+  display: flex;
+  gap: 50px;
+  margin-top: 30px;
+}
+
+.progress-container {
+  text-align: center;
+}
+
+.semi-circle {
+  width: 120px;
+  height: 60px;
+  background: lightgray;
+  border-radius: 120px 120px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 120px;
+  height: 120px;
+  background: white;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform-origin: center bottom;
+  border-radius: 50%;
+}
+
+.progress-label {
+  margin-top: 10px;
+}
+
+.percentage {
+  font-size: 1.2rem;
+  font-weight: bold;
+}

@@ -1,0 +1,203 @@
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Login from "../pages/LoginPages/Login/Login";
+import ForgotPass from "../pages/LoginPages/ForgotPassword/ForgotPass";
+import OtpPage from "../pages/LoginPages/Otp/OtpPage";
+import ConfirmReset from "../pages/LoginPages/ForgotPassword/ConfirmReset";
+import RouteMiddleware from "./RouteMIddleware";
+import AuthLayout from "./AuthLayout";
+import Layout from "./Layout";
+import Dashboard from "../pages/MainPages/Dashboard/Dashboard";
+import AllProjects from "../pages/MainPages/AllProjects/AllProjects";
+import History from "../pages/MainPages/History/History";
+import Notifications from "../pages/MainPages/Notifications/Notifications";
+import Client from "../pages/MainPages/Client/Client";
+import AllClients from "../pages/MainPages/AllClient/AllClients";
+import RolesUsers from "../pages/MainPages/RolesUser/RolesUsers";
+import ProjectDetails from "../pages/MainPages/ProjectDetails/Details";
+import EditProject from "../pages/MainPages/EditProject/EditProject";
+import ReportsName from "../pages/MainPages/ReportsName/ReportsName";
+import ReportsPage from "../pages/MainPages/Report/Report";
+
+const App = () => {
+  return (
+    <>
+      <Router>
+        <Routes>
+          <Route element={<AuthLayout />}>
+            <Route
+              path="/login"
+              element={
+                <RouteMiddleware isAuthRequired={false}>
+                  <Login />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <RouteMiddleware isAuthRequired={false}>
+                  <ForgotPass />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/recovery"
+              element={
+                <RouteMiddleware isAuthRequired={false}>
+                  <OtpPage />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <RouteMiddleware isAuthRequired={false}>
+                  <ConfirmReset />
+                </RouteMiddleware>
+              }
+            />
+          </Route>
+          <Route element={<Layout />}>
+            <Route
+              path="/"
+              element={
+                <RouteMiddleware isAuthRequired={true}>
+                  <Dashboard />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/project-management"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ProjectsManagement"]}
+                >
+                  <AllProjects />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["HistoryManagement"]}
+                >
+                  <History />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/report"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ReportsManagement"]}
+                >
+                  <ReportsPage />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <RouteMiddleware isAuthRequired={true}>
+                  <Notifications />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/client-evaluation"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["EvaluationManagement"]}
+                >
+                  <Client />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/all-clients"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ClientsManagement"]}
+                >
+                  <AllClients />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/roles-users"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["UsersManagement", "RolesManagement"]}
+                >
+                  <RolesUsers />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/details/:id"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ProjectsManagement"]}
+                >
+                  <ProjectDetails />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/details/view/:id"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ProjectsManagement"]}
+                >
+                  <EditProject />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/details/create/"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ProjectsManagement"]}
+                >
+                  <EditProject />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/details/edit/:id"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ProjectsManagement"]}
+                >
+                  <EditProject />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/report-name"
+              element={
+                <RouteMiddleware isAuthRequired={true}>
+                  <ReportsName />
+                </RouteMiddleware>
+              }
+            />
+          </Route>
+        </Routes>
+      </Router>
+    </>
+  );
+};
+
+export default App;

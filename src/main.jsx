@@ -1,0 +1,24 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import MainRoutes from "./routes/MainRoutes.jsx";
+import "./index.css";
+import { Provider } from "react-redux";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { PersistGate } from 'redux-persist/integration/react'; 
+import { persistor, store } from "./store/store.jsx";
+
+createRoot(document.getElementById("root")).render(
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <StrictMode>
+        <MainRoutes />
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar={false}
+        />
+      </StrictMode>
+    </PersistGate>
+  </Provider>
+);

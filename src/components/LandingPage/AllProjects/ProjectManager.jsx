@@ -1,0 +1,506 @@
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  Stack,
+  Chip,
+  Skeleton,
+  Button,
+  Pagination,
+  PaginationItem,
+  Modal,
+  Box,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
+import time from "../../../assets/Time Circle.svg";
+import { useSelector } from "react-redux";
+import apiRequest from "../../../utils/apiRequest";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { removeUserInfo } from "../../../features/auth/authSlice";
+import RolePermissions from "../../../utils/RolePermissions";
+import { CiSearch } from "react-icons/ci";
+
+const ProjectManager = () => {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedTab, setSelectedTab] = useState("All Projects");
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+  const token = useSelector((state) => state?.auth?.userToken);
+  const [visibleIndex, setVisibleIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [modalTeamMembers, setModalTeamMembers] = useState([]);
+
+  const openModal = (projectId) => {
+    setIsModalOpen(true);
+    setSelectedProjectId(projectId);
+  };
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleMoreClick = () => {
+    if (visibleIndex + 3 < projects.members.length) {
+      setVisibleIndex(visibleIndex + 2);
+    } else {
+      setVisibleIndex(0);
+    }
+  };
+
+  const fetchProjects = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      try {
+        const formattedStatus =
+          selectedTab !== "All Projects"
+            ? selectedTab.charAt(0).toUpperCase() +
+              selectedTab.slice(1).toLowerCase()
+            : undefined;
+
+        const response = await apiRequest(
+          "get",
+          "/projects",
+          { status: formattedStatus, page },
+          token
+        );
+
+        if (response?.data?.statusCode === 200) {
+          setProjects(response?.data?.data?.projects || []);
+          setCurrentPage(response?.data?.data?.currentPage || 1);
+          setTotalPages(response?.data?.data?.totalPages || 1);
+        }
+      } catch (error) {
+        if (error && error?.status === 401) {
+          dispatch(removeUserInfo());
+          toast.success("You have been logged out.");
+          navigate("/login");
+        } else {
+          console.error("Error:", error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedTab, token]
+  );
+
+  useEffect(() => {
+    fetchProjects(currentPage);
+  }, [fetchProjects, currentPage]);
+
+  useEffect(() => {
+    fetchProjects(1);
+  }, [selectedTab]);
+
+  const handleTabClick = (tab) => {
+    setSelectedTab(tab);
+  };
+
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
+    fetchProjects(page);
+  };
+
+  const removeDuplicates = (projects) => {
+    const uniqueProjects = [];
+    const seenIds = new Set();
+
+    projects.forEach((project) => {
+      if (!seenIds.has(project._id)) {
+        uniqueProjects.push(project);
+        seenIds.add(project._id);
+      }
+    });
+
+    return uniqueProjects;
+  };
+
+  const handleProjectClick = (id) => {
+    navigate(`/details/${id}`);
+  };
+
+  const handleEditProjectClick = (id) => {
+    navigate(`/details/edit/${id}`);
+  };
+
+  const handleViewProjectClick = (id) => {
+    navigate(`/details/view/${id}`);
+  };
+
+  const hasProjReadPermission = RolePermissions("ProjectsManagement", "read");
+  const hasProjUpdatePermission = RolePermissions(
+    "ProjectsManagement",
+    "update"
+  );
+  const hasProjCreatePermission = RolePermissions(
+    "ProjectsManagement",
+    "create"
+  );
+
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 4,
+  };
+
+  const fetchProjectByID = useCallback(
+    async (projectId) => {
+      try {
+        const response = await apiRequest(
+          "get",
+          `/projects/${projectId}`,
+          {},
+          token
+        );
+        if (response?.data?.statusCode === 200) {
+          const data = response?.data?.data;
+          setModalTeamMembers(data.members);
+        } else {
+          setError("Project not found.");
+        }
+      } catch (error) {
+        setError("Error fetching project data");
+      }
+    },
+    [token]
+  );
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      fetchProjectByID(selectedProjectId);
+    }
+  }, [selectedProjectId, fetchProjectByID]);
+
+  const filteredProjects = projects.filter((project) =>
+    project.projectName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <>
+      <div className="flex flex-col items-center my-3 rounded-lg w-full max-w-screen-xl font-raleway mx-4">
+        <div className="w-full flex justify-end p-4">
+          <div className="bg-white border">
+            <TextField
+              placeholder="Enter your keyword"
+              size="small"
+              className="w-[24rem]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CiSearch className="w-5 h-5 text-black-blacknew font-bold" />
+                  </InputAdornment>
+                ),
+              }}
+              variant="outlined"
+            />
+          </div>
+        </div>
+
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={2}
+          className="mt-4 w-full"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Stack direction="row" spacing={2}>
+            {["All Projects", "Pending", "Ongoing", "Completed"].map((tab) => (
+              <Chip
+                key={tab}
+                label={tab}
+                onClick={() => handleTabClick(tab)}
+                sx={{
+                  py: 2,
+                  px: 4,
+                  backgroundColor: selectedTab === tab ? "#B91724" : "white",
+                  color: selectedTab === tab ? "white" : "black",
+                  fontWeight: selectedTab === tab ? "bold" : "normal",
+                  "&:hover": {
+                    backgroundColor:
+                      selectedTab === tab ? "#B91724" : "lightgray",
+                  },
+                }}
+              />
+            ))}
+          </Stack>
+          {hasProjCreatePermission && (
+            <div className="w-full flex justify-end p-4">
+              <Button
+                variant="contained"
+                onClick={() => {
+                  navigate("/details/create");
+                }}
+                sx={{
+                  backgroundColor: "black",
+                  color: "white",
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor: "#333333",
+                  },
+                }}
+              >
+                + Create New Project
+              </Button>
+            </div>
+          )}
+        </Stack>
+        {hasProjReadPermission ? (
+          <div className="my-4 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+            {loading &&
+              Array.from(new Array(6)).map((_, index) => (
+                <div
+                  key={index}
+                  className="max-w-sm h-[22rem] md:h-[18.9rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
+                >
+                  <Skeleton
+                    variant="rectangular"
+                    width="100%"
+                    height={128}
+                    className="rounded"
+                  />
+                  <div className="flex justify-between py-2">
+                    <Skeleton variant="text" width="60%" />
+                    <Skeleton variant="text" width="30%" />
+                  </div>
+                  <Skeleton variant="text" width="80%" />
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Skeleton variant="text" width="50%" />
+                      <Skeleton variant="text" width="20%" />
+                    </div>
+                    <Skeleton
+                      variant="rectangular"
+                      width="100%"
+                      height={8}
+                      className="rounded-full"
+                    />
+                  </div>
+                  <div className="mt-4 flex items-center space-x-3">
+                    <Skeleton variant="circular" width={24} height={24} />
+                    <Skeleton variant="text" width="50%" />
+                  </div>
+                </div>
+              ))}
+            {error && <div>{error}</div>}
+            {filteredProjects.length === 0 && !loading && (
+              <div>No projects available</div>
+            )}
+            {filteredProjects.length > 0 &&
+              filteredProjects.map((project) => (
+                <div
+                  key={project._id}
+                  className="max-w-sm h-[22rem] md:h-[18.9rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
+                >
+                  <div onClick={() => handleProjectClick(project._id)}>
+                    <img
+                      className="w-full h-32 object-cover rounded"
+                      src={
+                        project.projectBanner ||
+                        "https://via.placeholder.com/150"
+                      }
+                      alt={project.projectName || "Project"}
+                    />
+
+                    <div className="flex justify-between py-2">
+                      <div
+                        className="font-semibold truncate w-2/4"
+                        title={project.projectName}
+                      >
+                        {project.projectName}
+                      </div>
+                      <div className="font-semibold flex items-center">
+                        <img className="flex" src={time} alt="" />
+                        <span className="ml-1">{project.daysLeft}</span>
+                      </div>
+                    </div>
+
+                    <div className="font-bold">
+                      Deadline: <span>{project.deadline}</span>
+                    </div>
+
+                    <div className="mt-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-gray-700 text-sm">
+                          Physical Execution
+                        </p>
+                        <h6 className="text-gray-800 font-semibold">
+                          {project.physicalEducationRange}%
+                        </h6>
+                      </div>
+                      <div className="relative w-full h-2 bg-gray-200 rounded-full">
+                        <div
+                          className={`absolute top-0 left-0 h-2 rounded-full ${
+                            project.status === "Completed"
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          }`}
+                          style={{
+                            width: `${project.physicalEducationRange}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center">
+                    {project.members
+                      .slice(visibleIndex, visibleIndex + 3)
+                      .map((member) => (
+                        <img
+                          key={member._id}
+                          className="w-8 h-8 rounded-full"
+                          src={member.avatar}
+                          onClick={() => openModal(project._id)}
+                          alt="Member"
+                        />
+                      ))}
+
+                    <>
+                      {project.members.length > 3 && (
+                        <div className="flex justify-between text-nowrap">
+                          <span
+                            onClick={handleMoreClick}
+                            className="text-blue-500 underline mx-3 cursor-pointer"
+                          >
+                            +{project.members.length - (visibleIndex + 3)} more
+                          </span>
+                        </div>
+                      )}
+                      <h6
+                        onClick={() =>
+                          project.status !== "Completed"
+                            ? handleEditProjectClick(project._id)
+                            : handleViewProjectClick(project._id)
+                        }
+                        className="text-blue-500 cursor-pointer underline ml-3"
+                      >
+                        {project.status !== "Completed"
+                          ? hasProjUpdatePermission && "Edit Project"
+                          : "View Project"}
+                      </h6>
+                    </>
+                  </div>
+                </div>
+              ))}
+            <Modal
+              open={isModalOpen}
+              onClose={closeModal}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box
+                sx={{
+                  ...modalStyle,
+                  borderRadius: "16px",
+                  height: "470px",
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "24px",
+                }}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold text-black-blacknew">
+                    View Members
+                  </h2>
+                  <button
+                    onClick={closeModal}
+                    className="text-black-blacknew font-bold hover:text-gray-700 focus:outline-none"
+                    aria-label="Close"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Team Members
+                  </label>
+                  <select className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none">
+                    <option value="" disabled selected hidden>
+                      Select One or more...
+                    </option>
+                  </select>
+                </div>
+
+                <div className="mt-4 flex-grow scrollbar-custom">
+                  <h3 className="block text-sm font-semibold mb-4 text-gray-700">
+                    Added Members
+                  </h3>
+                  {modalTeamMembers && modalTeamMembers.length > 0 ? (
+                    <ul className="space-y-2">
+                      {modalTeamMembers.map((member) => (
+                        <li
+                          key={member._id}
+                          className="flex items-center bg-gray-100 p-2 rounded-lg"
+                        >
+                          <img
+                            src={member.avatar}
+                            alt={member.userName}
+                            className="w-10 h-10 rounded-full mr-3"
+                          />
+                          <span>{member.userName}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">No members</p>
+                  )}
+                </div>
+
+                <div className="flex justify-between mt-4 w-full">
+                  <button className="px-4 py-3 w-1/2 mr-2 cursor-not-allowed text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none">
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </Box>
+            </Modal>
+          </div>
+        ) : null}
+        <div className="flex justify-end mt-4">
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            sx={{
+              "& .Mui-selected": {
+                backgroundColor: "#FBBA06 !important",
+                color: "white",
+              },
+            }}
+            renderItem={(item) => (
+              <PaginationItem
+                {...item}
+                components={{
+                  previous: () => <span>Previous</span>,
+                  next: () => <span>Next</span>,
+                }}
+                sx={{
+                  "&.MuiPaginationItem-previous, &.MuiPaginationItem-next": {
+                    color: "black",
+                    fontWeight: "bold",
+                  },
+                }}
+              />
+            )}
+          />
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ProjectManager;
