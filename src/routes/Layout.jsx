@@ -21,7 +21,7 @@ const Layout = () => {
         >
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         </div>
-        <div className="flex-1 h-[87  vh] 2xl:h-[89vh] overflow-y-auto mt-20">
+        <div className="flex-1 h-[87vh] 2xl:h-[88vh] overflow-y-auto mt-20">
           <main>
             <Outlet context={{ isSidebarOpen }} />
           </main>

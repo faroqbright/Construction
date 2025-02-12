@@ -11,6 +11,7 @@ import "react-circular-progressbar/dist/styles.css";
 import { Button } from "@mui/material";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
+import { Clock } from "lucide-react";
 const OngoingPro = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [datas, setDatas] = useState([]);
@@ -43,8 +44,8 @@ const OngoingPro = () => {
     fetchProjects();
   }, [fetchProjects]);
   return (
-    <div className="flex flex-col space-y-6 md:space-y-8 lg:space-y-12 ">
-      <div className="flex flex-col items-center">
+    <div className="flex flex-col md:space-y-8 lg:space-y-12 pr-6">
+      <div className="flex flex-col items-center w-full max-w-[500px]">
         <DatePicker
           selected={selectedDate}
           onChange={(date) => setSelectedDate(date)}
@@ -76,33 +77,42 @@ const OngoingPro = () => {
                 <h3 className="text-lg font-semibold mt-4 text-black-blacknew">
                   {project.projectName}
                 </h3>
-                <p className="text-sm text-lightpurple-light">
-                  <span className="text-black-blacknew font-bold">
-                    Deadline:
-                  </span>
+                <p className="text-sm ">
+                  <span className="text-black font-bold">Deadline:</span>
                   {project.deadline}
                 </p>
                 <div className="flex justify-between mt-5">
-                  <p className="text-black-blacknew text-sm">Progress</p>
+                  <p className="text-black font-semibold text-sm mb-3">
+                    Progress
+                  </p>
                   <h6 className="text-red-redNew">
-                    {project.physicalEducationRange}
+                    {project.physicalEducationRange}%
                   </h6>
                 </div>
-                <div className="h-2 w-full bg-gray-200 rounded-full mt-2">
+                <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                  {/* Progress Bar */}
                   <div
-                    className="h-full bg-red-redNew rounded-full"
-                    style={{ width: "90%" }}
+                    className="bg-red-redNew h-2 rounded-full"
+                    style={{ width: `${project.physicalEducationRange}%` }}
                   ></div>
+
+                  {/* Progress Handle (Button) */}
+                  <div
+                    className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
+      flex items-center justify-center shadow-md cursor-pointer transition-all"
+                    style={{
+                      left: `calc(${project.physicalEducationRange}% - 10px)`, // Center handle dynamically
+                    }}
+                  >
+                    <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                  </div>
                 </div>
                 <div className="flex justify-between mt-3 items-center">
-                  <p className="text-sm text-gray-500">
-                    <img
-                      className="mx-2 inline text-black-blacknew"
-                      src={time}
-                      alt="Time Icon"
-                    />
-                    {project.daysLeft}
-                  </p>
+                  <div className="flex flex-row items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <p className="text-sm text-black">{project.daysLeft}</p>
+                  </div>
+
                   <div className="flex absolute right-2 ">
                     {project.members.map((member) => (
                       <img
