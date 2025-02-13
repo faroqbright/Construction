@@ -44,16 +44,16 @@ const OngoingPro = () => {
     fetchProjects();
   }, [fetchProjects]);
   return (
-    <div className="flex flex-col md:space-y-8 lg:space-y-12 pr-6">
-      <div className="flex flex-col items-center w-full max-w-[500px]">
+    <div className="flex flex-col w-full max-w-4xl space-y-1 items-center overflow-x-auto">
         <DatePicker
           selected={selectedDate}
           onChange={(date) => setSelectedDate(date)}
           inline
           calendarClassName="custom-calendar"
+          className="w-full hover:rounded-full "
         />
         {/* Ongoing Projects */}
-
+        <div className="w-[400px] pr-6">
         {datas.length > 0 ? (
           datas.slice(0, 1).map((project, index) => (
             <div
@@ -90,13 +90,10 @@ const OngoingPro = () => {
                   </h6>
                 </div>
                 <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                  {/* Progress Bar */}
                   <div
                     className="bg-red-redNew h-2 rounded-full"
                     style={{ width: `${project.physicalEducationRange}%` }}
                   ></div>
-
-                  {/* Progress Handle (Button) */}
                   <div
                     className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
       flex items-center justify-center shadow-md cursor-pointer transition-all"

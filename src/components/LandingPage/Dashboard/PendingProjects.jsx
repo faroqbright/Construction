@@ -68,7 +68,6 @@ const PendingProjects = () => {
     { name: "F", value: 1 },
     { name: "S", value: 2 },
   ];
-  // Settings for the carousel (adjust according to your needs)
   const settings = {
     dots: true,
     infinite: false,
@@ -104,12 +103,9 @@ const PendingProjects = () => {
       },
     ],
   };
-
-  // References for each slider
   const sliderRefProjects = useRef(null);
   const sliderRefReports = useRef(null);
 
-  // Handlers for Previous and Next buttons
   const handlePrevClickProjects = () => {
     if (sliderRefProjects.current) {
       sliderRefProjects.current.slickPrev();
@@ -142,7 +138,6 @@ const PendingProjects = () => {
         {/* Pending Projects */}
         <div className="w-full max-w-7xl ">
           <div className="h-full slider-container">
-            {/* Header Section */}
             <header className="mb-6 flex justify-between">
               <h2 className="text-2xl font-bold text-black">
                 Pending Projects
@@ -244,23 +239,18 @@ const PendingProjects = () => {
                               {project.physicalEducationRange}%
                             </h6>
                           </div>
-
-                          {/* Progress Bar Container */}
                           <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                            {/* Progress Bar */}
                             <div
                               className="bg-red-redNew h-2 rounded-full"
                               style={{
                                 width: `${project.physicalEducationRange}%`,
                               }}
                             ></div>
-
-                            {/* Progress Handle (Button) */}
                             <div
                               className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
                  flex items-center justify-center shadow-md cursor-pointer transition-all"
                               style={{
-                                left: `calc(${project.physicalEducationRange}% - 10px)`, // Adjust for centering
+                                left: `calc(${project.physicalEducationRange}% - 10px)`, 
                               }}
                             >
                               <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
@@ -268,9 +258,9 @@ const PendingProjects = () => {
                           </div>
                         </div>
 
-                        <span className="text-[#54577A]">
+                        <button className="text-[#54577A] underline">
                           4 deliverables attached
-                        </span>
+                        </button>
                       </div>
                     </div>
                   ))
@@ -280,10 +270,8 @@ const PendingProjects = () => {
               </Slider>
             </div>
           </div>
-          {/* Running Projects & Activity */}
 
           <section className="flex flex-wrap w-full gap-4 mt-5 overflow-x-auto">
-            {/* Running Projects */}
             <div className="bg-black-blacknew w-full md:w-[25%] rounded-lg shadow-md px-2 py-3 flex flex-col items-center">
               <h3 className="text-lg font-semibold text-white whitespace-nowrap">
                 Running Projects
@@ -314,11 +302,8 @@ const PendingProjects = () => {
               <p className="text-white">100 Projects</p>
             </div>
 
-            {/* Activity Section */}
-
             <div className="flex justify-center w-full md:w-[70%] items-center bg-gray-100">
               <div className="bg-white rounded-lg w-full shadow-md px-2 py-3  ">
-                {/* Activity Header */}
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold">Activity</h3>
                   <div className="text-sm text-gray-500 cursor-pointer">
@@ -326,11 +311,7 @@ const PendingProjects = () => {
                     <span className="ml-1">▼</span>
                   </div>
                 </div>
-
-                {/* Projects Count */}
                 <p className="text-sm text-gray-600 mb-4">2 Projects</p>
-
-                {/* Line Chart */}
                 <div className="h-40">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data}>
@@ -346,8 +327,6 @@ const PendingProjects = () => {
               </div>
             </div>
           </section>
-
-          {/* Quick Reports */}
 
           <section className="mt-72 md:mt-7  w-full">
             <header className="mb-6 flex justify-between">
@@ -366,14 +345,12 @@ const PendingProjects = () => {
               </div>
             </header>
 
-            {/* Slider component here */}
             <section className="w-full flex justify-between gap-6 ">
-              {/* First Report Card */}
               <div className=" md:w-[500px] h-[200px] rounded-[10px] bg-white shadow-lg flex justify-center items-center mx-auto">
                 <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
                   <div className="flex items-center space-x-4 mb-4">
                     <img
-                      src={report} // Replace with actual image path
+                      src={report} 
                       alt="Report"
                       className="w-14 h-14 rounded-full"
                     />
@@ -409,7 +386,7 @@ const PendingProjects = () => {
                 <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
                   <div className="flex items-center space-x-4 mb-4">
                     <img
-                      src={report} // Replace with actual image path
+                      src={report} 
                       alt="Report"
                       className="w-14 h-14 rounded-full"
                     />

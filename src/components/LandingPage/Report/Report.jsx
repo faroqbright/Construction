@@ -227,10 +227,6 @@ export default function Report() {
         />
       </div>
 
-      <div className="mt-16">
-        <Footer />
-      </div>
-
     </div>
   );
 }

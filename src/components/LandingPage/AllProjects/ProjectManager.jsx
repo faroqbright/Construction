@@ -3,7 +3,6 @@ import {
   Stack,
   Chip,
   Skeleton,
-  Button,
   Pagination,
   PaginationItem,
   Modal,
@@ -19,6 +18,9 @@ import { useNavigate } from "react-router-dom";
 import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { CiSearch } from "react-icons/ci";
+import { FaArrowLeft } from "react-icons/fa6";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import RouteMiddleware from "../../../routes/RouteMIddleware";
 
 const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
@@ -129,6 +131,10 @@ const ProjectManager = () => {
     navigate(`/details/view/${id}`);
   };
 
+  const handleViewDashboard = (id) => {
+    navigate('/');
+  };
+
   const hasProjReadPermission = RolePermissions("ProjectsManagement", "read");
   const hasProjUpdatePermission = RolePermissions(
     "ProjectsManagement",
@@ -181,46 +187,96 @@ const ProjectManager = () => {
   const filteredProjects = projects.filter((project) =>
     project.projectName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  // Handlers for Previous and Next buttons
+  const handlePrevClickProjects = () => {
+    if (sliderRefProjects.current) {
+      sliderRefProjects.current.slickPrev();
+    }
+  };
+
+  const handleNextClickProjects = () => {
+    if (sliderRefProjects.current) {
+      sliderRefProjects.current.slickNext();
+    }
+  };
+
+  const handlePrevClickReports = () => {
+    if (sliderRefReports.current) {
+      sliderRefReports.current.slickPrev();
+    }
+  };
+
+  const handleNextClickReports = () => {
+    if (sliderRefReports.current) {
+      sliderRefReports.current.slickNext();
+    }
+  };
 
   return (
     <>
-      <div className="flex flex-col items-center my-3 rounded-lg w-full max-w-screen-xl font-raleway mx-4">
-        <div className="w-full flex justify-end p-4">
-          <div className="bg-white border">
-            <TextField
-              placeholder="Enter your keyword"
-              size="small"
-              className="w-[24rem]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <CiSearch className="w-5 h-5 text-black-blacknew font-bold" />
-                  </InputAdornment>
-                ),
-              }}
-              variant="outlined"
-            />
+      <div className="flex flex-col rounded-lg w-full p-8">
+        <div className="flex flex-row justify-between">
+          <div className="flex items-center space-x-3 mb-10">
+            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-200 transition"
+            onClick={handleViewDashboard}
+            >
+              <FaArrowLeft className="text-black w-5 h-5" />
+            </button>
+            <span className="text-black font-bold text-lg">All Projects</span>
           </div>
+          <TextField
+            placeholder="Enter your keyword"
+            size="small"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CiSearch className="w-5 h-5 text-black-blacknew font-bold" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "0.5rem", 
+                backgroundColor: "white", 
+                "& fieldset": {
+                  borderColor: "#e0e0e0",
+                },
+                "&:hover fieldset": {
+                  borderColor: "black", 
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "black", 
+                },
+              },
+            }}
+            variant="outlined"
+            className="w-[24rem]" 
+          />
         </div>
-
         <Stack
           direction={{ xs: "column", md: "row" }}
           spacing={2}
-          className="mt-4 w-full"
+          className="w-full"
           justifyContent="space-between"
           alignItems="center"
         >
-          <Stack direction="row" spacing={2}>
-            {["All Projects", "Pending", "Ongoing", "Completed"].map((tab) => (
+          <Stack direction="row" spacing={5}>
+            {[
+              "All Projects",
+              "Ongoing Projects",
+              "Pending Projects",
+              "Completed Projects",
+            ].map((tab) => (
               <Chip
                 key={tab}
                 label={tab}
                 onClick={() => handleTabClick(tab)}
                 sx={{
-                  py: 2,
-                  px: 4,
+                  py: 3,
+                  px: 3,
+                  borderRadius: "9999px", 
                   backgroundColor: selectedTab === tab ? "#B91724" : "white",
                   color: selectedTab === tab ? "white" : "black",
                   fontWeight: selectedTab === tab ? "bold" : "normal",
@@ -232,29 +288,27 @@ const ProjectManager = () => {
               />
             ))}
           </Stack>
-          {hasProjCreatePermission && (
-            <div className="w-full flex justify-end p-4">
-              <Button
-                variant="contained"
-                onClick={() => {
-                  navigate("/details/create");
-                }}
-                sx={{
-                  backgroundColor: "black",
-                  color: "white",
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "#333333",
-                  },
-                }}
-              >
-                + Create New Project
-              </Button>
-            </div>
-          )}
         </Stack>
+        <div className="flex p-2 justify-between mt-6">
+          <span className="text-black font-bold">Ongoing Projects</span>
+          <div className="flex">
+            <button
+              onClick={handlePrevClickProjects}
+              className="p-1 rounded-full"
+            >
+              <GrFormPrevious className="text-gray-600 slick-arrow" size={18} />
+            </button>
+            <button
+              onClick={handleNextClickProjects}
+              className="p-1 rounded-full"
+            >
+              <GrFormNext className="slick-arrow" size={18} />
+            </button>
+          </div>
+        </div>
+
         {hasProjReadPermission ? (
-          <div className="my-4 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+          <div className="my-4 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  lg:gap-9">
             {loading &&
               Array.from(new Array(6)).map((_, index) => (
                 <div
@@ -329,22 +383,30 @@ const ProjectManager = () => {
 
                     <div className="mt-3 space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-gray-700 text-sm">
+                        <p className="text-black font-medium text-sm">
                           Physical Execution
                         </p>
                         <h6 className="text-gray-800 font-semibold">
                           {project.physicalEducationRange}%
                         </h6>
                       </div>
+
                       <div className="relative w-full h-2 bg-gray-200 rounded-full">
                         <div
-                          className={`absolute top-0 left-0 h-2 rounded-full ${
+                          className={`absolute top-0 left-0 h-2 rounded-full bg-red-redNew ${
                             project.status === "Completed"
                               ? "bg-green-500"
                               : "bg-red-500"
                           }`}
                           style={{
                             width: `${project.physicalEducationRange}%`,
+                          }}
+                        ></div>
+                        <div
+                          className="absolute w-5 h-5 rounded-full bg-red-redNew   border-2 border-white shadow-md"
+                          style={{
+                            left: `calc(${project.physicalEducationRange}% - 10px)`, 
+                            top: "-6px", 
                           }}
                         ></div>
                       </div>
@@ -381,7 +443,7 @@ const ProjectManager = () => {
                             ? handleEditProjectClick(project._id)
                             : handleViewProjectClick(project._id)
                         }
-                        className="text-blue-500 cursor-pointer underline ml-3"
+                        className="text-blue-500 cursor-pointer pl-28 underline ml-3 text-nowrap"
                       >
                         {project.status !== "Completed"
                           ? hasProjUpdatePermission && "Edit Project"
@@ -470,7 +532,7 @@ const ProjectManager = () => {
             </Modal>
           </div>
         ) : null}
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-center mt-4">
           <Pagination
             count={totalPages}
             page={currentPage}
