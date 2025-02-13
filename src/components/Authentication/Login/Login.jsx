@@ -55,8 +55,12 @@ const Login = () => {
 
   return (
     <div className="w-full">
-      <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">Login</h1>
-      <p className="text-gray-600 mb-4 text-base">Login to access your account</p>
+      <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
+        Login
+      </h1>
+      <p className="text-gray-600 mb-4 text-base">
+        Login to access your account
+      </p>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Controller
@@ -74,6 +78,22 @@ const Login = () => {
               fullWidth
               error={!!errors.email}
               helperText={errors.email?.message}
+              sx={{
+                "& label": { color: "black" }, // Make label text black
+                "& label.Mui-focused": { color: "black" }, // Label turns gray when focused
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px", // Rounded corners
+                  "& fieldset": {
+                    borderColor: "grey", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "black", // Border turns black on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "black", // Border turns black on focus
+                  },
+                },
+              }}
             />
           )}
         />
@@ -97,20 +117,50 @@ const Login = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={togglePasswordVisibility} style={{ color: "#DC2626" }}>
+                    <IconButton
+                      onClick={togglePasswordVisibility}
+                      style={{ color: "#DC2626" }} // Red icon color
+                    >
                       {showPassword ? <IoEye /> : <IoEyeOff />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
+              sx={{
+                "& label": { color: "black" }, // Label color black
+                "& label.Mui-focused": { color: "black" }, // Label turns gray on focus
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px", // Rounded corners
+                  "& fieldset": {
+                    borderColor: "grey", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "black", // Border turns black on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "black", // Border turns black on focus
+                  },
+                },
+              }}
             />
           )}
         />
 
-        <div className="flex justify-between items-center my-4">
+        <div className="flex justify-between items-center my-3">
           <div className="flex items-center">
-            <Checkbox size="small" />
-            <span className="text-sm text-gray-500">Remember me</span>
+            <Checkbox
+              size="small"
+              sx={{
+                color: "black", // Unchecked border color
+                "&.Mui-checked": {
+                  color: "black", // Checked color
+                },
+                "&:hover": {
+                  color: "black", // Black on hover
+                },
+              }}
+            />
+            <span className="text-sm text-black">Remember me</span>
           </div>
           <NavLink
             to="/forgot-password"
@@ -125,7 +175,7 @@ const Login = () => {
           fullWidth
           style={{
             background: "#000",
-            borderRadius: "0.3rem",
+            borderRadius: "0.75rem",
             height: "3rem",
           }}
           type="submit"

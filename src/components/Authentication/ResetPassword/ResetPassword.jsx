@@ -40,7 +40,11 @@ const ResetPassword = () => {
         password: values.password,
       };
 
-      const response = await apiRequest("post", "/users/reset-password", payload);
+      const response = await apiRequest(
+        "post",
+        "/users/reset-password",
+        payload
+      );
 
       if (response.data.statusCode === 200) {
         toast.success(response.data.message);
@@ -51,7 +55,8 @@ const ResetPassword = () => {
       }
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Something went wrong. Please try again."
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
       );
       console.error("Error:", error);
     }
@@ -59,10 +64,12 @@ const ResetPassword = () => {
 
   return (
     <div className="w-full">
-      <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">Reset Password</h1>
+      <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
+        Reset Password
+      </h1>
       <p className="text-gray-500 mb-6">Code has been verified successfully!</p>
 
-      <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name="password"
           control={control}
@@ -83,15 +90,33 @@ const ResetPassword = () => {
               fullWidth
               error={!!errors.password}
               helperText={errors.password ? errors.password.message : ""}
-              className="mb-4"
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={togglePasswordVisibility}>
+                    <IconButton
+                      onClick={togglePasswordVisibility}
+                      style={{ color: "#DC2626" }} // Red icon color
+                    >
                       {showPassword ? <IoEye /> : <IoEyeOff />}
                     </IconButton>
                   </InputAdornment>
                 ),
+              }}
+              sx={{
+                "& label": { color: "black" }, // Label remains black
+                "& label.Mui-focused": { color: "black" }, // Label stays black on focus
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px", // Rounded corners
+                  "& fieldset": {
+                    borderColor: "grey", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "grey", // Border turns grey on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "black", // Border turns black on focus
+                  },
+                },
               }}
             />
           )}
@@ -108,43 +133,65 @@ const ResetPassword = () => {
           render={({ field }) => (
             <TextField
               {...field}
-              label="Confirm Password"
+              label="Repeat Password"
               variant="outlined"
               placeholder="Repeat New Password"
               type={showConfirmPassword ? "text" : "password"}
               fullWidth
               error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword ? errors.confirmPassword.message : ""}
-              className="mb-4"
+              helperText={ errors.showConfirmPassword ? errors.showConfirmPassword : ""}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={toggleConfirmPasswordVisibility}>
+                    <IconButton
+                      onClick={toggleConfirmPasswordVisibility}
+                      style={{ color: "#DC2626" }} // Red icon color
+                    >
                       {showConfirmPassword ? <IoEye /> : <IoEyeOff />}
                     </IconButton>
                   </InputAdornment>
                 ),
+              }}
+              sx={{
+                "& label": {
+                  color: "black",
+                },
+                "& label.Mui-focused": {
+                  color: "black",
+                },
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  "& fieldset": {
+                    borderColor: "grey",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "grey",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "black",
+                  },
+                },
               }}
             />
           )}
         />
 
         <Button
+          type="submit"
           variant="contained"
           fullWidth
           style={{
-            background: "black",
-            borderRadius: "0.3rem",
+            background: "#000",
+            borderRadius: "0.75rem",
             height: "3rem",
-            marginTop: "1.5rem",
+            marginTop: "2rem",
           }}
-          type="submit"
         >
           Submit
         </Button>
       </form>
 
-      <span className="text-lightpurple-light flex justify-center mt-5">
+      <span className="text-lightpurple-light flex justify-center mt-3">
         <NavLink to="/login">Back To Login</NavLink>
       </span>
     </div>

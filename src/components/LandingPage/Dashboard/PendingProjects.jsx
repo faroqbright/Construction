@@ -26,6 +26,7 @@ import {
 import { CircularProgressbar } from "react-circular-progressbar";
 import { Button } from "@mui/material";
 import apiRequest from "../../../utils/apiRequest";
+import Footer from "../CommonUi/Footer";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
@@ -438,22 +439,6 @@ const PendingProjects = () => {
               </div>
             </section>
           </section>
-        </div>
-      </div>
-      <div className="flex justify-center items-center mt-8 mb-6 pl-28">
-        <div className="flex justify-center items-center">
-          <span className="text-center">
-            Feito com ❤ por:{" "}
-            <a
-              href="https://techbytech.tech/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              techbytech.tech
-            </a>{" "}
-            @2024 🤖 👨‍💻 🚀
-          </span>
         </div>
       </div>
     </>

@@ -62,6 +62,22 @@ const Recovery = () => {
           className="mb-4"
           error={!!errors.otp}
           helperText={errors.otp?.message}
+          sx={{
+            "& label": { color: "black" }, // Label remains black
+            "& label.Mui-focused": { color: "black" }, // Label stays black when focused
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px", // Rounded corners
+              "& fieldset": {
+                borderColor: "grey", // Default border color
+              },
+              "&:hover fieldset": {
+                borderColor: "black", // Border turns grey on hover
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "black", // Border turns black on focus
+              },
+            },
+          }}
         />
 
         <Button
@@ -69,17 +85,17 @@ const Recovery = () => {
           variant="contained"
           fullWidth
           style={{
-            background: "black",
-            borderRadius: "0.3rem",
+            background: "#000",
+            borderRadius: "0.75rem",
             height: "3rem",
-            marginTop: "1.5rem",
+            marginTop: "2rem",
           }}
         >
           Submit
         </Button>
       </form>
 
-      <span className="text-lightpurple-light flex justify-center mt-5">
+      <span className="text-lightpurple-light flex justify-center mt-3">
         <NavLink to="/login">Back To Login</NavLink>
       </span>
     </div>

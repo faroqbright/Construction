@@ -10,7 +10,11 @@ import apiRequest from "../../../utils/apiRequest";
 const ForgetPassword = () => {
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state?.auth);
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (values) => {
     try {
@@ -53,23 +57,33 @@ const ForgetPassword = () => {
           name="email"
           control={control}
           defaultValue=""
-          rules={{
-            required: "Email is required",
-            pattern: {
-              value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
-              message: "Invalid email address",
-            },
-          }}
+          rules={{ required: "Email is required" }}
           render={({ field }) => (
             <TextField
               {...field}
               label="Email"
               variant="outlined"
-              placeholder="Enter Your Email"
               type="email"
+              placeholder="Enter Your Email"
               fullWidth
               error={!!errors.email}
               helperText={errors.email?.message}
+              sx={{
+                "& label": { color: "black" }, // Make label text black
+                "& label.Mui-focused": { color: "black" }, // Label turns gray when focused
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px", // Rounded corners
+                  "& fieldset": {
+                    borderColor: "grey", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "black", // Border turns black on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "black", // Border turns black on focus
+                  },
+                },
+              }}
             />
           )}
         />
@@ -80,9 +94,9 @@ const ForgetPassword = () => {
           fullWidth
           style={{
             background: "black",
-            borderRadius: "0.3rem",
+            borderRadius: "0.75rem",
             height: "3rem",
-            marginTop: "1rem",
+            marginTop: "2rem",
           }}
           disabled={isLoading}
         >
@@ -90,7 +104,7 @@ const ForgetPassword = () => {
         </Button>
       </form>
 
-      <span className="text-lightpurple-light flex justify-center mt-5">
+      <span className="text-lightpurple-light flex justify-center mt-2">
         <NavLink to="/login">Back To Login</NavLink>
       </span>
     </div>

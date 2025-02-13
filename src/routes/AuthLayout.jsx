@@ -18,7 +18,7 @@ const AuthLayout = () => {
             <img
               src={construction}
               alt="Construction site"
-              className="w-full h-full object-cover rounded-md"
+              className="w-full h-full object-cover rounded-2xl"
             />
           </div>
         </div>

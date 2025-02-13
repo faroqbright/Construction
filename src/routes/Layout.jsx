@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/LandingPage/CommonUi/Sidebar";
 import Navbar from "../components/LandingPage/CommonUi/Navbar";
+import Footer from "../components/LandingPage/CommonUi/Footer";
 
 const Layout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +26,7 @@ const Layout = () => {
           <main>
             <Outlet context={{ isSidebarOpen }} />
           </main>
+          <Footer />
         </div>
       </div>
     </div>
