@@ -5,7 +5,7 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import logo from "../../../assets/logo.png";
 import book from "../../../assets/book.png";
 import user from "../../../assets/user-octagon.png";
-import group from "../../../assets/group.png";
+import group from "../../../assets/Group.png";
 import client from "../../../assets/client.png";
 import message from "../../../assets/message.png";
 import users from "../../../assets/user.png";
