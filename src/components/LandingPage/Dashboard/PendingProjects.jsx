@@ -33,7 +33,6 @@ import { useTranslation } from "react-i18next";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
-      const { t } = useTranslation();
   const sliderRef = useRef(null);
   const { t } = useTranslation();
 
