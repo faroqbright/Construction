@@ -4,39 +4,40 @@ import pdf from "../../../assets/pdf.svg";
 import "react-circular-progressbar/dist/styles.css";
 import reviewIcon from "../../../assets/review.svg";
 import completedIcon from "../../../assets/completed.svg";
-import {
-  FaUser,
-  FaFileAlt,
-  FaCreditCard,
-} from "react-icons/fa";
+import { FaUser, FaFileAlt, FaCreditCard } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { useParams } from "react-router-dom";
+import { t } from "i18next";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const totalTicks = 50;
-const milestones = [
-  { label: "Details", icon: <FaUser />, completed: true },
-  { label: "Filing", icon: <FaFileAlt />, completed: true },
-  { label: "Payment", icon: <FaCreditCard />, completed: false },
-  {
-    label: "Review",
-    icon: <img src={reviewIcon} alt="Review" className="w-4 " />,
-    completed: false,
-  },
-  {
-    label: "Completed",
-    icon: <img src={completedIcon} alt="Completed" className="w-4 " />,
-    completed: false,
-  },
-];
 const ProjectDetails = () => {
   const value = 65;
   const activeTicks = Math.round((value / 100) * totalTicks);
+  const { t } = useTranslation();
   const color = "#d6d6d6";
   const token = useSelector((state) => state.auth.userToken);
   const { id } = useParams();
   const [projectData, setProjectData] = useState(null);
-  
+
+  const milestones = [
+    { label: t("Project_Details"), icon: <FaUser />, completed: true },
+    { label: t("Filing"), icon: <FaFileAlt />, completed: true },
+    { label: t("Payment"), icon: <FaCreditCard />, completed: false },
+    {
+      label: t("Review"),
+      icon: <img src={reviewIcon} alt="Review" className="w-4 " />,
+      completed: false,
+    },
+    {
+      label: t("Completed"),
+      icon: <img src={completedIcon} alt="Completed" className="w-4 " />,
+      completed: false,
+    },
+  ];
+
   const fetchProjects = useCallback(async () => {
     try {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
@@ -68,14 +69,14 @@ const ProjectDetails = () => {
                 className="w-full h-64 object-cover rounded-lg"
               />
               <div className="absolute top-4 right-4 text-black font-bold text-xs px-3 py-1 rounded-lg shadow-md">
-                Deadline: {projectData?.deadline}
+                {t("Deadline")} {projectData?.deadline}
               </div>
               <button
                 variant="contained"
                 color="primary"
                 className="absolute bottom-4 text-black-blacknew right-4 px-4 py-2 bg-white rounded-md"
               >
-                View Client Feedback
+                {t("View_Client_Feedback")}
               </button>
             </div>
             <div className="mt-6  p-6 rounded-lg shadow-md">
@@ -88,7 +89,7 @@ const ProjectDetails = () => {
               <div className="flex text-sm text-nowrap w-[20%] gap-4 mt-6 ">
                 <div>
                   <strong className="text-black-blacknew">
-                    Project Owner:
+                    {t("Project_Owner")}
                   </strong>
                   <span className="text-lightpurple-light font-bold text-base">
                     {projectData?.projectOwner}
@@ -96,7 +97,7 @@ const ProjectDetails = () => {
                 </div>
                 <div>
                   <strong className="text-black-blacknew">
-                    Project Location:
+                    {t("Project_Location")}
                   </strong>{" "}
                   <span className="text-lightpurple-light font-bold text-base">
                     {projectData?.location}
@@ -104,7 +105,7 @@ const ProjectDetails = () => {
                 </div>
                 <div>
                   <strong className="text-black-blacknew">
-                    Project Status:
+                    {t("Project_Status")}
                   </strong>
                   <span className="text-lightpurple-light font-bold text-base">
                     {projectData?.status}
@@ -114,7 +115,7 @@ const ProjectDetails = () => {
               <div className="flex gap-3 items-start justify-between">
                 <div className="mt-14">
                   <h3 className="text-md font-semibold text-gray-800">
-                    Project Deliverables:
+                    {t("Project_Deliverables")}:
                   </h3>
                   <div className="flex mt-4 gap-3">
                     {projectData?.lastDelivered && (
@@ -131,7 +132,7 @@ const ProjectDetails = () => {
                           </span>
                           <br />
                           <span className="text-xs text-lightpurple-light text-nowrap mt-1">
-                            Submitted By:{" "}
+                            {t("Submitted_By")}:{" "}
                             <span className="text-lightpurple-light">
                               John Doe
                             </span>
@@ -156,7 +157,7 @@ const ProjectDetails = () => {
                           </span>
                           <br />
                           <span className="text-xs text-lightpurple-light text-nowrap mt-1">
-                            Submitted By:{" "}
+                            {t("Submitted_By")}:{" "}
                             <span className="text-lightpurple-light">
                               John Doe
                             </span>
@@ -202,7 +203,7 @@ const ProjectDetails = () => {
                       </text>
                     </svg>
                     <p className="text-center mt-2 text-sm font-medium">
-                      Financial Execution
+                      {t("Financial_Execution")}
                     </p>
                   </div>
                 </div>
@@ -242,14 +243,14 @@ const ProjectDetails = () => {
                       </text>
                     </svg>
                     <p className="text-center mt-2 text-sm font-medium">
-                      Physical Execution
+                      {t("Physical_Execution")}
                     </p>
                   </div>
                 </div>
               </div>
               <div className="mt-6">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Project Milestones:
+                  {t("Project_Milestones")}
                 </h3>
                 <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center justify-between w-full">
@@ -301,7 +302,7 @@ const ProjectDetails = () => {
               </div>
               <div className="mt-6">
                 <h3 className="text-lg font-semibold text-black-blacknew">
-                  Team Members:
+                  {t("Team_Members")}
                 </h3>
                 <div className="flex flex-col gap-4 mt-4">
                   {projectData?.members?.map((member, index) => (

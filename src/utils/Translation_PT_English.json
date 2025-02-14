@@ -156,5 +156,15 @@
     "New_password": "New Password",
     "Enter_New_password": "Enter New Password",
     "Repeat_password": "Repeat Password",
-    "Repeat_New_password": "Repeat New Password"
+    "Repeat_New_password": "Repeat New Password",
+    "Sort": "Sort",
+    "All_Projects_Report": "All_Projects_Report",
+    "Attached_Report": "Attached_Report",
+    "Construction_Project": "Construction_Project",
+    "Download": "Download",
+    "Project_Deliverables": "Project_Deliverables",
+    "View": "View",
+    "Select_One_or_more": "Select_One_or_more",
+    "No_members": "No_members",
+    "More": "More"
   }

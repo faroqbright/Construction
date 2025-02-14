@@ -23,9 +23,13 @@ import {
 } from "@mui/material";
 import DropdownIcon from "../../../../src/assets/dropdown.svg";
 import Footer from "../CommonUi/Footer";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
+
 export default function Report() {
   const [selectedTab, setSelectedTab] = useState("All Projects");
   const [page, setPage] = useState(1);
+  const { t } = useTranslation();
 
   const handleChange = (event, value) => {
     setPage(value);
@@ -48,7 +52,7 @@ export default function Report() {
                 defaultValue="Chronological"
                 className="rounded-lg border-none focus:ring-0"
               >
-                <MenuItem value="Chronological">Sort: Chronological</MenuItem>
+                <MenuItem value="Chronological">{t("Sort")}: Chronological</MenuItem>
                 <MenuItem value="Alphabetical">Alphabetical</MenuItem>
               </Select>
             </FormControl>
@@ -81,7 +85,7 @@ export default function Report() {
         {/* Search Field  */}
         <div className="bg-white rounded-lg border border-gray-300 ml-auto">
           <TextField
-            placeholder="Enter your keyword"
+            placeholder={t("Write_Your_Message")}
             size="small"
             className="w-[24rem]"
             variant="outlined"
@@ -107,10 +111,10 @@ export default function Report() {
         className="mt-4 w-full"
       >
         {[
-          "All Projects",
-          "Ongoing Projects",
-          "Pending Projects",
-          "Completed Projects",
+           t("All_Projects"),
+           t("Ongoing"),
+           t("Pending_Projects"),
+           t("Completed_Projects"),
         ].map((tab) => (
           <Chip
             key={tab}
@@ -130,7 +134,7 @@ export default function Report() {
         ))}
       </Stack>
 
-      <h2 className="text-lg font-extrabold mb-6 mt-6">All Projects Reports</h2>
+      <h2 className="text-lg font-extrabold mb-6 mt-6">{t("All_Projects_Report")}s</h2>
       {/* Table */}
       <div className="bg-white rounded-lg shadow-md p-4 mt-4">
         <div className="overflow-x-auto">
@@ -140,11 +144,11 @@ export default function Report() {
                 <th className="pr-10">
                   <input type="checkbox" />
                 </th>
-                <th className="p-4 text-left text-lg">Project Name</th>
-                <th className="p-4 text-left text-lg">Attached Report</th>
-                <th className="p-4 text-left text-lg">Created By</th>
-                <th className="p-4 text-left text-lg">Created At</th>
-                <th className="p-4 text-left text-lg">Action</th>
+                <th className="p-4 text-left text-lg">{t("Project_Name")}</th>
+                <th className="p-4 text-left text-lg">{t("Attached_Report")}</th>
+                <th className="p-4 text-left text-lg">{t("Created_By")}</th>
+                <th className="p-4 text-left text-lg">{t("Created_At")}</th>
+                <th className="p-4 text-left text-lg">{t("Actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -153,7 +157,7 @@ export default function Report() {
                   <td className="p-5">
                     <input type="checkbox" />
                   </td>
-                  <td className="p-4 font-semibold">Construction Project</td>
+                  <td className="p-4 font-semibold">{t("Construction_Project")}</td>
                   <td className="p-4 font-normal">reportattached.pdf</td>
                   <td className="p-4 font-normal">John Doe</td>
                   <td className="p-4 font-normal">Nov 14, 2024</td>
@@ -165,7 +169,7 @@ export default function Report() {
                         color: "#121619",
                       }}
                     >
-                      Download
+                      {t("Download")}
                     </Button>
                   </td>
                 </tr>
@@ -204,8 +208,8 @@ export default function Report() {
             <PaginationItem
               {...item}
               slots={{
-                previous: () => <span>Previous</span>,
-                next: () => <span>Next</span>,
+                previous: () => <span>{t("Previos")}</span>,
+                next: () => <span>{t("Next")}</span>,
               }}
             />
           )}
