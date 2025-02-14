@@ -9,6 +9,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ChangeLogModal from "../../ChangeLog/ChangeLog";
 import { Modal, Box } from "@mui/material";
+import { t } from "i18next";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 export default function EditProject() {
   const {
@@ -20,6 +23,7 @@ export default function EditProject() {
   const token = useSelector((state) => state.auth.userToken);
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isCreateMode = !id;
   const location = useLocation();
   const isViewMode = location.pathname.startsWith("/details/view");
@@ -309,15 +313,19 @@ export default function EditProject() {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <ChangeLogModal data={logs} open={isModalOpens} handleClose={handleCloseButton} />
+      <ChangeLogModal
+        data={logs}
+        open={isModalOpens}
+        handleClose={handleCloseButton}
+      />
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
-        <h2 className="text-2xl font-bold mb-6">Basic Information</h2>
+        <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-2 text-gray-700">
-            Project Name
+            {t("Project_Name")}
           </label>
           <Controller
             name="projectName"
@@ -337,7 +345,7 @@ export default function EditProject() {
         </div>
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-2 text-gray-700">
-            Description
+            {t("Description")}
           </label>
           <Controller
             name="description"
@@ -357,10 +365,10 @@ export default function EditProject() {
           )}
         </div>
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">Project Details</h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Project_Details")}</h2>
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-2 text-gray-700">
-            Location
+            {t("Location")}
           </label>
           <Controller
             name="location"
@@ -380,7 +388,7 @@ export default function EditProject() {
         </div>
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-2 text-gray-700">
-            Status
+            {t("Status")}
           </label>
           <Controller
             name="status"
@@ -393,7 +401,7 @@ export default function EditProject() {
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                 disabled={isViewMode}
               >
-                <option value="Pending">Pending</option>
+                <option value="Pending">{t("Pending")}</option>
                 {/* <option value="Completed">Completed</option>
                 <option value="Ongoing">Ongoing</option> */}
               </select>
@@ -405,7 +413,7 @@ export default function EditProject() {
         </div>
         <div className="mb-4 w-full">
           <label className="block text-sm font-semibold mb-2 text-gray-700">
-            Deadline
+            {t("Deadline")}
           </label>
           <Controller
             name="deadline"
@@ -450,7 +458,7 @@ export default function EditProject() {
           <>
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-2 text-gray-700">
-                Project Banner
+                {t("Project_Banner")}
               </label>
               <Controller
                 name="projectBanner"
@@ -476,7 +484,7 @@ export default function EditProject() {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-2 text-gray-700">
-                Project Owner
+                {t("Project_Owner")}
               </label>
               <Controller
                 name="projectOwner"
@@ -516,12 +524,12 @@ export default function EditProject() {
           </>
         )}
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">Team Members</h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Team_Members")}</h2>
         <div className="mb-4">
           {!isViewMode && (
             <>
               <label className="block text-sm font-semibold mb-2 text-gray-700">
-                Add Team Members
+                {t("Add_Team_Members")}
               </label>
               <Controller
                 name="teamMembers"
@@ -563,7 +571,7 @@ export default function EditProject() {
                       className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     >
                       <option value="" disabled selected hidden>
-                        Select Team Members
+                        {t("Add_Team_Members")}
                       </option>
                     </select>
                   )
@@ -596,7 +604,7 @@ export default function EditProject() {
             {/* Header Section */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-700">
-                Edit Members
+                {t("Edit_Members")}
               </h2>
               <button
                 onClick={closeModal}
@@ -612,7 +620,7 @@ export default function EditProject() {
               {!isViewMode && (
                 <>
                   <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Add Team Members
+                    {t("Add_Team_Members")}
                   </label>
                   <Controller
                     name="teamMembers"
@@ -664,7 +672,7 @@ export default function EditProject() {
             {!isCreateMode && (
               <div className="mt-4 flex-grow scrollbar-custom">
                 <h3 className="block text-sm font-semibold mb-4 text-gray-700">
-                  Added Members
+                  {t("Added_Members")}
                 </h3>
                 <ul className="space-y-2">
                   {modalTeamMembers.map((member) => (
@@ -697,13 +705,13 @@ export default function EditProject() {
                 onClick={saveChanges}
                 className="px-4 py-3 w-1/2 mr-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
               >
-                Save Changes
+                {t("Save_Changes")}
               </button>
               <button
                 onClick={closeModal}
                 className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
               >
-                Cancel
+                {t("Cancel")}
               </button>
             </div>
           </Box>
@@ -712,7 +720,7 @@ export default function EditProject() {
         {!isCreateMode && (
           <>
             <h2 className="block text-sm font-semibold mb-4 text-gray-700">
-              Added Members
+              {t("Added_Members")}
             </h2>
             <div>
               <ul>
@@ -724,14 +732,6 @@ export default function EditProject() {
                       className="w-10 h-10 rounded-full mr-3"
                     />
                     <span>{member.userName}</span>
-                    {/* {!isViewMode && (
-                      <button
-                        className="ml-auto text-red-500"
-                        onClick={() => handleDelete(member._id)}
-                      >
-                        <span className="text-lg">🗑️</span>
-                      </button>
-                    )} */}
                   </li>
                 ))}
               </ul>
@@ -746,7 +746,7 @@ export default function EditProject() {
                 type="submit"
                 className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
               >
-                Save Changes
+                {t("Save_Changes")}
               </button>
             )}
 
@@ -754,12 +754,16 @@ export default function EditProject() {
               onClick={() => navigate("/project-management")}
               className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md"
             >
-              Cancel
+              {t("Cancel")}
             </button>
           </div>
           {!isCreateMode && (
-            <button type="button" onClick={handleOPenButton} className="text-black-blacknew underline">
-              View Change History
+            <button
+              type="button"
+              onClick={handleOPenButton}
+              className="text-black-blacknew underline"
+            >
+              {t("View_Change_History")}
             </button>
           )}
         </div>

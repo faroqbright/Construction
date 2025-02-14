@@ -21,6 +21,9 @@ import { CiSearch } from "react-icons/ci";
 import { FaArrowLeft } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import RouteMiddleware from "../../../routes/RouteMIddleware";
+import { t } from "i18next";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
@@ -29,6 +32,7 @@ const ProjectManager = () => {
   const [selectedTab, setSelectedTab] = useState("All Projects");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const token = useSelector((state) => state?.auth?.userToken);
   const [visibleIndex, setVisibleIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -132,7 +136,7 @@ const ProjectManager = () => {
   };
 
   const handleViewDashboard = (id) => {
-    navigate('/');
+    navigate("/");
   };
 
   const hasProjReadPermission = RolePermissions("ProjectsManagement", "read");
@@ -217,15 +221,18 @@ const ProjectManager = () => {
       <div className="flex flex-col rounded-lg w-full p-8">
         <div className="flex flex-row justify-between">
           <div className="flex items-center space-x-3 mb-10">
-            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-200 transition"
-            onClick={handleViewDashboard}
+            <button
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-200 transition"
+              onClick={handleViewDashboard}
             >
               <FaArrowLeft className="text-black w-5 h-5" />
             </button>
-            <span className="text-black font-bold text-lg">All Projects</span>
+            <span className="text-black font-bold text-lg">
+              {t("All_Projects")}
+            </span>
           </div>
           <TextField
-            placeholder="Enter your keyword"
+            placeholder={t("Write_Your_Message")}
             size="small"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -238,21 +245,21 @@ const ProjectManager = () => {
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
-                borderRadius: "0.5rem", 
-                backgroundColor: "white", 
+                borderRadius: "0.5rem",
+                backgroundColor: "white",
                 "& fieldset": {
                   borderColor: "#e0e0e0",
                 },
                 "&:hover fieldset": {
-                  borderColor: "black", 
+                  borderColor: "black",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "black", 
+                  borderColor: "black",
                 },
               },
             }}
             variant="outlined"
-            className="w-[24rem]" 
+            className="w-[24rem]"
           />
         </div>
         <Stack
@@ -264,10 +271,10 @@ const ProjectManager = () => {
         >
           <Stack direction="row" spacing={5}>
             {[
-              "All Projects",
-              "Ongoing Projects",
-              "Pending Projects",
-              "Completed Projects",
+              t("All_Projects"),
+              t("Ongoing"),
+              t("Pending_Projects"),
+              t("Completed_Projects"),
             ].map((tab) => (
               <Chip
                 key={tab}
@@ -276,7 +283,7 @@ const ProjectManager = () => {
                 sx={{
                   py: 3,
                   px: 3,
-                  borderRadius: "9999px", 
+                  borderRadius: "9999px",
                   backgroundColor: selectedTab === tab ? "#B91724" : "white",
                   color: selectedTab === tab ? "white" : "black",
                   fontWeight: selectedTab === tab ? "bold" : "normal",
@@ -290,7 +297,9 @@ const ProjectManager = () => {
           </Stack>
         </Stack>
         <div className="flex p-2 justify-between mt-6">
-          <span className="text-black font-bold">Ongoing Projects</span>
+          <span className="text-black font-bold">
+            {t("Ongoing")} {t("Projects")}
+          </span>
           <div className="flex">
             <button
               onClick={handlePrevClickProjects}
@@ -346,7 +355,7 @@ const ProjectManager = () => {
               ))}
             {error && <div>{error}</div>}
             {filteredProjects.length === 0 && !loading && (
-              <div>No projects available</div>
+              <div>{t("No_projects_available")}</div>
             )}
             {filteredProjects.length > 0 &&
               filteredProjects.map((project) => (
@@ -368,7 +377,7 @@ const ProjectManager = () => {
                       <div
                         className="font-semibold truncate w-2/4"
                         title={project.projectName}
-                      > 
+                      >
                         {project.projectName}
                       </div>
                       <div className="font-semibold flex items-center">
@@ -378,13 +387,13 @@ const ProjectManager = () => {
                     </div>
 
                     <div className="font-bold">
-                      Deadline: <span>{project.deadline}</span>
+                      {t("Deadline")} <span>{project.deadline}</span>
                     </div>
 
                     <div className="mt-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <p className="text-black font-medium text-sm">
-                          Physical Execution
+                          {t("Physical_Execution")}
                         </p>
                         <h6 className="text-gray-800 font-semibold">
                           {project.physicalEducationRange}%
@@ -405,8 +414,8 @@ const ProjectManager = () => {
                         <div
                           className="absolute w-5 h-5 rounded-full bg-red-redNew   border-2 border-white shadow-md"
                           style={{
-                            left: `calc(${project.physicalEducationRange}% - 10px)`, 
-                            top: "-6px", 
+                            left: `calc(${project.physicalEducationRange}% - 10px)`,
+                            top: "-6px",
                           }}
                         ></div>
                       </div>
@@ -433,7 +442,7 @@ const ProjectManager = () => {
                             onClick={handleMoreClick}
                             className="text-blue-500 underline mx-3 cursor-pointer"
                           >
-                            +{project.members.length - (visibleIndex + 3)} more
+                            +{project.members.length - (visibleIndex + 3)} {t("More")}
                           </span>
                         </div>
                       )}
@@ -445,9 +454,11 @@ const ProjectManager = () => {
                         }
                         className="text-blue-500 cursor-pointer pl-28 underline ml-3 text-nowrap"
                       >
-                        {project.status !== "Completed"
-                          ? hasProjUpdatePermission && "Edit Project"
-                          : "View Project"}
+                        {project.status !== t("Completed")
+                          ? hasProjUpdatePermission
+                            ? t("Edit_Project")
+                            : t("View_Project")
+                          : t("View_Project")}
                       </h6>
                     </>
                   </div>
@@ -471,7 +482,7 @@ const ProjectManager = () => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold text-black-blacknew">
-                    View Members
+                    {t("View")} {t("Members")}
                   </h2>
                   <button
                     onClick={closeModal}
@@ -483,18 +494,18 @@ const ProjectManager = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Team Members
+                    {t("Team_Members")}
                   </label>
                   <select className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none">
                     <option value="" disabled selected hidden>
-                      Select One or more...
+                      {t("Select_One_or_more")}...
                     </option>
                   </select>
                 </div>
 
                 <div className="mt-4 flex-grow scrollbar-custom">
                   <h3 className="block text-sm font-semibold mb-4 text-gray-700">
-                    Added Members
+                    {t("Added_Members")}
                   </h3>
                   {modalTeamMembers && modalTeamMembers.length > 0 ? (
                     <ul className="space-y-2">
@@ -513,19 +524,19 @@ const ProjectManager = () => {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-500">No members</p>
+                    <p className="text-gray-500">{t("No_members")}</p>
                   )}
                 </div>
 
                 <div className="flex justify-between mt-4 w-full">
                   <button className="px-4 py-3 w-1/2 mr-2 cursor-not-allowed text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none">
-                    Save Changes
+                    {t("Save_Changes")}
                   </button>
                   <button
                     onClick={closeModal}
                     className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                 </div>
               </Box>
@@ -547,8 +558,8 @@ const ProjectManager = () => {
               <PaginationItem
                 {...item}
                 components={{
-                  previous: () => <span>Previous</span>,
-                  next: () => <span>Next</span>,
+                  previous: () => <span>{t("Previos")}</span>,
+                  next: () => <span>{t("Next")}</span>,
                 }}
                 sx={{
                   "&.MuiPaginationItem-previous, &.MuiPaginationItem-next": {

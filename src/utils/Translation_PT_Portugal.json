@@ -141,5 +141,15 @@
     "New_password": "Nova Palavra-passe",
     "Enter_New_password": "Insira Nova Palavra-passe",
     "Repeat_password": "Repetir Palavra-passe",
-    "Repeat_New_password": "Repetir Nova Palavra-passe"
+    "Repeat_New_password": "Repetir Nova Palavra-passe",
+    "Sort": "Organizar",
+    "All_Projects_Report": "Relatório de todos os projetos",
+    "Attached_Report": "Relatório anexado",
+    "Construction_Project": "Projeto de Construção",
+    "Download": "Download",
+    "Project_Deliverables": "entregas do projeto",
+    "View": "Visualizar",
+    "Select_One_or_more": "selecione um ou mais",
+    "No_members": "Nenhum membro",
+    "More": "Mais"
 }

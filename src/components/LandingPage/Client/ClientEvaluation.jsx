@@ -1,13 +1,16 @@
-
 import React, { useState } from "react";
 import { Avatar, Box, Rating } from "@mui/material";
 import { FiBell } from "react-icons/fi";
 import img1 from "../../../assets/Image (1).svg";
 import arrow from "../../../assets/arrow.svg";
 import noti from "../../../assets/notif.svg";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
+import { t } from "i18next";
 
 const ClientEvaluation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t } = useTranslation();
 
   const toggleModal = () => {
     setIsModalOpen((prev) => !prev);
@@ -83,7 +86,7 @@ const ClientEvaluation = () => {
                 Oceanview Plaza
               </h2>
               <p className="text-gray-600 mt-1">
-                <span className="font-semibold">Project Owner:</span> John Doe
+                <span className="font-semibold">{t("Project_Owner")}:</span> John Doe
               </p>
             </div>
 
@@ -195,7 +198,7 @@ const ClientModal = ({ toggleModal }) => {
           onClick={toggleModal}
           className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded"
         >
-          Close
+          {t("Close")}
         </button>
       </div>
     </div>
@@ -203,5 +206,3 @@ const ClientModal = ({ toggleModal }) => {
 };
 
 export default ClientEvaluation;
-
-
