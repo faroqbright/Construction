@@ -4,9 +4,12 @@ import apiRequest from "../../../utils/apiRequest";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import socket from "../../../websockets/socket";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
 
 export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
   const token = useSelector((state) => state?.auth?.userToken);
+  const { t } = useTranslation();
 
   const initialAccess = {
     add: {
@@ -127,7 +130,6 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
       // // Update Redux state
       // dispatch(setRoles(roles));
     });
-
     return () => {
       socket.off("accessedUpdate");
     };
@@ -160,7 +162,7 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
     <Modal open={open} onClose={() => { resetAccess(); onClose(); }}>
       <Box sx={{ ...modalStyle }} className="shadow-lg">
         <Typography variant="h6" className="text-lg font-semibold mb-4">
-          Manage Access
+          {t("Manage_Access")}
         </Typography>
 
         {["add", "edit", "delete", "view"].map((action) => (
@@ -169,17 +171,17 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
               variant="subtitle1"
               className="font-medium capitalize mb-2"
             >
-              Can {action}
+              {t("Can")} {t(action)}
             </Typography>
             <div className="grid grid-cols-3 gap-2">
               {[
-                "projects",
-                "reports",
-                "clients",
-                "roles",
-                "evaluation",
-                "users",
-                ...(action === "view" ? ["history"] : []),
+                t("Projects"),
+                t("Reports"),
+               t( "Clients"),
+                t("Roles"),
+                t("Evaluation"),
+                t("Users"),
+                ...(action === "view" ? [t("History")] : []),
               ].map((field) => (
                 <div key={field} className="flex items-center">
                   <Checkbox
@@ -203,14 +205,14 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
             sx={{ backgroundColor: "black", color: "white" }}
             onClick={handleAccess}
           >
-            Confirm
+            {t("Confirm")}
           </Button>
           <Button
             variant="contained"
             sx={{ backgroundColor: "#E9E9E9", color: "black" }}
             onClick={() => { resetAccess(); onClose(); }}
           >
-            Close
+            {t("Close")}
           </Button>
         </div>
       </Box>

@@ -17,6 +17,8 @@ import ManageAccessModal from "./ManageAccessModal";
 import { useNavigate } from "react-router-dom";
 import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
 
 export default function RolesTable() {
   const [loading, setLoading] = useState(true);
@@ -216,11 +218,12 @@ export default function RolesTable() {
   };
 
   const handleManageAccessClose = () => setManageAccessOpen(false);
+  const { t } = useTranslation();
 
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">All Roles</h2>
+        <h2 className="text-xl font-semibold">{t("All_Roles")}</h2>
         {hasCreatePermission ? (
           <Button
             onClick={handleOpens}
@@ -232,7 +235,7 @@ export default function RolesTable() {
               "&:hover": { backgroundColor: "#333333" },
             }}
           >
-            + Create New Role
+            + {t("Create_New_Role")}
           </Button>
         ) : null}
       </div>
@@ -241,7 +244,7 @@ export default function RolesTable() {
         <Box className="bg-white rounded-lg shadow-lg p-6 w-[400px] mx-auto mt-20 font-raleway">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-black-blacknew">
-              Add New Role
+              {t("Add_New_Role")}
             </h2>
             <button
               onClick={handleCloses}
@@ -253,8 +256,8 @@ export default function RolesTable() {
           <form>
             <div className="mb-4">
               <TextField
-                label="Name"
-                placeholder="Enter role name"
+                label={t("Name")}
+                placeholder={t("Enter_Role_Name")}
                 variant="outlined"
                 fullWidth
                 value={roleName}
@@ -266,15 +269,15 @@ export default function RolesTable() {
             <div className="mb-4">
               <TextField
                 select
-                label="Status"
+                label={t("Status")}
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 fullWidth
                 className="rounded-md"
                 size="small"
               >
-                <MenuItem value="Active">Active</MenuItem>
-                <MenuItem value="inactive">Inactive</MenuItem>
+                <MenuItem value="Active">{t("Active")}</MenuItem>
+                <MenuItem value="inactive">{t("Inactive")}</MenuItem>
               </TextField>
             </div>
             <div className="flex justify-between items-center">
@@ -283,7 +286,7 @@ export default function RolesTable() {
                 className="text-black-blacknew font-raleway hover:underline text-sm font-medium underline"
                 onClick={handleManageAccessOpen}
               >
-                Manage Access
+                {t("Manage_Access")}
               </a>
               <div className="flex justify-end space-x-3">
                 <Button
@@ -297,7 +300,7 @@ export default function RolesTable() {
                     "&:hover": { backgroundColor: "#333333" },
                   }}
                 >
-                  Save
+                  {t("Save")}
                 </Button>
                 <Button
                   sx={{
@@ -309,7 +312,7 @@ export default function RolesTable() {
                   onClick={handleCloses}
                   variant="contained"
                 >
-                  Close
+                  {t("Close")}
                 </Button>
               </div>
             </div>
@@ -339,8 +342,8 @@ export default function RolesTable() {
           <form>
             <div className="mb-4">
               <TextField
-                label="Name"
-                placeholder="Enter role name"
+                label={t("Name")}
+                placeholder={t("Enter_Role_Name")}
                 variant="outlined"
                 fullWidth
                 value={roleEdit}
@@ -352,15 +355,15 @@ export default function RolesTable() {
             <div className="mb-4">
               <TextField
                 select
-                label="Status"
+                label={t("Status")}
                 value={statusEdit}
                 onChange={(e) => setStatusEdit(e.target.value)}
                 fullWidth
                 className="rounded-md"
                 size="small"
               >
-                <MenuItem value="Active">Active</MenuItem>
-                <MenuItem value="inactive">Inactive</MenuItem>
+                <MenuItem value="Active">{t("Active")}</MenuItem>
+                <MenuItem value="inactive">{t("Inactive")}</MenuItem>
               </TextField>
             </div>
             <div className="flex justify-between items-center">
@@ -376,7 +379,7 @@ export default function RolesTable() {
                     "&:hover": { backgroundColor: "#333333" },
                   }}
                 >
-                  Update
+                  {t("Update")}
                 </Button>
                 <Button
                   onClick={handleCloseEdit}
@@ -386,7 +389,7 @@ export default function RolesTable() {
                     color: "black",
                   }}
                 >
-                  Close
+                  {t("Close")}
                 </Button>
               </div>
             </div>
@@ -401,12 +404,12 @@ export default function RolesTable() {
               <th className="p-4 border-b">
                 <Checkbox />
               </th>
-              <th className="p-4 border-b">Role Name</th>
-              <th className="p-4 border-b">Created By</th>
-              <th className="p-4 border-b">Created At</th>
-              <th className="p-4 border-b">Status</th>
+              <th className="p-4 border-b">{t("Role_Name")}</th>
+              <th className="p-4 border-b">{t("Created_By")}</th>
+              <th className="p-4 border-b">{t("Created_At")}</th>
+              <th className="p-4 border-b">{t("Status")}</th>
               {(hasUpdatePermission || hasDeletePermission) && (
-                <th className="p-4 border-b">Actions</th>
+                <th className="p-4 border-b">{t("Actions")}</th>
               )}
             </tr>
           </thead>
@@ -414,7 +417,7 @@ export default function RolesTable() {
             {currentRoles.length === 0 ? (
               <tr>
                 <td colSpan="6" className="text-center py-4">
-                  No roles available.
+                  {t("No_Role_Available")}
                 </td>
               </tr>
             ) : (
@@ -467,7 +470,7 @@ export default function RolesTable() {
                             >
                               <FaEdit className="text-black-blacknew p-1 text-2xl" />
                               <span className="ml-3 text-black-blacknew">
-                                Edit
+                                {t("Edit")}
                               </span>
                             </Button>
                           ) : null}
@@ -479,7 +482,7 @@ export default function RolesTable() {
                             >
                               <FaTrash className="text-black-blacknew p-1 text-2xl" />
                               <span className="ml-2 text-black-blacknew">
-                                Delete
+                                {t("Delete")}
                               </span>
                             </Button>
                           ) : null}
@@ -490,7 +493,7 @@ export default function RolesTable() {
                             >
                               <FaUnlockAlt className="text-black-blacknew p-1 text-2xl" />
                               <span className="ml-1 text-black-blacknew">
-                                Access
+                                {t("Access")}
                               </span>
                             </Button>
                           ) : null}
@@ -520,8 +523,8 @@ export default function RolesTable() {
             <PaginationItem
               {...item}
               components={{
-                previous: () => <span>Previous</span>,
-                next: () => <span>Next</span>,
+                previous: () => <span>{t("Previos")}</span>,
+                next: () => <span>{t("Next")}</span>,
               }}
               sx={{
                 "&.MuiPaginationItem-previous, &.MuiPaginationItem-next": {

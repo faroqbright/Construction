@@ -13,10 +13,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
 import { setUserInfo } from "../../../features/auth/authSlice";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -56,10 +60,10 @@ const Login = () => {
   return (
     <div className="w-full">
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
-        Login
+        {t("Login")}
       </h1>
       <p className="text-gray-600 mb-4 text-base">
-        Login to access your account
+      {t("Login_to_access_your_account")}
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -67,14 +71,14 @@ const Login = () => {
           name="email"
           control={control}
           defaultValue=""
-          rules={{ required: "Email is required" }}
+          rules={{ required: t("Email_is_required") }}
           render={({ field }) => (
             <TextField
               {...field}
-              label="Email"
+              label={t("Email")}
               variant="outlined"
               type="email"
-              placeholder="Enter Your Email"
+              placeholder={t("Enter_Your_Email")}
               fullWidth
               error={!!errors.email}
               helperText={errors.email?.message}
@@ -102,13 +106,13 @@ const Login = () => {
           name="password"
           control={control}
           defaultValue=""
-          rules={{ required: "Password is required" }}
+          rules={{ required: t("Password_is_required") }}
           render={({ field }) => (
             <TextField
               {...field}
-              label="Password"
+              label={t("Password")}
               variant="outlined"
-              placeholder="Enter Your Password"
+              placeholder={t("Enter_Your_Password")}
               type={showPassword ? "text" : "password"}
               fullWidth
               className="!mt-4"
@@ -160,13 +164,13 @@ const Login = () => {
                 },
               }}
             />
-            <span className="text-sm text-black">Remember me</span>
+            <span className="text-sm text-black">{t("Remember_me")}</span>
           </div>
           <NavLink
             to="/forgot-password"
             className="text-sm text-red-600 font-medium underline"
           >
-            Forgot Password
+            {t("Forgot_Password")}
           </NavLink>
         </div>
 
@@ -181,7 +185,7 @@ const Login = () => {
           type="submit"
           disabled={loading}
         >
-          {loading ? "Loading..." : "Login"}
+          {loading ? "Loading..." : t("Login")}
         </Button>
       </form>
     </div>

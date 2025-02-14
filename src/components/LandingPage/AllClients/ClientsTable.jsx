@@ -18,6 +18,8 @@ import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
 import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
 
 const ClientsTable = () => {
   const [openStates, setOpenStates] = useState({});
@@ -205,11 +207,13 @@ const ClientsTable = () => {
     "delete"
   );
 
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="mx-5">
         <div className="flex justify-between items-center mb-4 mx-5">
-          <h2 className="text-xl font-semibold">All Users</h2>
+          <h2 className="text-xl font-semibold">{t("All_Users")}</h2>
           {hasCLientCreatePermission && (
             <Button
               variant="contained"
@@ -223,7 +227,7 @@ const ClientsTable = () => {
                 },
               }}
             >
-              + Create New User
+              + {t("Create_New_User")}
             </Button>
           )}
         </div>
@@ -235,13 +239,13 @@ const ClientsTable = () => {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
-                <th className="p-4 border-b">User Name</th>
-                <th className="p-4 border-b">Email</th>
-                <th className="p-4 border-b">Phone Number</th>
-                <th className="p-4 border-b">Join Date</th>
-                <th className="p-4 border-b">Status</th>
+                <th className="p-4 border-b">{t("User_Name")}</th>
+                <th className="p-4 border-b">{t("Email")}</th>
+              <th className="p-4 border-b">{t("Phone_Number")}</th>
+                <th className="p-4 border-b">{t("Join_Date")}</th>
+              <th className="p-4 border-b">{t("Status")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
-                  <th className="p-4 border-b">Actions</th>
+                  <th className="p-4 border-b">{t("Actions")}</th>
                 )}
               </tr>
             </thead>
@@ -289,7 +293,7 @@ const ClientsTable = () => {
                             >
                               <FaEdit className="text-black-blacknew" />
                               <span className="mx-3 items-center flex text-black-blacknew">
-                                Edit
+                                {t("Edit")}
                               </span>
                             </Button>
                           )}
@@ -301,7 +305,7 @@ const ClientsTable = () => {
                             >
                               <FaTrash className="text-black-blacknew" />
                               <span className="mx-2 items-center flex text-black-blacknew">
-                                Delete
+                                {t("Delete")}
                               </span>
                             </Button>
                           )}
@@ -330,8 +334,8 @@ const ClientsTable = () => {
               <PaginationItem
                 {...item}
                 components={{
-                  previous: () => <span>Previous</span>,
-                  next: () => <span>Next</span>,
+                  previous: () => <span>{t("Previos")}</span>,
+                  next: () => <span>{t("Next")}</span>,
                 }}
                 sx={{
                   "&.MuiPaginationItem-previous, &.MuiPaginationItem-next": {
@@ -349,7 +353,7 @@ const ClientsTable = () => {
         <Box sx={modalStyles}>
           <div className="flex justify-between items-center mb-4">
             <Typography variant="h6">
-              {editData ? "Edit Client" : "Add New Client"}
+              {editData ? t("Edit_Client") : t("Add_New_Client")}
             </Typography>
             <IconButton onClick={handleClose}>
               <RiCloseLine />
@@ -358,30 +362,30 @@ const ClientsTable = () => {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <TextField
-              label="Name"
+              label={t("Name")}
               variant="outlined"
               fullWidth
-              placeholder="Enter user name"
+              placeholder={t("Enter_User_Name")}
               value={formData?.userName}
               onChange={(e) =>
                 setFormData({ ...formData, userName: e.target.value })
               }
             />
             <TextField
-              label="Email"
+              label={t("Email")}
               variant="outlined"
               fullWidth
-              placeholder="Enter user email"
+              placeholder={t("Enter_User_Email")}
               value={formData?.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
             />
             <TextField
-              label="Phone#"
+              label="Phone"
               variant="outlined"
               fullWidth
-              placeholder="Enter user phone number"
+              placeholder={t("Enter_User_Phone_Number")}
               value={formData?.phoneNumber}
               onChange={(e) =>
                 setFormData({ ...formData, phoneNumber: e.target.value })
@@ -394,7 +398,7 @@ const ClientsTable = () => {
                 label="Password"
                 variant="outlined"
                 fullWidth
-                placeholder="Enter password"
+                placeholder={t("Enter_Your_Password")}
                 type="password"
                 value={formData?.password}
                 onChange={(e) =>
@@ -414,7 +418,7 @@ const ClientsTable = () => {
                   "&:hover": { backgroundColor: "#333333" },
                 }}
               >
-                {editData ? "Update" : "Save"}
+                {editData ? t("Update") : t("Save")}
               </Button>
               <Button
                 sx={{
@@ -423,7 +427,7 @@ const ClientsTable = () => {
                 }}
                 onClick={handleClose}
               >
-                Close
+                {t("Close")}
               </Button>
             </div>
           </form>

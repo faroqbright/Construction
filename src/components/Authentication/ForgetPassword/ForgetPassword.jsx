@@ -6,9 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { NavLink } from "react-router-dom";
 import apiRequest from "../../../utils/apiRequest";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
+
 
 const ForgetPassword = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isLoading } = useSelector((state) => state?.auth);
   const {
     control,
@@ -46,10 +50,10 @@ const ForgetPassword = () => {
   return (
     <div className="w-full">
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
-        Forgot Password?
+        {t("Forgot_Password")}?
       </h1>
       <p className="text-gray-600 mb-4 text-base">
-        Recover your password using the email.
+        {t("Recover_your_password_using_the_email.")}
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -57,14 +61,14 @@ const ForgetPassword = () => {
           name="email"
           control={control}
           defaultValue=""
-          rules={{ required: "Email is required" }}
+          rules={{ required: t("Email_is_required") }}
           render={({ field }) => (
             <TextField
               {...field}
-              label="Email"
+              label={t("Email")}
               variant="outlined"
               type="email"
-              placeholder="Enter Your Email"
+              placeholder={t("Enter_Your_Email")}
               fullWidth
               error={!!errors.email}
               helperText={errors.email?.message}
@@ -100,12 +104,12 @@ const ForgetPassword = () => {
           }}
           disabled={isLoading}
         >
-          {isLoading ? "Submitting..." : "Confirm"}
+          {isLoading ? "Submitting..." : t("Confirm")}
         </Button>
       </form>
 
       <span className="text-lightpurple-light flex justify-center mt-2">
-        <NavLink to="/login">Back To Login</NavLink>
+        <NavLink to="/login">{t("Back_To_Login")}</NavLink>
       </span>
     </div>
   );

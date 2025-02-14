@@ -12,6 +12,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useSelector } from "react-redux";
 import { Clock, Clock1 } from "lucide-react";
+import "../../../utils/i18n";
 import {
   LineChart,
   Line,
@@ -27,9 +28,11 @@ import { CircularProgressbar } from "react-circular-progressbar";
 import { Button } from "@mui/material";
 import apiRequest from "../../../utils/apiRequest";
 import Footer from "../CommonUi/Footer";
+import { useTranslation } from "react-i18next";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
+      const { t } = useTranslation();
   const sliderRef = useRef(null);
 
   const token = useSelector((state) => state.auth.userToken);
