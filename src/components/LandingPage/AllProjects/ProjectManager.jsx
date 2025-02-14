@@ -368,7 +368,7 @@ const ProjectManager = () => {
                       <div
                         className="font-semibold truncate w-2/4"
                         title={project.projectName}
-                      >
+                      > 
                         {project.projectName}
                       </div>
                       <div className="font-semibold flex items-center">

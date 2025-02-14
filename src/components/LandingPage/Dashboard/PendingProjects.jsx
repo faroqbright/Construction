@@ -140,7 +140,7 @@ const PendingProjects = () => {
           <div className="h-full slider-container">
             <header className="mb-6 flex justify-between">
               <h2 className="text-2xl font-bold text-black">
-                Pending Projects
+                {t("Pending_Projects")}
               </h2>
               <div className="flex">
                 <button
@@ -167,7 +167,7 @@ const PendingProjects = () => {
                 {datas.length > 0 ? (
                   datas?.map((project, index) => (
                     <div
-                      key={project._id} // Use unique _id from the project
+                      key={project._id} 
                       className="bg-white rounded-lg shadow-lg p-4 flex flex-col "
                     >
                       {/* Image */}
@@ -185,7 +185,7 @@ const PendingProjects = () => {
                         </div>
                         <p className="text-sm black text-nowrap sm:w-full sm:block w-full">
                           <span className="text-black font-bold ">
-                            Deadline:
+                            {t("Deadline")}
                           </span>{" "}
                           {project.deadline}
                         </p>

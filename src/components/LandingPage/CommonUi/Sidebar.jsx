@@ -14,10 +14,13 @@ import solar from "../../../assets/solar_user-broken.png";
 import dash from "../../../assets/solar_user-broken.png";
 import report from "../../../assets/iconoir_reports.png";
 import { useSelector } from "react-redux";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [reportDropdown, setReportDropdown] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const accesuser = useSelector(
     (state) => state?.auth?.userInfo?.role?.permissions
@@ -33,50 +36,50 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     );
 
   const sidebarItems = [
-    { icon: dash, label: "Dashboard", to: "/", module: null },
+    { icon: dash, label: t("Dashboard"), to: "/", module: null },
     {
       icon: book,
-      label: "Project Management",
+      label: t("Project_Management"),
       to: "/project-management",
       module: "ProjectsManagement",
     },
-    { icon: user, label: "Finance", to: "/finance", module: null },
+    { icon: user, label: t("Finance"), to: "/finance", module: null },
     {
       icon: group,
-      label: "History",
+      label: t("History"),
       to: "/history",
       module: "HistoryManagement",
     },
     {
       icon: report,
-      label: "Reports",
+      label: t("Reports"),
       to: "/report",
       module: "ReportsManagement",
       isDropdown: true,
       dropdownItems: [
-        { label: "Ongoing Projects", to: "/reports/ongoing" },
-        { label: "Completed Projects", to: "/reports/completed" },
-        { label: "Pending Projects", to: "/reports/pending" },
+        { label: t("Ongoing") + " " + t("Projects"), to: "/reports/ongoing" },
+        { label: t("Completed") + " " + t("Projects"), to: "/reports/completed" },
+        { label: t("Pending") + " " + t("Projects"), to: "/reports/pending" },
       ],
     },
     {
       icon: client,
-      label: "Client Evaluation",
+      label: t("Client_Evaluation"),
       to: "/client-evaluation",
       module: "EvaluationManagement",
     },
     {
       icon: message,
-      label: "Notifications",
+      label: t("Notifications"),
       to: "/notifications",
       module: null,
     },
-    { icon: document, label: "Documents", to: "/documents", module: null },
+    { icon: document, label: t("Documents"), to: "/documents", module: null },
     ...(showRolesUsersButton
       ? [
           {
             icon: users,
-            label: "Roles & Users",
+            label: t("Roles_&_Users"),
             to: "/roles-users",
             module: null,
           },
@@ -84,7 +87,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       : []),
     {
       icon: solar,
-      label: "All Clients",
+      label: t("All_Clients"),
       to: "/all-clients",
       module: "ClientsManagement",
     },
@@ -227,12 +230,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         {isOpen && (
           <div className="mt-auto w-full px-4 mb-4">
             <div className="bg-black-blacknew p-4 rounded-lg text-center shadow-lg">
-              <h3 className="text-lg font-semibold text-white">Help Center</h3>
+              <h3 className="text-lg font-semibold text-white">{t("Help_Center")}</h3>
               <p className="text-sm text-gray-500 mb-3">
-                Having Trouble? Please contact us for more questions.
+                {t("Having_Trouble?_Please_contact_us_for_more_questions.")}
               </p>
               <button className="px-4 py-2 bg-white text-black rounded-md shadow-md">
-                Go To Help Center
+                {t("Go_To_Help_Center")}
               </button>
             </div>
           </div>
