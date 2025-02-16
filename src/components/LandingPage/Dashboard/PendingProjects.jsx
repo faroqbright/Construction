@@ -12,6 +12,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useSelector } from "react-redux";
 import { Clock, Clock1 } from "lucide-react";
+import "../../../utils/i18n";
 import {
   LineChart,
   Line,
@@ -27,10 +28,13 @@ import { CircularProgressbar } from "react-circular-progressbar";
 import { Button } from "@mui/material";
 import apiRequest from "../../../utils/apiRequest";
 import Footer from "../CommonUi/Footer";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
   const sliderRef = useRef(null);
+  const { t } = useTranslation();
 
   const token = useSelector((state) => state.auth.userToken);
   const fetchProjects = useCallback(async () => {
@@ -68,7 +72,6 @@ const PendingProjects = () => {
     { name: "F", value: 1 },
     { name: "S", value: 2 },
   ];
-  // Settings for the carousel (adjust according to your needs)
   const settings = {
     dots: true,
     infinite: false,
@@ -104,12 +107,9 @@ const PendingProjects = () => {
       },
     ],
   };
-
-  // References for each slider
   const sliderRefProjects = useRef(null);
   const sliderRefReports = useRef(null);
 
-  // Handlers for Previous and Next buttons
   const handlePrevClickProjects = () => {
     if (sliderRefProjects.current) {
       sliderRefProjects.current.slickPrev();
@@ -142,10 +142,9 @@ const PendingProjects = () => {
         {/* Pending Projects */}
         <div className="w-full max-w-7xl ">
           <div className="h-full slider-container">
-            {/* Header Section */}
             <header className="mb-6 flex justify-between">
               <h2 className="text-2xl font-bold text-black">
-                Pending Projects
+                {t("Pending_Projects")}
               </h2>
               <div className="flex">
                 <button
@@ -172,7 +171,7 @@ const PendingProjects = () => {
                 {datas.length > 0 ? (
                   datas?.map((project, index) => (
                     <div
-                      key={project._id} // Use unique _id from the project
+                      key={project._id}
                       className="bg-white rounded-lg shadow-lg p-4 flex flex-col "
                     >
                       {/* Image */}
@@ -190,7 +189,7 @@ const PendingProjects = () => {
                         </div>
                         <p className="text-sm black text-nowrap sm:w-full sm:block w-full">
                           <span className="text-black font-bold ">
-                            Deadline:
+                            {t("Deadline")}
                           </span>{" "}
                           {project.deadline}
                         </p>
@@ -205,7 +204,7 @@ const PendingProjects = () => {
                         <div className="mb-4 relative">
                           <div className="flex justify-between">
                             <p className="text-black text-sm mb-1">
-                              Physical Execution
+                              {t("Physical_Execution")}
                             </p>
                             <h6 className="text-red-redNew">
                               {project.physicalEducationRange}%
@@ -238,29 +237,24 @@ const PendingProjects = () => {
                         <div className="mb-4 relative">
                           <div className="flex justify-between">
                             <p className="black text-sm mb-1">
-                              Financial Execution
+                              {t("Financial_Execution")}
                             </p>
                             <h6 className="text-red-redNew">
                               {project.physicalEducationRange}%
                             </h6>
                           </div>
-
-                          {/* Progress Bar Container */}
                           <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                            {/* Progress Bar */}
                             <div
                               className="bg-red-redNew h-2 rounded-full"
                               style={{
                                 width: `${project.physicalEducationRange}%`,
                               }}
                             ></div>
-
-                            {/* Progress Handle (Button) */}
                             <div
                               className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
                  flex items-center justify-center shadow-md cursor-pointer transition-all"
                               style={{
-                                left: `calc(${project.physicalEducationRange}% - 10px)`, // Adjust for centering
+                                left: `calc(${project.physicalEducationRange}% - 10px)`,
                               }}
                             >
                               <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
@@ -268,25 +262,23 @@ const PendingProjects = () => {
                           </div>
                         </div>
 
-                        <span className="text-[#54577A]">
-                          4 deliverables attached
-                        </span>
+                        <button className="text-[#54577A] underline">
+                          {t("deliverables_attached")}
+                        </button>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-center">No pending projects found.</p>
+                  <p className="text-center">{t("No_projects_available")}</p>
                 )}
               </Slider>
             </div>
           </div>
-          {/* Running Projects & Activity */}
 
           <section className="flex flex-wrap w-full gap-4 mt-5 overflow-x-auto">
-            {/* Running Projects */}
             <div className="bg-black-blacknew w-full md:w-[25%] rounded-lg shadow-md px-2 py-3 flex flex-col items-center">
-              <h3 className="text-lg font-semibold text-white whitespace-nowrap">
-                Running Projects
+              <h3 className="text-base font-semibold text-white  whitespace-nowrap">
+                {t("Running_Projects")}
               </h3>
               <div className="w-40 h-40 p-5">
                 <CircularProgressbar
@@ -311,26 +303,19 @@ const PendingProjects = () => {
                   }}
                 />
               </div>
-              <p className="text-white">100 Projects</p>
+              <p className="text-white">100 {t("Projects")}</p>
             </div>
-
-            {/* Activity Section */}
 
             <div className="flex justify-center w-full md:w-[70%] items-center bg-gray-100">
               <div className="bg-white rounded-lg w-full shadow-md px-2 py-3  ">
-                {/* Activity Header */}
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Activity</h3>
+                  <h3 className="text-lg font-semibold">{t("Activity")}</h3>
                   <div className="text-sm text-gray-500 cursor-pointer">
-                    This Week
+                    {t("This_Week")}
                     <span className="ml-1">▼</span>
                   </div>
                 </div>
-
-                {/* Projects Count */}
-                <p className="text-sm text-gray-600 mb-4">2 Projects</p>
-
-                {/* Line Chart */}
+                <p className="text-sm text-gray-600 mb-4">2 {t("Projects")}</p>
                 <div className="h-40">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data}>
@@ -347,11 +332,9 @@ const PendingProjects = () => {
             </div>
           </section>
 
-          {/* Quick Reports */}
-
           <section className="mt-72 md:mt-7  w-full">
             <header className="mb-6 flex justify-between">
-              <h2 className="text-2xl font-bold text-black">Quick Reports</h2>
+              <h2 className="text-2xl font-bold text-black">{t("Quick_Reports")}</h2>
               <div className="flex md:flex-wrap">
                 <button className="p-1 rounded-full">
                   <GrFormPrevious
@@ -366,14 +349,12 @@ const PendingProjects = () => {
               </div>
             </header>
 
-            {/* Slider component here */}
             <section className="w-full flex justify-between gap-6 ">
-              {/* First Report Card */}
               <div className=" md:w-[500px] h-[200px] rounded-[10px] bg-white shadow-lg flex justify-center items-center mx-auto">
                 <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
                   <div className="flex items-center space-x-4 mb-4">
                     <img
-                      src={report} // Replace with actual image path
+                      src={report}
                       alt="Report"
                       className="w-14 h-14 rounded-full"
                     />
@@ -399,7 +380,7 @@ const PendingProjects = () => {
                       },
                     }}
                   >
-                    View Report
+                    {t("View_Report")}
                   </Button>
                 </div>
               </div>
@@ -409,7 +390,7 @@ const PendingProjects = () => {
                 <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
                   <div className="flex items-center space-x-4 mb-4">
                     <img
-                      src={report} // Replace with actual image path
+                      src={report}
                       alt="Report"
                       className="w-14 h-14 rounded-full"
                     />
@@ -433,7 +414,7 @@ const PendingProjects = () => {
                       },
                     }}
                   >
-                    View Report
+                    {t("View_Report")}
                   </Button>
                 </div>
               </div>

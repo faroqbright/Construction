@@ -16,6 +16,9 @@ import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
 import { useSelector } from "react-redux";
 import RolePermissions from "../../../utils/RolePermissions";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
+
 
 export default function UsersTable() {
   const [users, setUsers] = useState([]);
@@ -192,10 +195,12 @@ export default function UsersTable() {
     setCurrentPage(value);
   };
 
+  const { t } = useTranslation();
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">All Users</h2>
+        <h2 className="text-xl font-semibold">{t("All_Users")}</h2>
         {hasCreatePermission ? (
           <Button
             variant="contained"
@@ -209,7 +214,7 @@ export default function UsersTable() {
               },
             }}
           >
-            + Create New User
+            + {t("Create_New_User")}
           </Button>
         ) : null}
         {/* Add User Modal */}
@@ -224,7 +229,7 @@ export default function UsersTable() {
             }}
           >
             <div className="flex justify-between items-center mb-4">
-              <Typography variant="h6">Add New User</Typography>
+              <Typography variant="h6">{t("Add_New_User")}</Typography>
               <IconButton onClick={handleCloseUser}>
                 <RiCloseLine />
               </IconButton>
@@ -241,42 +246,42 @@ export default function UsersTable() {
                   phoneNumber: formData.get("phoneNumber"),
                   role: formData.get("role"),
                   password: formData.get("password"),
-                  status: "Active",
+                  status: t("Active"),
                 };
                 addUser(newUser);
               }}
             >
               <TextField
                 name="userName"
-                label="Name"
+                label={t("Name")}
                 variant="outlined"
                 fullWidth
                 required
               />
               <TextField
                 name="email"
-                label="Email"
+                label={t("Email")}
                 variant="outlined"
                 fullWidth
                 required
               />
               <TextField
                 name="phoneNumber"
-                label="phoneNumber"
+                label={t("Phone_Number")}
                 variant="outlined"
                 fullWidth
                 required
               />
               <TextField
                 name="password"
-                label="Password"
+                label={t("Password")}
                 variant="outlined"
                 fullWidth
                 required
               />
               <TextField
                 name="role"
-                label="Role"
+                label={t("Role")}
                 variant="outlined"
                 fullWidth
                 select
@@ -300,13 +305,13 @@ export default function UsersTable() {
                     "&:hover": { backgroundColor: "#333333" },
                   }}
                 >
-                  Save
+                  {t("Save")}
                 </Button>
                 <Button
                   sx={{ backgroundColor: "#E9E9E9", color: "black" }}
                   onClick={handleCloseUser}
                 >
-                  Close
+                  {t("Close")}
                 </Button>
               </div>
             </form>
@@ -322,13 +327,13 @@ export default function UsersTable() {
               <th className="p-4 border-b">
                 <Checkbox />
               </th>
-              <th className="p-4 border-b">User Name</th>
-              <th className="p-4 border-b">Email</th>
-              <th className="p-4 border-b">Phone Number</th>
-              <th className="p-4 border-b">Role</th>
-              <th className="p-4 border-b">Status</th>
+              <th className="p-4 border-b">{t("User_Name")}</th>
+              <th className="p-4 border-b">{t("Email")}</th>
+              <th className="p-4 border-b">{t("Phone_Number")}</th>
+              <th className="p-4 border-b">{t("Role")}</th>
+              <th className="p-4 border-b">{t("Status")}</th>
               {(hasUpdatePermission || hasDeletePermission) && (
-                <th className="p-4 border-b">Actions</th>
+                <th className="p-4 border-b">{t("Actions")}</th>
               )}
             </tr>
           </thead>
@@ -388,7 +393,7 @@ export default function UsersTable() {
                             >
                               <FaEdit className="text-black-blacknew p-1 mr-2 text-2xl" />
                               <span className=" text-black-blacknew mr-1">
-                                Edit
+                                {t("Edit")}
                               </span>
                             </Button>
                           ) : null}
@@ -400,7 +405,7 @@ export default function UsersTable() {
                             >
                               <FaTrash className="text-black-blacknew p-1 text-2xl" />
                               <span className=" text-black-blacknew">
-                                Delete
+                                {t("Delete")}
                               </span>
                             </Button>
                           ) : null}
@@ -450,7 +455,7 @@ export default function UsersTable() {
           >
             <TextField
               name="userName"
-              label="Name"
+              label={t("Name")}
               variant="outlined"
               fullWidth
               required
@@ -464,7 +469,7 @@ export default function UsersTable() {
             />
             <TextField
               name="email"
-              label="Email"
+              label={t("Email")}
               variant="outlined"
               fullWidth
               required
@@ -475,7 +480,7 @@ export default function UsersTable() {
             />
             <TextField
               name="phoneNumber"
-              label="Phone Number"
+              label={t("Phone_Number")}
               variant="outlined"
               fullWidth
               required
@@ -489,7 +494,7 @@ export default function UsersTable() {
             />
             <TextField
               name="role"
-              label="Role"
+              label={t("Role")}
               variant="outlined"
               fullWidth
               select
@@ -517,13 +522,13 @@ export default function UsersTable() {
                   "&:hover": { backgroundColor: "#333333" },
                 }}
               >
-                Save
+                {t("Save")}
               </Button>
               <Button
                 sx={{ backgroundColor: "#E9E9E9", color: "black" }}
                 onClick={handleCloseEdit}
               >
-                Close
+                {t("Close")}
               </Button>
             </div>
           </form>
@@ -546,8 +551,8 @@ export default function UsersTable() {
             <PaginationItem
               {...item}
               components={{
-                previous: () => <span>Previous</span>,
-                next: () => <span>Next</span>,
+                previous: () => <span>{t("Previos")}</span>,
+                next: () => <span>{t("Next")}</span>,
               }}
               sx={{
                 "&.MuiPaginationItem-previous, &.MuiPaginationItem-next": {

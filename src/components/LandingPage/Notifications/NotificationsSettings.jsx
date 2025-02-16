@@ -9,20 +9,10 @@ import {
   Avatar,
 } from "@mui/material";
 import notification from "../../../assets/notifications.svg";
+import { t } from "i18next";
 
 const NotificationSettings = () => {
-  // const dispatch = useDispatch();
-
-  // Get notifications state from Redux store
-  // const { notifications, loading, error } = useSelector(
-  //   (state) => state.notification
-  // );
-
-  // Fetch notifications on component mount
-  // useEffect(() => {
-  //   dispatch(fetchNotifications());
-  // }, [dispatch]);
-
+  
   const handleToggle = (id) => {
     console.log(`Toggled notification with id: ${id}`);
     // Logic to update the state or dispatch another action
@@ -45,48 +35,6 @@ const NotificationSettings = () => {
               </Box>
             ))}
           </Box>
-        {/* ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <Box className="rounded-lg p-4 space-y-4">
-            {notifications.data?.map((notification) => (
-              <Box
-                key={notification.id}
-                className="flex items-center bg-white space-x-3 justify-between p-3"
-              >
-                <Box className="flex items-center gap-4">
-                  <img src={edit} className="" alt="Edit Icon" />
-                  <Box>
-                    <p className="text-black font-medium">
-                      {notification.title}
-                    </p>
-                    <p className="text-lightpurple-light text-sm">
-                      {notification.description}
-                    </p>
-                  </Box>
-                </Box>
-
-                <Switch
-                  checked={notification.enabled}
-                  onChange={() => handleToggle(notification.id)}
-                  sx={{
-                    "& .MuiSwitch-track": { backgroundColor: "gray" },
-                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                      backgroundColor: "#1A1A18",
-                    },
-                    "& .MuiSwitch-switchBase.Mui-checked": {
-                      color: "white",
-                    },
-                    "& .MuiSwitch-switchBase": {
-                      color: "white",
-                    },
-                  }}
-                />
-              </Box>
-            ))}
-          </Box>
-        )} */}
-
         {/* Personalized Notifications Section */}
         <Box className="bg-white rounded-lg shadow-md p-4 mt-6 w-full h-[40vh]">
           <Box className="flex items-center gap-4">
@@ -97,7 +45,7 @@ const NotificationSettings = () => {
             />
             <Box>
               <p className="text-black-blacknew font-medium">
-                Personalized Notifications
+                {t("Personalized_Notifications")}
               </p>
               <p className="text-lightpurple-light text-sm">
                 Lorem Ipsum is simply dummy text of the printing and typesetting
@@ -112,7 +60,7 @@ const NotificationSettings = () => {
               fullWidth
               multiline
               rows={3}
-              placeholder="Write your message..."
+              placeholder= {t("Write_Your_Message")}
               className="bg-gray-50 rounded-md"
             />
             <Button
@@ -125,7 +73,7 @@ const NotificationSettings = () => {
                 marginTop: "1rem",
               }}
             >
-              Send
+              {t("Send")}
             </Button>
           </Box>
         </Box>

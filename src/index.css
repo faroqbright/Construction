@@ -31,6 +31,10 @@ body {
   font-family: Arial, sans-serif;
   border: 1px solid #ddd;
   padding: 10px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .custom-calendar .react-datepicker__header {
@@ -39,20 +43,23 @@ body {
   border-bottom: 1px solid #ddd;
 }
 
-.custom-calendar .react-datepicker__day--selected {
-  background-color: red;
-  color: black;
-  border-radius: 50%;
-}
-
 .custom-calendar .react-datepicker__day {
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
   margin: 5px;
+  border: 1px grey; /* 1px border for unselected days */
+  border-radius: 50%; /* Make them rounded */
+  background-color: #F5F5F7;
+}
+
+.custom-calendar .react-datepicker__day--selected {
+  background-color: red;
+  color: white;
+  border-radius: 50%; /* Ensure full round shape */
+  border: none; /* Remove border for selected day */
 }
 
 .custom-calendar .react-datepicker__navigation {
@@ -61,12 +68,16 @@ body {
 
 .custom-calendar .react-datepicker__day-name {
   font-weight: bold;
-  width: 30px;
+  width: 35px;
   height: 30px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
   margin: 5px;
+}
+.custom-calendar .react-datepicker__day:hover {
+  background-color: lightgray;
+  border-radius: 50%;
 }
 
 .app {

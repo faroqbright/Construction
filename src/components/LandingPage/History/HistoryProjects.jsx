@@ -4,6 +4,9 @@ import apiRequest from "../../../utils/apiRequest";
 import { useSelector } from "react-redux";
 import Skeleton from "@mui/material/Skeleton";
 import { useNavigate } from "react-router-dom";
+import { t } from "i18next";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const HistoryProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -11,7 +14,8 @@ const HistoryProjects = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [visibleIndex, setVisibleIndex] = useState(0);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const token = useSelector((state) => state?.auth?.userToken);
 
@@ -56,7 +60,7 @@ const HistoryProjects = () => {
     <>
       <header className="flex justify-between items-center my-3">
         <h2 className="text-xl md:text-2xl font-semibold text-black-blacknew mx-3">
-          Completed Projects
+          {t("Completed_Projects")}
         </h2>
         <div className="flex">
           <button className="p-1 rounded-full">
@@ -104,7 +108,9 @@ const HistoryProjects = () => {
               </div>
             </div>
           ))}
-        {projects.length === 0 && !loading && <div>No projects available</div>}
+        {projects.length === 0 && !loading && (
+          <div>{t("No_projects_available")}</div>
+        )}
         {projects.length > 0 &&
           projects.map((project) => (
             <div
@@ -128,11 +134,13 @@ const HistoryProjects = () => {
                   </div>
                 </div>
                 <div className="font-bold">
-                  Deadline: <span>{project.deadline}</span>
+                  {t("Deadline")} <span>{project.deadline}</span>
                 </div>
                 <div className="mt-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-gray-700 text-sm">Physical Execution</p>
+                    <p className="text-gray-700 text-sm">
+                      {t("Physical_Execution")}
+                    </p>
                     <h6 className="text-gray-800 font-semibold">
                       {project.physicalEducationRange}%
                     </h6>
@@ -168,7 +176,7 @@ const HistoryProjects = () => {
                     onClick={() => handleViewProjectClick(project._id)}
                     className="text-blue-500 cursor-pointer underline ml-3"
                   >
-                    View Project
+                    {t("View_Project")}
                   </h6>
                 </>
               </div>
