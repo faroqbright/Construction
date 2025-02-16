@@ -5,7 +5,7 @@ import axios from "axios";
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
     method: method.toLowerCase(), // Normalize method to lowercase
-    url: `http://localhost:8080${url}`, // Correct URL concatenation
+    url: `http://172.31.26.25:8080${url}`, // Correct URL concatenation
     headers: {
       Authorization: `Bearer ${token}`, // Fixed template literal syntax
       ...headers,
