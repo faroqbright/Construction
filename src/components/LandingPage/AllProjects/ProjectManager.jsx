@@ -9,6 +9,7 @@ import {
   Box,
   TextField,
   InputAdornment,
+  Button,
 } from "@mui/material";
 import time from "../../../assets/Time Circle.svg";
 import { useSelector } from "react-redux";
@@ -316,6 +317,26 @@ const ProjectManager = () => {
           </div>
         </div>
 
+        {hasProjCreatePermission && (
+          <div className="w-full flex justify-end p-4">
+            <Button
+              variant="contained"
+              onClick={() => {
+                navigate("/details/create");
+              }}
+              sx={{
+                backgroundColor: "black",
+                color: "white",
+                textTransform: "none",
+                "&:hover": {
+                  backgroundColor: "#333333",
+                },
+              }}
+            >
+              + Create New Project
+            </Button>
+          </div>
+        )}
         {hasProjReadPermission ? (
           <div className="my-4 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  lg:gap-9">
             {loading &&
@@ -442,7 +463,8 @@ const ProjectManager = () => {
                             onClick={handleMoreClick}
                             className="text-blue-500 underline mx-3 cursor-pointer"
                           >
-                            +{project.members.length - (visibleIndex + 3)} {t("More")}
+                            +{project.members.length - (visibleIndex + 3)}{" "}
+                            {t("More")}
                           </span>
                         </div>
                       )}
