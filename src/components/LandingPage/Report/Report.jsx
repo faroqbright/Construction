@@ -21,21 +21,43 @@ import {
   FormControl,
   OutlinedInput,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import DropdownIcon from "../../../../src/assets/dropdown.svg";
 import Footer from "../CommonUi/Footer";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
+import { FaArrowLeft } from "react-icons/fa6";
 
 export default function Report() {
   const [selectedTab, setSelectedTab] = useState("All Projects");
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
   const { t } = useTranslation();
+
+
+  const handleTabChange = (tab) => {
+    setSelectedTab(tab);
+    };
 
   const handleChange = (event, value) => {
     setPage(value);
   };
+
+  const handleViewDashboard = (id) => {
+    navigate("/");
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen p-8">
+      <div className="flex items-center space-x-3 mb-10">
+        <button
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-200 transition"
+          onClick={handleViewDashboard}
+        >
+          <FaArrowLeft className="text-black w-5 h-5" />
+        </button>
+        <span className="text-black font-bold text-lg">{t("Reports")}</span>
+      </div>
       <div className="flex justify-between items-center mb-10">
         <div className="flex items-center space-x-4">
           {/* Filter Icon with Outline */}
@@ -52,7 +74,9 @@ export default function Report() {
                 defaultValue="Chronological"
                 className="rounded-lg border-none focus:ring-0"
               >
-                <MenuItem value="Chronological">{t("Sort")}: Chronological</MenuItem>
+                <MenuItem value="Chronological">
+                  {t("Sort")}: Chronological
+                </MenuItem>
                 <MenuItem value="Alphabetical">Alphabetical</MenuItem>
               </Select>
             </FormControl>
@@ -105,16 +129,16 @@ export default function Report() {
         </div>
       </div>
       {/* Tabs */}
-      <Stack
+      {/* <Stack
         direction={{ xs: "column", md: "row" }}
         spacing={2}
         className="mt-4 w-full"
       >
         {[
-           t("All_Projects"),
-           t("Ongoing"),
-           t("Pending_Projects"),
-           t("Completed_Projects"),
+          t("All_Projects"),
+          t("Ongoing"),
+          t("Pending_Projects"),
+          t("Completed_Projects"),
         ].map((tab) => (
           <Chip
             key={tab}
@@ -132,9 +156,41 @@ export default function Report() {
             }}
           />
         ))}
+      </Stack> */}
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={2}
+        className="mt-4 w-full"
+      >
+        {[
+          t("All_Projects"),
+          t("Ongoing"),
+          t("Pending_Projects"),
+          t("Completed_Projects"),
+        ].map((tab) => (
+          <Chip
+            key={tab}
+            label={tab}
+            onClick={() => handleTabChange(tab)} // ✅ Add this to update selectedTab
+            sx={{
+              py: 3,
+              px: 3,
+              borderRadius: "9999px", // 🔹 Fully rounded buttons
+              backgroundColor: selectedTab === tab ? "#B91724" : "white",
+              color: selectedTab === tab ? "white" : "black",
+              fontWeight: selectedTab === tab ? "bold" : "normal",
+              cursor: "pointer", // ✅ Add cursor pointer for better UX
+              "&:hover": {
+                backgroundColor: selectedTab === tab ? "#B91724" : "lightgray",
+              },
+            }}
+          />
+        ))}
       </Stack>
 
-      <h2 className="text-lg font-extrabold mb-6 mt-6">{t("All_Projects_Report")}s</h2>
+      <h2 className="text-lg font-extrabold mb-6 mt-6">
+        {t("All_Projects_Report")}s
+      </h2>
       {/* Table */}
       <div className="bg-white rounded-lg shadow-md p-4 mt-4">
         <div className="overflow-x-auto">
@@ -145,7 +201,9 @@ export default function Report() {
                   <input type="checkbox" />
                 </th>
                 <th className="p-4 text-left text-lg">{t("Project_Name")}</th>
-                <th className="p-4 text-left text-lg">{t("Attached_Report")}</th>
+                <th className="p-4 text-left text-lg">
+                  {t("Attached_Report")}
+                </th>
                 <th className="p-4 text-left text-lg">{t("Created_By")}</th>
                 <th className="p-4 text-left text-lg">{t("Created_At")}</th>
                 <th className="p-4 text-left text-lg">{t("Actions")}</th>
@@ -157,7 +215,9 @@ export default function Report() {
                   <td className="p-5">
                     <input type="checkbox" />
                   </td>
-                  <td className="p-4 font-semibold">{t("Construction_Project")}</td>
+                  <td className="p-4 font-semibold">
+                    {t("Construction_Project")}
+                  </td>
                   <td className="p-4 font-normal">reportattached.pdf</td>
                   <td className="p-4 font-normal">John Doe</td>
                   <td className="p-4 font-normal">Nov 14, 2024</td>
