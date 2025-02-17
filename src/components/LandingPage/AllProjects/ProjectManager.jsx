@@ -290,12 +290,32 @@ const ProjectManager = () => {
                   fontWeight: selectedTab === tab ? "bold" : "normal",
                   "&:hover": {
                     backgroundColor:
-                      selectedTab === tab ? "#B91724" : "lightgray",
+                    selectedTab === tab ? "#B91724" : "lightgray",
                   },
                 }}
-              />
-            ))}
+                />
+              ))}
           </Stack>
+              {hasProjCreatePermission && (
+                <div className="w-full flex justify-end p-4">
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      navigate("/details/create");
+                    }}
+                    sx={{
+                      backgroundColor: "black",
+                      color: "white",
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "#333333",
+                      },
+                    }}
+                  >
+                    + Create New Project
+                  </Button>
+                </div>
+              )}
         </Stack>
         <div className="flex p-2 justify-between mt-6">
           <span className="text-black font-bold">
@@ -317,26 +337,6 @@ const ProjectManager = () => {
           </div>
         </div>
 
-        {hasProjCreatePermission && (
-          <div className="w-full flex justify-end p-4">
-            <Button
-              variant="contained"
-              onClick={() => {
-                navigate("/details/create");
-              }}
-              sx={{
-                backgroundColor: "black",
-                color: "white",
-                textTransform: "none",
-                "&:hover": {
-                  backgroundColor: "#333333",
-                },
-              }}
-            >
-              + Create New Project
-            </Button>
-          </div>
-        )}
         {hasProjReadPermission ? (
           <div className="my-4 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  lg:gap-9">
             {loading &&
