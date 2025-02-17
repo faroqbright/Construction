@@ -5,11 +5,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
 
 const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const {
     control,
@@ -65,16 +68,16 @@ const ResetPassword = () => {
   return (
     <div className="w-full">
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
-        Reset Password
+        {t("Reset_Password")}
       </h1>
-      <p className="text-gray-500 mb-6">Code has been verified successfully!</p>
+      <p className="text-gray-500 mb-6">{t("Code_has_been_verified_successfully!")}</p>
 
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name="password"
           control={control}
           rules={{
-            required: "Password is required",
+            required: t("Password_is_required"),
             minLength: {
               value: 8,
               message: "Password must be at least 8 characters",
@@ -83,9 +86,9 @@ const ResetPassword = () => {
           render={({ field }) => (
             <TextField
               {...field}
-              label="Password"
+              label={t("Password")}
               variant="outlined"
-              placeholder="Enter New Password"
+              placeholder= {t("Enter_New_password")}
               type={showPassword ? "text" : "password"}
               fullWidth
               error={!!errors.password}
@@ -133,9 +136,9 @@ const ResetPassword = () => {
           render={({ field }) => (
             <TextField
               {...field}
-              label="Repeat Password"
+              label={t("Repeat_password")}
               variant="outlined"
-              placeholder="Repeat New Password"
+              placeholder={t("Repeat_New_password")}
               type={showConfirmPassword ? "text" : "password"}
               fullWidth
               error={!!errors.confirmPassword}
@@ -187,12 +190,12 @@ const ResetPassword = () => {
             marginTop: "2rem",
           }}
         >
-          Submit
+          {t("Submit")}
         </Button>
       </form>
 
       <span className="text-lightpurple-light flex justify-center mt-3">
-        <NavLink to="/login">Back To Login</NavLink>
+        <NavLink to="/login">{t("Back_To_Login")}</NavLink>
       </span>
     </div>
   );

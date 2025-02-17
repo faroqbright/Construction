@@ -5,7 +5,7 @@ import axios from "axios";
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
     method: method.toLowerCase(), // Normalize method to lowercase
-    url: `${import.meta.env.VITE_API_BASE_URL}${url}`, // Correct URL concatenation
+    url: `https://appsoapro.techbytech.tech/api/api/v1${url}`, // Correct URL concatenation
     headers: {
       Authorization: `Bearer ${token}`, // Fixed template literal syntax
       ...headers,

@@ -12,6 +12,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useSelector } from "react-redux";
 import { Clock, Clock1 } from "lucide-react";
+import "../../../utils/i18n";
 import {
   LineChart,
   Line,

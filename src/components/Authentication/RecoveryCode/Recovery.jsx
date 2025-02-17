@@ -4,9 +4,12 @@ import { TextField, Button } from "@mui/material";
 import { useNavigate, NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
 
 const Recovery = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -43,10 +46,10 @@ const Recovery = () => {
   return (
     <div className="w-full">
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
-        Recovery Code
+        {t("Recovery_Code")}
       </h1>
       <p className="text-gray-500 mb-6">
-        Enter the recovery code sent to your email.
+      {t("Enter_the_code_sent_to_your_email.")}
       </p>
 
       <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
@@ -56,7 +59,7 @@ const Recovery = () => {
           })}
           label="Code"
           variant="outlined"
-          placeholder="Enter Verification Code"
+          placeholder={t("Enter_Verification_Code")}
           type="text"
           fullWidth
           className="mb-4"
@@ -91,12 +94,12 @@ const Recovery = () => {
             marginTop: "2rem",
           }}
         >
-          Submit
+          {t("Submit")}
         </Button>
       </form>
 
       <span className="text-lightpurple-light flex justify-center mt-3">
-        <NavLink to="/login">Back To Login</NavLink>
+        <NavLink to="/login">{t("Back_To_Login")}</NavLink>
       </span>
     </div>
   );
