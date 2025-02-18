@@ -31,6 +31,7 @@ export default function EditProject() {
   const [owners, setOwners] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFil, setSelectedFil] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [initialValues, setInitialValues] = useState({});
@@ -73,6 +74,28 @@ export default function EditProject() {
       e.target.value = null;
     }
   };
+
+  const handleFileChang = (e) => {
+    const file = e.target.files[0];
+  
+    if (file) {
+      // Validate file type (for example, allow only image files)
+      if (
+        file.type === "image/png" ||
+        file.type === "image/jpeg" ||
+        file.type === "image/gif" ||
+        file.type === "image/bmp" ||
+        file.type === "image/webp"
+      ) {
+        // File is valid
+        setSelectedFil(file);
+      } else {
+        // Invalid file type, show an error
+        toast.error("Please select a valid image file.");
+        e.target.value = null; // Clear the input field
+      }
+    }
+  };  
 
   const fetchProjects = useCallback(async () => {
     if (isCreateMode) return;
@@ -163,10 +186,10 @@ export default function EditProject() {
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", "Awaiting Start");
 
-      if (selectedFile) {
-        data.append("attachment", selectedFile);
+      if (selectedFil) {
+        data.append("attachment", selectedFil);
       }
-      
+
       requestData = data;
     } else {
       const updatedFields = {};
@@ -530,7 +553,7 @@ export default function EditProject() {
                     type="file"
                     accept=".pdf, .doc, .docx, .jpg, .png, .jpeg, .gif, .bmp, .webp"
                     onChange={(e) => {
-                      handleFileChange(e);
+                      handleFileChang(e);
                       field.onChange(e.target.files[0]);
                     }}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
