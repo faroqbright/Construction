@@ -274,8 +274,8 @@ const ProjectManager = () => {
             {[
               t("All_Projects"),
               t("Ongoing"),
-              t("Pending_Projects"),
-              t("Completed_Projects"),
+              t("Pending"),
+              t("Completed"),
             ].map((tab) => (
               <Chip
                 key={tab}
@@ -319,7 +319,7 @@ const ProjectManager = () => {
         </Stack>
         <div className="flex p-2 justify-between mt-6">
           <span className="text-black font-bold">
-            {t("Ongoing")} {t("Projects")}
+            {selectedTab} {t("Projects")}
           </span>
           <div className="flex">
             <button
