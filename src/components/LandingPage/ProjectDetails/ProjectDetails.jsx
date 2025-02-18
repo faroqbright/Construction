@@ -119,7 +119,21 @@ const ProjectDetails = () => {
                   </h3>
                   <div className="flex mt-4 gap-3">
                     {projectData?.lastDelivered && (
-                      <div className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300">
+                      <div
+                        className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = projectData.lastDelivered;
+                          link.setAttribute(
+                            "download",
+                            projectData.lastDelivered.split("/").pop()
+                          ); // Force download
+                          link.setAttribute("target", "_blank"); // Ensures no interruptions
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                      >
                         <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
                         <div className="mt-1">
                           <span className="text-sm font-semibold">
@@ -143,7 +157,16 @@ const ProjectDetails = () => {
                     {projectData?.older?.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300"
+                        className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = item;
+                          link.setAttribute("download", item.split("/").pop());
+                          link.setAttribute("target", "_blank");
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
                       >
                         <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
                         <div className="mt-1">
