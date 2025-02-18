@@ -402,8 +402,8 @@ export default function EditProject() {
                 disabled={isViewMode}
               >
                 <option value="Pending">{t("Pending")}</option>
-                {/* <option value="Completed">Completed</option>
-                <option value="Ongoing">Ongoing</option> */}
+                <option value="Completed">{t("Completed")}</option>
+                <option value="Ongoing">{t("Ongoing")}</option>
               </select>
             )}
           />
