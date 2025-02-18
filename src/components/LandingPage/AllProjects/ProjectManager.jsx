@@ -272,7 +272,7 @@ const ProjectManager = () => {
         >
           <Stack direction="row" spacing={5}>
             {[
-              t("All_Projects"),
+              t("All"),
               t("Ongoing"),
               t("Pending"),
               t("Completed"),
