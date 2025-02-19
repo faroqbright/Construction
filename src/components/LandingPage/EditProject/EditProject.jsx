@@ -77,7 +77,7 @@ export default function EditProject() {
 
   const handleFileChang = (e) => {
     const file = e.target.files[0];
-  
+
     if (file) {
       // Validate file type (for example, allow only image files)
       if (
@@ -95,7 +95,7 @@ export default function EditProject() {
         e.target.value = null; // Clear the input field
       }
     }
-  };  
+  };
 
   const fetchProjects = useCallback(async () => {
     if (isCreateMode) return;
@@ -347,9 +347,10 @@ export default function EditProject() {
       >
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
         <div className="mb-4">
-          <label className="block text-sm font-semibold mb-2 text-gray-700">
-            {t("Project_Name")}
+          <label className="block text-2xl font-semibold mb-2 text-red-800">
+            <span className="text-gray-700 text-sm">{t("Project_Name")}</span>*
           </label>
+
           <Controller
             name="projectName"
             control={control}
@@ -390,8 +391,8 @@ export default function EditProject() {
 
         <h2 className="text-2xl font-bold mt-6 mb-6">{t("Project_Details")}</h2>
         <div className="mb-4">
-          <label className="block text-sm font-semibold mb-2 text-gray-700">
-            {t("Location")}
+          <label className="block text-2xl font-semibold mb-2 text-red-800">
+            <span className="text-gray-700 text-sm">{t("Location")}</span>*
           </label>
           <Controller
             name="location"
@@ -435,9 +436,10 @@ export default function EditProject() {
           )}
         </div>
         <div className="mb-4 w-full">
-          <label className="block text-sm font-semibold mb-2 text-gray-700">
-            {t("Deadline")}
+          <label className="block text-2xl font-semibold mb-2 text-red-800">
+            <span className="text-gray-700 text-sm">{t("Deadline")}</span>*
           </label>
+
           <Controller
             name="deadline"
             rules={{ required: "Deadline is required" }}
@@ -480,8 +482,12 @@ export default function EditProject() {
         {isCreateMode && (
           <>
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                {t("Project_Banner")}
+              <label className="block text-2xl font-semibold mb-2 text-red-800">
+                <span className="text-gray-700 text-sm">
+                  {" "}
+                  {t("Project_Banner")}
+                </span>
+                *
               </label>
               <Controller
                 name="projectBanner"
@@ -506,8 +512,12 @@ export default function EditProject() {
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                {t("Project_Owner")}
+              <label className="block text-2xl font-semibold mb-2 text-red-800">
+                <span className="text-gray-700 text-sm">
+                  {" "}
+                  {t("Project_Owner")}
+                </span>
+                *
               </label>
               <Controller
                 name="projectOwner"
@@ -552,8 +562,12 @@ export default function EditProject() {
         <div className="mb-4">
           {!isViewMode && (
             <>
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                {t("Add_Team_Members")}
+              <label className="block text-2xl font-semibold mb-2 text-red-800">
+                <span className="text-gray-700 text-sm">
+                  {" "}
+                  {t("Add_Team_Members")}
+                </span>
+                *
               </label>
               <Controller
                 name="teamMembers"

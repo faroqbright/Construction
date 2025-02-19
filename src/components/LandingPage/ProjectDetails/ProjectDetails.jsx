@@ -92,7 +92,10 @@ const ProjectDetails = () => {
                     {t("Project_Owner")}
                   </strong>
                   <span className="text-lightpurple-light font-bold text-base">
-                    {projectData?.projectOwner}
+                    {projectData?.projectOwner
+                      ? projectData.projectOwner.charAt(0).toUpperCase() +
+                        projectData.projectOwner.slice(1)
+                      : ""}
                   </span>
                 </div>
                 <div>

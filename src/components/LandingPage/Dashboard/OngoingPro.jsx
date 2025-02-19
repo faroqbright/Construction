@@ -89,23 +89,62 @@ const OngoingPro = () => {
                   <p className="text-black font-semibold text-sm mb-3">
                     {t("Progress")}
                   </p>
-                  <h6 className="text-red-redNew">
-                    {project.physicalEducationRange}%
-                  </h6>
                 </div>
-                <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                  <div
-                    className="bg-red-redNew h-2 rounded-full"
-                    style={{ width: `${project.physicalEducationRange}%` }}
-                  ></div>
-                  <div
-                    className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
-      flex items-center justify-center shadow-md cursor-pointer transition-all"
-                    style={{
-                      left: `calc(${project.physicalEducationRange}% - 10px)`, // Center handle dynamically
-                    }}
-                  >
-                    <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-black font-medium text-sm">
+                      {t("Physical_Execution")}
+                    </p>
+                    <h6 className="text-gray-800 font-semibold">
+                      {project.physicalEducationRange}%
+                    </h6>
+                  </div>
+
+                  <div className="relative w-full h-2 bg-gray-200 rounded-full">
+                    <div
+                      className={`absolute top-0 left-0 h-2 rounded-full bg-red-redNew ${
+                        project.status === "Completed"
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                      }`}
+                      style={{
+                        width: `${project.physicalEducationRange}%`,
+                      }}
+                    ></div>
+                    <div
+                      className="absolute w-5 h-5 rounded-full bg-red-redNew border-2 border-red-redNew"
+                      style={{
+                        left: `calc(${project.physicalEducationRange}% - 10px)`,
+                        top: "-6px",
+                      }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="mb-4 mt-2 relative">
+                  <div className="flex justify-between">
+                    <p className="black text-sm mb-1">
+                      {t("Financial_Execution")}
+                    </p>
+                    <h6 className="text-red-redNew">
+                      {project.physicalEducationRange}%
+                    </h6>
+                  </div>
+                  <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                    <div
+                      className="bg-red-redNew h-2 rounded-full"
+                      style={{
+                        width: `${project.physicalEducationRange}%`,
+                      }}
+                    ></div>
+                    <div
+                      className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
+                 flex items-center justify-center shadow-md cursor-pointer transition-all"
+                      style={{
+                        left: `calc(${project.physicalEducationRange}% - 10px)`,
+                      }}
+                    >
+                      <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex justify-between mt-3 items-center">

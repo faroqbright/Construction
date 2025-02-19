@@ -115,7 +115,7 @@ const HistoryProjects = () => {
           projects.map((project) => (
             <div
               key={project._id}
-              className="max-w-md h-[24rem] md:h-[21rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
+              className="max-w-md h-[26rem] md:h-[24rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
             >
               <div onClick={() => handleProjectClick(project._id)}>
                 <img
@@ -150,6 +150,42 @@ const HistoryProjects = () => {
                       className="absolute top-0 left-0 h-2 rounded-full bg-green-500"
                       style={{ width: `${project.physicalEducationRange}%` }}
                     ></div>
+                    <div
+                      className="w-5 h-5 bg-green-500 rounded-full absolute top-1/2 -translate-y-1/2 
+                 flex items-center justify-center shadow-md cursor-pointer transition-all"
+                      style={{
+                        left: `calc(${project.physicalEducationRange}% - 10px)`,
+                      }}
+                    >
+                      <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-5 mt-2 relative">
+                  <div className="flex justify-between">
+                    <p className="black text-sm mb-1">
+                      {t("Financial_Execution")}
+                    </p>
+                    <h6 className="text-red-redNew">
+                      {project.physicalEducationRange}%
+                    </h6>
+                  </div>
+                  <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                    <div
+                      className="bg-red-redNew h-2 rounded-full"
+                      style={{
+                        width: `${project.physicalEducationRange}%`,
+                      }}
+                    ></div>
+                    <div
+                      className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
+                 flex items-center justify-center shadow-md cursor-pointer transition-all"
+                      style={{
+                        left: `calc(${project.physicalEducationRange}% - 10px)`,
+                      }}
+                    >
+                      <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                    </div>
                   </div>
                 </div>
               </div>
