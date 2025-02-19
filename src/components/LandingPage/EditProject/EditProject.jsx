@@ -81,20 +81,17 @@ export default function EditProject() {
     if (file) {
       // Validate file type (for example, allow only image files)
       if (
-        file.type === "application/pdf" || // PDFs
-        file.type === "application/msword" || // Word Documents
-        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || // Word (.docx)
-        file.type === "application/vnd.ms-excel" || // Excel (.xls)
-        file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || // Excel (.xlsx)
-        file.type === "text/plain" || // Text files
-        file.type === "application/zip" || // Zip files
-        file.type === "application/x-rar-compressed"
+        file.type === "image/png" ||
+        file.type === "image/jpeg" ||
+        file.type === "image/gif" ||
+        file.type === "image/bmp" ||
+        file.type === "image/webp"
       ) {
         // File is valid
         setSelectedFil(file);
       } else {
         // Invalid file type, show an error
-        toast.error("Please select a valid file.");
+        toast.error("Please select a valid image file.");
         e.target.value = null; // Clear the input field
       }
     }
@@ -537,31 +534,6 @@ export default function EditProject() {
               {errors.projectOwner && (
                 <span className="text-red-600">
                   {errors.projectOwner.message}
-                </span>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                {t("Attachments")}
-              </label>
-              <Controller
-                name="attachments"
-                control={control}
-                render={({ field }) => (
-                  <input
-                    type="file"
-                    accept=".pdf, .doc, .docx, .jpg, .png, .jpeg, .gif, .bmp, .webp"
-                    onChange={(e) => {
-                      handleFileChang(e);
-                      field.onChange(e.target.files[0]);
-                    }}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                  />
-                )}
-              />
-              {errors.attachments && (
-                <span className="text-red-600">
-                  {errors.attachments.message}
                 </span>
               )}
             </div>
