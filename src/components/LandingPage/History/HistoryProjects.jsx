@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
+import { User } from "lucide-react";
 
 const HistoryProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -192,14 +193,22 @@ const HistoryProjects = () => {
               <div className="mt-4 flex items-center">
                 {project.members
                   .slice(visibleIndex, visibleIndex + 3)
-                  .map((member) => (
-                    <img
-                      key={member._id}
-                      className="w-8 h-8 rounded-full"
-                      src={member.avatar}
-                      alt="Member"
-                    />
-                  ))}
+                  .map((member) =>
+                    member.avatar ? (
+                      <img
+                        key={member._id}
+                        className="w-8 h-8 rounded-full"
+                        src={member.avatar}
+                        alt="Member"
+                      />
+                    ) : (
+                      <User
+                        key={member._id}
+                        className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                        size={32}
+                      />
+                    )
+                  )}
                 <>
                   {project.members.length > 3 && (
                     <div className="flex justify-between text-nowrap">

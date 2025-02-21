@@ -24,7 +24,7 @@ const LanguageSwitcher = () => {
       <IconButton onClick={handleClick} aria-label="language">
         <MdLanguage size={24} />
         <span className="text-lg ml-2 ">
-        {i18n.language === "en" ? "English " : "Portuguese"}
+        {i18n.language === "en" ? "English " : "Português"}
         </span>
       </IconButton>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => handleClose()}>
@@ -32,7 +32,7 @@ const LanguageSwitcher = () => {
           {i18n.language === "en" ? "✔ " : ""}English
         </MenuItem>
         <MenuItem onClick={() => handleClose("pt")}>
-          {i18n.language === "pt" ? "✔ " : ""}Portuguese
+          {i18n.language === "pt" ? "✔ " : ""}Português
         </MenuItem>
       </Menu>
     </div>

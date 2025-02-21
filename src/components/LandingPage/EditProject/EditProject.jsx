@@ -12,6 +12,7 @@ import { Modal, Box } from "@mui/material";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
+import { User } from "lucide-react";
 
 export default function EditProject() {
   const {
@@ -184,7 +185,7 @@ export default function EditProject() {
         }
       }
       data.append("physicalEducationRange", "100");
-      data.append("daysLeft", "Awaiting Start");
+      data.append("daysLeft", (t("Awaiting_Start")));
 
       requestData = data;
     } else {
@@ -639,7 +640,6 @@ export default function EditProject() {
               padding: "24px",
             }}
           >
-            {/* Header Section */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-700">
                 {t("Edit_Members")}
@@ -653,7 +653,6 @@ export default function EditProject() {
               </button>
             </div>
 
-            {/* Add Members Section */}
             <div>
               {!isViewMode && (
                 <>
@@ -718,11 +717,19 @@ export default function EditProject() {
                       key={member._id}
                       className="flex items-center bg-gray-100 p-2 rounded-lg"
                     >
-                      <img
-                        src={member.avatar}
-                        alt={member.userName}
-                        className="w-10 h-10 rounded-full mr-3"
-                      />
+                      {member.avatar ? (
+                        <img
+                          src={member.avatar}
+                          alt={member.userName}
+                          className="w-10 h-10 rounded-full mr-3"
+                        />
+                      ) : (
+                        <User
+                          key={member._id}
+                          className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                          size={32}
+                        />
+                      )}
                       <span>{member.userName}</span>
                       {!isViewMode && (
                         <button
@@ -764,11 +771,19 @@ export default function EditProject() {
               <ul>
                 {teamMembers.map((member) => (
                   <li key={member._id} className="flex items-center mb-2">
-                    <img
-                      src={member.avatar}
-                      alt={member.userName}
-                      className="w-10 h-10 rounded-full mr-3"
-                    />
+                    {member.avatar ? (
+                      <img
+                        src={member.avatar}
+                        alt={member.userName}
+                        className="w-10 h-10 rounded-full mr-3"
+                      />
+                    ) : (
+                      <User
+                        key={member._id}
+                        className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                        size={32}
+                      />
+                    )}
                     <span>{member.userName}</span>
                   </li>
                 ))}

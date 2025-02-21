@@ -25,12 +25,13 @@ import RouteMiddleware from "../../../routes/RouteMIddleware";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
+import { User } from "lucide-react";
 
 const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("All Projects");
+  const [selectedTab, setSelectedTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -271,51 +272,48 @@ const ProjectManager = () => {
           alignItems="center"
         >
           <Stack direction="row" spacing={5}>
-            {[
-              t("All"),
-              t("Ongoing"),
-              t("Pending"),
-              t("Completed"),
-            ].map((tab) => (
-              <Chip
-                key={tab}
-                label={tab}
-                onClick={() => handleTabClick(tab)}
+            {[t("All"), t("Ongoing"), t("Pending"), t("Completed")].map(
+              (tab) => (
+                <Chip
+                  key={tab}
+                  label={tab}
+                  onClick={() => handleTabClick(tab)}
+                  sx={{
+                    py: 3,
+                    px: 3,
+                    borderRadius: "9999px",
+                    backgroundColor: selectedTab === tab ? "#B91724" : "white",
+                    color: selectedTab === tab ? "white" : "black",
+                    fontWeight: selectedTab === tab ? "bold" : "normal",
+                    "&:hover": {
+                      backgroundColor:
+                        selectedTab === tab ? "#B91724" : "lightgray",
+                    },
+                  }}
+                />
+              )
+            )}
+          </Stack>
+          {hasProjCreatePermission && (
+            <div className="w-full flex justify-end p-4">
+              <Button
+                variant="contained"
+                onClick={() => {
+                  navigate("/details/create");
+                }}
                 sx={{
-                  py: 3,
-                  px: 3,
-                  borderRadius: "9999px",
-                  backgroundColor: selectedTab === tab ? "#B91724" : "white",
-                  color: selectedTab === tab ? "white" : "black",
-                  fontWeight: selectedTab === tab ? "bold" : "normal",
+                  backgroundColor: "black",
+                  color: "white",
+                  textTransform: "none",
                   "&:hover": {
-                    backgroundColor:
-                    selectedTab === tab ? "#B91724" : "lightgray",
+                    backgroundColor: "#333333",
                   },
                 }}
-                />
-              ))}
-          </Stack>
-              {hasProjCreatePermission && (
-                <div className="w-full flex justify-end p-4">
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      navigate("/details/create");
-                    }}
-                    sx={{
-                      backgroundColor: "black",
-                      color: "white",
-                      textTransform: "none",
-                      "&:hover": {
-                        backgroundColor: "#333333",
-                      },
-                    }}
-                  >
-                    + Create New Project
-                  </Button>
-                </div>
-              )}
+              >
+                + {t("Create_New_Project")}
+              </Button>
+            </div>
+          )}
         </Stack>
         <div className="flex p-2 justify-between mt-6">
           <span className="text-black font-bold">
@@ -403,7 +401,12 @@ const ProjectManager = () => {
                       </div>
                       <div className="font-semibold flex items-center">
                         <img className="flex" src={time} alt="" />
-                        <span className="ml-1">{project.daysLeft}</span>
+                        <span className="ml-1">
+                          {" "}
+                          {project.daysLeft === "Awaiting Start"
+                            ? t("Awaiting_Start")
+                            : project.daysLeft}
+                        </span>
                       </div>
                     </div>
 
@@ -442,46 +445,55 @@ const ProjectManager = () => {
                       </div>
                     </div>
                     <div className="mb-4 mt-2 relative">
-                          <div className="flex justify-between">
-                            <p className="black text-sm mb-1">
-                              {t("Financial_Execution")}
-                            </p>
-                            <h6 className="text-red-redNew">
-                              {project.physicalEducationRange}%
-                            </h6>
-                          </div>
-                          <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                            <div
-                              className="bg-red-redNew h-2 rounded-full"
-                              style={{
-                                width: `${project.physicalEducationRange}%`,
-                              }}
-                            ></div>
-                            <div
-                              className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
+                      <div className="flex justify-between">
+                        <p className="black text-sm mb-1">
+                          {t("Financial_Execution")}
+                        </p>
+                        <h6 className="text-red-redNew">
+                          {project.physicalEducationRange}%
+                        </h6>
+                      </div>
+                      <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                        <div
+                          className="bg-red-redNew h-2 rounded-full"
+                          style={{
+                            width: `${project.physicalEducationRange}%`,
+                          }}
+                        ></div>
+                        <div
+                          className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
                  flex items-center justify-center shadow-md cursor-pointer transition-all"
-                              style={{
-                                left: `calc(${project.physicalEducationRange}% - 10px)`,
-                              }}
-                            >
-                              <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
-                            </div>
-                          </div>
+                          style={{
+                            left: `calc(${project.physicalEducationRange}% - 10px)`,
+                          }}
+                        >
+                          <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
                         </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mt-4 flex items-center">
                     {project.members
                       .slice(visibleIndex, visibleIndex + 3)
-                      .map((member) => (
-                        <img
-                          key={member._id}
-                          className="w-8 h-8 rounded-full"
-                          src={member.avatar}
-                          onClick={() => openModal(project._id)}
-                          alt="Member"
-                        />
-                      ))}
+                      .map((member) =>
+                        member.avatar ? (
+                          <img
+                            key={member._id}
+                            className="w-8 h-8 rounded-full"
+                            src={member.avatar}
+                            onClick={() => openModal(project._id)}
+                            alt="Member"
+                          />
+                        ) : (
+                          <User
+                            key={member._id}
+                            className="bg-slate-400 rounded-full p-2 text-white"
+                            size={32}
+                            onClick={() => openModal(project._id)}
+                          />
+                        )
+                      )}
 
                     <>
                       {project.members.length > 3 && (

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import logo from "../../../assets/logo.png";
+import logo from "../../../assets/logo1.png";
 import book from "../../../assets/book.png";
 import user from "../../../assets/user-octagon.png";
 import group from "../../../assets/Group.png";

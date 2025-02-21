@@ -30,9 +30,11 @@ import apiRequest from "../../../utils/apiRequest";
 import Footer from "../CommonUi/Footer";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
+  const navigate = useNavigate();
   const sliderRef = useRef(null);
   const { t } = useTranslation();
 
@@ -134,6 +136,10 @@ const PendingProjects = () => {
     }
   };
 
+  const handleViewProjectClick = (id) => {
+    navigate(`/details/${id}`);
+  };
+
   return (
     <>
       <div className="px-4 py-6 pl-8">
@@ -176,92 +182,97 @@ const PendingProjects = () => {
                     >
                       {/* Image */}
                       <img
-                        className="w-full h-40 object-cover rounded-lg mb-4"
+                        className="w-full h-40 object-cover rounded-lg mb-4 cursor-pointer"
+                        onClick={() => handleViewProjectClick(project._id)}
                         src={project.projectBanner}
                         alt={project.projectName}
                       />
                       {/* Content */}
                       <div>
-                        <div className="flex w-full justify-between space-x-2 items-center mb-2">
-                          <h3 className="text-sm flex font-semibold text-black text-nowrap sm:w-auto w-full">
-                            {project.projectName}
-                          </h3>
-                        </div>
-                        <p className="text-sm black text-nowrap sm:w-full sm:block w-full">
-                          <span className="text-black font-bold ">
-                            {t("Deadline")}
-                          </span>{" "}
-                          {project.deadline}
-                        </p>
-                        <div className="flex flex-row items-center gap-2 mb-3">
-                          <Clock1 className="w-4 h-4" />
-                          <p className="text-sm text-black">
-                            {project.daysLeft}
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleViewProjectClick(project._id)}
+                        >
+                          <div className="flex w-full justify-between space-x-2 items-center mb-2">
+                            <h3 className="text-sm flex font-semibold text-black text-nowrap sm:w-auto w-full">
+                              {project.projectName}
+                            </h3>
+                          </div>
+                          <p className="text-sm black text-nowrap sm:w-full sm:block w-full">
+                            <span className="text-black font-bold ">
+                              {t("Deadline")}
+                            </span>{" "}
+                            {project.deadline}
                           </p>
-                        </div>
-
-                        {/* Progress Bars */}
-                        <div className="mb-4 relative">
-                          <div className="flex justify-between">
-                            <p className="text-black text-sm mb-1">
-                              {t("Physical_Execution")}
+                          <div className="flex flex-row items-center gap-2 mb-3">
+                            <Clock1 className="w-4 h-4" />
+                            <p className="text-sm text-black">
+                            {project.daysLeft === "Awaiting Start" ? t("Awaiting_Start") : project.daysLeft}
                             </p>
-                            <h6 className="text-red-redNew">
-                              {project.physicalEducationRange}%
-                            </h6>
                           </div>
 
-                          {/* Progress Bar Container */}
-                          <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                            {/* Progress Bar */}
-                            <div
-                              className="bg-red-redNew h-2 rounded-full"
-                              style={{
-                                width: `${project.physicalEducationRange}%`,
-                              }}
-                            ></div>
+                          {/* Progress Bars */}
+                          <div className="mb-4 relative">
+                            <div className="flex justify-between">
+                              <p className="text-black text-sm mb-1">
+                                {t("Physical_Execution")}
+                              </p>
+                              <h6 className="text-red-redNew">
+                                {project.physicalEducationRange}%
+                              </h6>
+                            </div>
 
-                            {/* Progress Handle (Button) */}
-                            <div
-                              className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
+                            {/* Progress Bar Container */}
+                            <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                              {/* Progress Bar */}
+                              <div
+                                className="bg-red-redNew h-2 rounded-full"
+                                style={{
+                                  width: `${project.physicalEducationRange}%`,
+                                }}
+                              ></div>
+
+                              {/* Progress Handle (Button) */}
+                              <div
+                                className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
                  flex items-center justify-center shadow-md cursor-pointer transition-all"
-                              style={{
-                                left: `calc(${project.physicalEducationRange}% - 10px)`, // Adjust for centering
-                              }}
-                            >
-                              <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                                style={{
+                                  left: `calc(${project.physicalEducationRange}% - 10px)`, // Adjust for centering
+                                }}
+                              >
+                                <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mb-4 relative">
+                            <div className="flex justify-between">
+                              <p className="black text-sm mb-1">
+                                {t("Financial_Execution")}
+                              </p>
+                              <h6 className="text-red-redNew">
+                                {project.physicalEducationRange}%
+                              </h6>
+                            </div>
+                            <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                              <div
+                                className="bg-red-redNew h-2 rounded-full"
+                                style={{
+                                  width: `${project.physicalEducationRange}%`,
+                                }}
+                              ></div>
+                              <div
+                                className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
+                 flex items-center justify-center shadow-md cursor-pointer transition-all"
+                                style={{
+                                  left: `calc(${project.physicalEducationRange}% - 10px)`,
+                                }}
+                              >
+                                <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                              </div>
                             </div>
                           </div>
                         </div>
-
-                        <div className="mb-4 relative">
-                          <div className="flex justify-between">
-                            <p className="black text-sm mb-1">
-                              {t("Financial_Execution")}
-                            </p>
-                            <h6 className="text-red-redNew">
-                              {project.physicalEducationRange}%
-                            </h6>
-                          </div>
-                          <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                            <div
-                              className="bg-red-redNew h-2 rounded-full"
-                              style={{
-                                width: `${project.physicalEducationRange}%`,
-                              }}
-                            ></div>
-                            <div
-                              className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
-                 flex items-center justify-center shadow-md cursor-pointer transition-all"
-                              style={{
-                                left: `calc(${project.physicalEducationRange}% - 10px)`,
-                              }}
-                            >
-                              <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
-                            </div>
-                          </div>
-                        </div>
-
                         <button className="text-[#54577A] underline">
                           {t("deliverables_attached")}
                         </button>
@@ -334,7 +345,9 @@ const PendingProjects = () => {
 
           <section className="mt-72 md:mt-7  w-full">
             <header className="mb-6 flex justify-between">
-              <h2 className="text-2xl font-bold text-black">{t("Quick_Reports")}</h2>
+              <h2 className="text-2xl font-bold text-black">
+                {t("Quick_Reports")}
+              </h2>
               <div className="flex md:flex-wrap">
                 <button className="p-1 rounded-full">
                   <GrFormPrevious
