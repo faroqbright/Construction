@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   IconButton,
@@ -27,17 +27,47 @@ import Footer from "../CommonUi/Footer";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa6";
+import { useSelector } from "react-redux";
+import apiRequest from "../../../utils/apiRequest";
+import { CheckCircle, XCircle } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function Report() {
   const [selectedTab, setSelectedTab] = useState("All Projects");
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const token = useSelector((state) => state.auth.userToken);
+  console.log(documents);
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setLoading(true);
+      try {
+        const response = await apiRequest("get", "/documents", {}, token);
 
-  const handleTabChange = (tab) => {
-    setSelectedTab(tab);
+        if (response?.status === 200) {
+          setDocuments(response?.data || []);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
     };
+
+    fetchProjects();
+  }, [token]);
+
+  const handleOpenFile = (fileUrl) => {
+    if (!fileUrl) {
+      toast.error("File URL not available!");
+      return;
+    }
+    window.open(fileUrl, "_blank");
+  };  
 
   const handleChange = (event, value) => {
     setPage(value);
@@ -45,6 +75,51 @@ export default function Report() {
 
   const handleViewDashboard = (id) => {
     navigate("/");
+  };
+
+  const recordsPerPage = 10;
+
+  const handleTabChange = (tab) => {
+    setSelectedTab(tab);
+    setPage(1);
+  };
+
+  const filteredDocuments = documents.filter((doc) => {
+    if (selectedTab === "All Projects") return true;
+    return doc.status.toLowerCase() === selectedTab.toLowerCase();
+  });
+
+  const startIndex = (page - 1) * recordsPerPage;
+  const paginatedDocuments = filteredDocuments.slice(
+    startIndex,
+    startIndex + recordsPerPage
+  );
+
+  const handleStatusUpdate = async (docId, newStatus) => {
+    try {
+      const response = await apiRequest(
+        "patch",
+        `/documents/${docId}`, // Dynamic ID
+        { status: newStatus }, // Sending updated status
+        token
+      );
+
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success(`Status changed to ${newStatus} successfully!`);
+
+        // Update local state to reflect the change instantly
+        setDocuments((prevDocs) =>
+          prevDocs.map((doc) =>
+            doc._id === docId ? { ...doc, status: newStatus } : doc
+          )
+        );
+      } else {
+        toast.error("Status update failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
+      toast.error("An error occurred while updating status.");
+    }
   };
 
   return (
@@ -128,64 +203,33 @@ export default function Report() {
           />
         </div>
       </div>
-      {/* Tabs */}
-      {/* <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={2}
-        className="mt-4 w-full"
-      >
-        {[
-          t("All_Projects"),
-          t("Ongoing"),
-          t("Pending_Projects"),
-          t("Completed_Projects"),
-        ].map((tab) => (
-          <Chip
-            key={tab}
-            label={tab}
-            sx={{
-              py: 3,
-              px: 3,
-              borderRadius: "9999px", // 🔹 Fully rounded buttons
-              backgroundColor: selectedTab === tab ? "#B91724" : "white",
-              color: selectedTab === tab ? "white" : "black",
-              fontWeight: selectedTab === tab ? "bold" : "normal",
-              "&:hover": {
-                backgroundColor: selectedTab === tab ? "#B91724" : "lightgray",
-              },
-            }}
-          />
-        ))}
-      </Stack> */}
       <Stack
         direction={{ xs: "column", md: "row" }}
         spacing={2}
         className="mt-4 w-full"
       >
-        {[
-          t("All_Projects"),
-          t("Ongoing"),
-          t("Pending_Projects"),
-          t("Completed_Projects"),
-        ].map((tab) => (
-          <Chip
-            key={tab}
-            label={tab}
-            onClick={() => handleTabChange(tab)} // ✅ Add this to update selectedTab
-            sx={{
-              py: 3,
-              px: 3,
-              borderRadius: "9999px", // 🔹 Fully rounded buttons
-              backgroundColor: selectedTab === tab ? "#B91724" : "white",
-              color: selectedTab === tab ? "white" : "black",
-              fontWeight: selectedTab === tab ? "bold" : "normal",
-              cursor: "pointer", // ✅ Add cursor pointer for better UX
-              "&:hover": {
-                backgroundColor: selectedTab === tab ? "#B91724" : "lightgray",
-              },
-            }}
-          />
-        ))}
+        {[t("All_Projects"), t("Pending"), t("Approved"), t("Rejected")].map(
+          (tab) => (
+            <Chip
+              key={tab}
+              label={tab}
+              onClick={() => handleTabChange(tab)} // ✅ Add this to update selectedTab
+              sx={{
+                py: 3,
+                px: 3,
+                borderRadius: "9999px", // 🔹 Fully rounded buttons
+                backgroundColor: selectedTab === tab ? "#B91724" : "white",
+                color: selectedTab === tab ? "white" : "black",
+                fontWeight: selectedTab === tab ? "bold" : "normal",
+                cursor: "pointer", // ✅ Add cursor pointer for better UX
+                "&:hover": {
+                  backgroundColor:
+                    selectedTab === tab ? "#B91724" : "lightgray",
+                },
+              }}
+            />
+          )
+        )}
       </Stack>
 
       <h2 className="text-lg font-extrabold mb-6 mt-6">
@@ -204,36 +248,63 @@ export default function Report() {
                 <th className="p-4 text-left text-lg">
                   {t("Attached_Report")}
                 </th>
+                <th className="p-4 text-left text-lg">{t("Status")}</th>
                 <th className="p-4 text-left text-lg">{t("Created_By")}</th>
                 <th className="p-4 text-left text-lg">{t("Created_At")}</th>
-                <th className="p-4 text-left text-lg">{t("Actions")}</th>
+                <th className="p-4 text-left pl-14 text-lg">{t("Actions")}</th>
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: 10 }).map((_, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="p-5">
-                    <input type="checkbox" />
-                  </td>
-                  <td className="p-4 font-semibold">
-                    {t("Construction_Project")}
-                  </td>
-                  <td className="p-4 font-normal">reportattached.pdf</td>
-                  <td className="p-4 font-normal">John Doe</td>
-                  <td className="p-4 font-normal">Nov 14, 2024</td>
-                  <td className="p-4 font-normal">
+              {paginatedDocuments.length > 0 ? (
+                paginatedDocuments.map((doc, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="p-5">
+                      <input type="checkbox" />
+                    </td>
+                    <td className="p-4 font-semibold">{doc.projName}</td>
+                    <td className="p-4 font-normal">
+                      {doc.fileName
+                        ? doc.fileName.length > 20
+                          ? `${doc.fileName.substring(0, 18)}....pdf`
+                          : doc.fileName
+                        : "No Report"}
+                    </td>
+                    <td className="p-4 font-normal">
+                      {doc.status || "No status"}
+                    </td>
+                    <td className="p-4 font-normal">{doc.user}</td>
+                    <td className="p-4 font-normal">
+                      {new Date(doc.uploadedAt).toLocaleDateString()}
+                    </td>
+                    <td>
                     <Button
-                      startIcon={<MdOutlineFileDownload />}
-                      sx={{
-                        textTransform: "none",
-                        color: "#121619",
-                      }}
-                    >
-                      {t("Download")}
-                    </Button>
+  startIcon={<MdOutlineFileDownload />}
+  sx={{ textTransform: "none", color: "#121619" }}
+  onClick={() => handleOpenFile(doc.fileUrl)}
+></Button>
+
+
+                      <Button
+                        startIcon={<CheckCircle />}
+                        sx={{ textTransform: "none", color: "#121619" }}
+                        onClick={() => handleStatusUpdate(doc._id, "approved")}
+                      />
+
+                      <Button
+                        startIcon={<XCircle />}
+                        sx={{ textTransform: "none", color: "#121619" }}
+                        onClick={() => handleStatusUpdate(doc._id, "rejected")}
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="p-4 text-center">
+                    {t("No_Data_Available")}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -243,9 +314,9 @@ export default function Report() {
 
       <div className="flex justify-end items-center mt-4">
         <Pagination
-          count={11}
+          count={Math.ceil(filteredDocuments.length / recordsPerPage)}
           page={page}
-          onChange={handleChange}
+          onChange={(event, value) => setPage(value)}
           variant="outlined"
           shape="rounded"
           sx={{
@@ -268,7 +339,7 @@ export default function Report() {
             <PaginationItem
               {...item}
               slots={{
-                previous: () => <span>{t("Previos")}</span>,
+                previous: () => <span>{t("Previous")}</span>,
                 next: () => <span>{t("Next")}</span>,
               }}
             />

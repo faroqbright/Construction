@@ -18,6 +18,8 @@ import ProjectDetails from "../pages/MainPages/ProjectDetails/Details";
 import EditProject from "../pages/MainPages/EditProject/EditProject";
 import ReportsName from "../pages/MainPages/ReportsName/ReportsName";
 import ReportsPage from "../pages/MainPages/Report/Report";
+import UserReportsPage from "../pages/MainPages/Report/userReport";
+import SubmitReportPage from "../pages/MainPages/Report/submitReport";
 
 const App = () => {
   return (
@@ -98,6 +100,28 @@ const App = () => {
                   requiredModules={["ReportsManagement"]}
                 >
                   <ReportsPage />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/userReports"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ReportsManagement"]}
+                >
+                  <UserReportsPage />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/submitReport"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ReportsManagement"]}
+                >
+                  <SubmitReportPage />
                 </RouteMiddleware>
               }
             />

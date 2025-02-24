@@ -1,11 +1,16 @@
 import axios from "axios";
-// import { toast } from "react-toastify";
+
+// Determine base URL dynamically
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "https://constructionbe-production.up.railway.app/api/v1"
+    : `https://appsoapro.techbytech.tech/api/api/v1`;
 
 // Utility function to make authenticated API requests
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
     method: method.toLowerCase(), // Normalize method to lowercase
-    url: `https://appsoapro.techbytech.tech/api/api/v1${url}`, // Correct URL concatenation
+    url: `${BASE_URL}${url}`, // Dynamically set base URL
     headers: {
       Authorization: `Bearer ${token}`, // Fixed template literal syntax
       ...headers,
@@ -24,7 +29,7 @@ const apiRequest = async (method, url, data = {}, token, headers = {}) => {
       config.data = data; // For POST, PUT, and PATCH requests, use data
       break;
     default:
-      throw new Error(`Unsupported request method: ${method}`); // Fixed error string
+      throw new Error(`Unsupported request method: ${method}`);
   }
 
   try {
@@ -32,7 +37,6 @@ const apiRequest = async (method, url, data = {}, token, headers = {}) => {
     return response;
   } catch (error) {
     console.error("API Request Error:", error);
-    // toast.error("An error occurred. Please try again later.");
     throw error;
   }
 };
