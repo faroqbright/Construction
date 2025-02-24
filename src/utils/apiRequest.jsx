@@ -1,12 +1,10 @@
 import axios from "axios";
 
-// Determine base URL dynamically
 const BASE_URL =
   window.location.hostname === "localhost"
     ? "https://constructionbe-production.up.railway.app/api/v1"
     : `https://appsoapro.techbytech.tech/api/api/v1`;
 
-// Utility function to make authenticated API requests
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
     method: method.toLowerCase(), // Normalize method to lowercase
@@ -17,7 +15,6 @@ const apiRequest = async (method, url, data = {}, token, headers = {}) => {
     },
   };
 
-  // Handle data or params based on request method
   switch (method.toLowerCase()) {
     case "get":
     case "delete":
