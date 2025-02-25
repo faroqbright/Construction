@@ -126,6 +126,15 @@ const DocumentList = () => {
                       {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
                     </button>
                   </div>
+
+                  <div>
+                    <button
+                      className="text-blue-600 text-sm underline"
+                      onClick={() => window.open(doc.fileUrl, "_blank")}
+                    >
+                      View Report
+                    </button>
+                  </div>
                 </div>
               </div>
             );
