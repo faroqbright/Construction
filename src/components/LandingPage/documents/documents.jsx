@@ -26,6 +26,7 @@ const Documents = () => {
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [projecto, setProjecto] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -58,30 +59,13 @@ const Documents = () => {
     };
   }, []);
 
-  const fetchUsers = async () => {
-    try {
-      const response = await apiRequest("get", "/clients", {}, token);
-      if (response.data && Array.isArray(response.data.data)) {
-        setUsers(response.data.data);
-        setTotalPages(response.data.totalPages);
-      }
-    } catch (error) {
-      if (error?.response?.status === 401) {
-        dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
-        navigate("/login");
-      } else {
-        console.error("Error:", error);
-      }
-    }
-  };
-
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest("get", "/projects", {}, token);
-      if (response?.data?.statusCode === 200) {
-        setProjects(response?.data?.data?.projects || []);
+      const response = await apiRequest("get", "/userdocuments", {}, token);
+      if (response?.status === 200) {
+        setProjects(response?.data || []);
+        console.log(response?.data);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -91,28 +75,34 @@ const Documents = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
     fetchProjects();
   }, [token, page]);
 
-  const handleOpen = (user = null) => {
+  useEffect(() => {
+    const fetchProjecto = async () => {
+      setLoading(true);
+      try {
+        const response = await apiRequest("get", "/projects", {}, token);
+        if (response?.data?.statusCode === 200) {
+          setProjecto(response?.data?.data?.projects || []);
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjecto();
+  }, [token]);
+
+  const handleOpen = () => {
+    navigate("/submitDocument");
+  };
+
+  const handleOpens = (user) => {
     setEditData(user);
-    if (user) {
-      setFormData({
-        userName: user.userName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        password: "",
-      });
-    } else {
-      setFormData({
-        userName: "",
-        email: "",
-        phoneNumber: "",
-        password: "",
-      });
-    }
-    setOpen(true);
+    setOpen(true); // Ensure modal opens
   };
 
   const handleSubmit = (e) => {
@@ -126,6 +116,8 @@ const Documents = () => {
 
   const handleClose = () => {
     setEditData(null);
+    setSelectedProject(""); // Reset project name
+    setSelectedFile(null);
     setOpen(false);
   };
 
@@ -153,7 +145,7 @@ const Documents = () => {
 
       if (response.data.statusCode === 201) {
         toast.success(response.data.message);
-        fetchUsers();
+        fetchProjects();
         handleClose();
       } else {
         toast.error("Failed to add user.");
@@ -170,9 +162,9 @@ const Documents = () => {
 
   const handleDelete = async (userId) => {
     try {
-      await apiRequest("delete", `/clients/${userId}`, {}, token);
+      await apiRequest("delete", `/userdocuments/${userId}`, {}, token);
       toast.success("User deleted successfully.");
-      fetchUsers();
+      fetchProjects();
     } catch (error) {
       toast.error("Failed to delete user.");
       console.error("Error:", error);
@@ -181,15 +173,23 @@ const Documents = () => {
 
   const handleEditSubmit = async () => {
     try {
-      const updatedData = {
-        userName: formData.userName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-      };
-      await apiRequest("patch", `/clients/${editData._id}`, updatedData, token);
+      const formData = new FormData();
+      formData.append("projName", selectedProject);
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+      await apiRequest(
+        "patch",
+        `/userdocuments/${editData._id}`,
+        formData,
+        token,
+        {
+          "Content-Type": "multipart/form-data",
+        }
+      );
 
       toast.success("User updated successfully.");
-      fetchUsers();
+      fetchProjects();
       handleClose();
     } catch (error) {
       toast.error("Failed to update user.");
@@ -314,14 +314,14 @@ const Documents = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user, idx) => (
+              {projects.map((user, idx) => (
                 <tr key={user._id} className="hover:bg-gray-50">
                   <td className="p-4">
                     <Checkbox />
                   </td>
-                  <td className="p-4">{user.userName}</td>
-                  <td className="p-4">{user.email}</td>
-                  <td className="p-4">{user.phoneNumber}</td>
+                  <td className="p-4">{user.projName}</td>
+                  <td className="p-4">{user.user}</td>
+                  <td className="p-4">{user.uploadedAt}</td>
                   {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
                     <td className="p-4 relative">
                       <button
@@ -338,7 +338,7 @@ const Documents = () => {
                         >
                           {hasCLientUpdatePermission && (
                             <Button
-                              onClick={() => handleOpen(user)}
+                              onClick={() => handleOpens(user)}
                               size="small"
                             >
                               <FaEdit className="text-black-blacknew" />
@@ -401,49 +401,55 @@ const Documents = () => {
 
       <Modal open={open} onClose={handleClose}>
         <Box sx={modalStyles}>
-          {/* Header */}
           <div className="flex justify-between items-center mb-4">
             <Typography className="font-semibold text-lg">
-              Project Name
+              {t("Document_Details")}
             </Typography>
             <IconButton onClick={handleClose}>
               <RiCloseLine />
             </IconButton>
           </div>
 
-          {/* Select Project Dropdown */}
           <select
             className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-blue-500"
-            value={selectedProject}
+            value={selectedProject || editData?.projName || ""}
             onChange={(e) => setSelectedProject(e.target.value)}
           >
             <option value="">Select a project</option>
             {loading ? (
               <option>Loading...</option>
             ) : (
-              projects.map((project) => (
+              projecto.map((project) => (
                 <option key={project._id} value={project.projectName}>
-                  {project.projectName}
+                  {project.projectName}{" "}
                 </option>
               ))
             )}
           </select>
 
-          {/* Upload Files Button */}
           <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
-            <label className="block w-full">
+            <div className="flex justify-between items-center border border-gray-300 rounded-md p-2">
+              <Typography className="text-gray-700">
+                {selectedFile
+                  ? selectedFile.name
+                  : editData?.fileName || "No file selected"}
+              </Typography>
+              <button
+                type="button"
+                className="bg-[#F9F9F9] text-[#1A1A18] text-[14px] font-[500] border px-4 py-2 rounded-md"
+                onClick={() => document.getElementById("fileInput").click()}
+              >
+                Upload Files
+              </button>
               <input
                 type="file"
-                accept=".pdf"
-                className="hidden"
+                id="fileInput"
+                accept="application/pdf"
+                style={{ display: "none" }}
                 onChange={(e) => setSelectedFile(e.target.files[0])}
               />
-              <div className="cursor-pointer w-full bg-[#F9F9F9] text-[#1A1A18] text-[14px] font-[500] border px-4 py-3 rounded-md text-center hover:bg-gray-200">
-                {selectedFile ? selectedFile.name : "Upload PDF File"}
-              </div>
-            </label>
+            </div>
 
-            {/* Action Buttons */}
             <div className="flex justify-end space-x-2">
               <Button
                 variant="contained"

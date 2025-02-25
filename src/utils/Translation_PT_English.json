@@ -107,6 +107,7 @@
     "delete": "Delete",
     "Access": "Access",
     "All_Users": "All Users",
+    "Document_Details": "Document Details",
     "User_Name": "User Name",
     "Email": "Email",
     "Phone_Number": "Phone Number",
@@ -172,5 +173,14 @@
     "Uploaded_By": "Uploaded By",
     "Uploaded_At": "Uploaded At",
     "Upload_New_Document": "Upload New Document",
+    "Select_a_Project": "Select a Project",
+    "Upload_Document": "Upload Document",
+    "Choose_a_file_and_Drop_it_here": "Choose a file and Drop it here",
+    "Only_PDF_files_are_allowed": "Only PDF files are allowed",
+    "Only_JPEG_PNG_files_are_allowed": "Only JPEG PNG files are allowed",
+    "up_to": "up to",
+    "Browse_Files": "Browse Files",
+    "Upload_Changes": "Upload Changes",
+    "Upload_Report": "Upload Report",
     "More": "More"
   }

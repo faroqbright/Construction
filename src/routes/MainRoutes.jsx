@@ -21,6 +21,7 @@ import ReportsPage from "../pages/MainPages/Report/Report";
 import UserReportsPage from "../pages/MainPages/Report/userReport";
 import SubmitReportPage from "../pages/MainPages/Report/submitReport";
 import Documentpage from "../pages/MainPages/documents/documents";
+import SubmitDocumentPage from "../pages/MainPages/documents/submitDocument";
 
 const App = () => {
   return (
@@ -123,6 +124,18 @@ const App = () => {
                   requiredModules={["ReportsManagement"]}
                 >
                   <SubmitReportPage />
+                </RouteMiddleware>
+              }
+            />
+
+<Route
+              path="/submitDocument"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ReportsManagement"]}
+                >
+                  <SubmitDocumentPage />
                 </RouteMiddleware>
               }
             />

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-const SubmitReport = () => {
+const SubmitDocument = () => {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedProject, setSelectedProject] = useState("");
@@ -61,7 +61,7 @@ const SubmitReport = () => {
     formData.append("user", user);
 
     try {
-      const response = await apiRequest("post", "/documents", formData, token, {
+      const response = await apiRequest("post", "/userdocuments", formData, token, {
         "Content-Type": "multipart/form-data",
       });
       console.log(response);
@@ -72,7 +72,7 @@ const SubmitReport = () => {
         setSelectedFile(null);
         setSelectedProject("");
 
-        navigate("/userReports");
+        navigate("/documents");
       } else {
         toast.error("Upload failed. Please try again.");
       }
@@ -111,7 +111,7 @@ const SubmitReport = () => {
       </div>
 
       <div className="mx-4 mb-3">
-        <h1 className="font-semibold mb-3 text-2xl">{t("Upload_Report")}</h1>
+        <h1 className="font-semibold mb-3 text-2xl">{t("Upload_Document")}</h1>
         <div className="border border-gray-200 p-4 items-center rounded-xl border-dashed">
           <div className="flex flex-col items-center justify-center">
             <img
@@ -156,4 +156,4 @@ const SubmitReport = () => {
   );
 };
 
-export default SubmitReport;
+export default SubmitDocument;
