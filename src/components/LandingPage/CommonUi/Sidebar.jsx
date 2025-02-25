@@ -55,7 +55,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             {
               icon: report,
               label: t("Reports"),
-              to: "/report?tab=Pending",
+              to: "/report?tab=All%20Projects",
               module: "ReportsManagement",  
               isDropdown: true,
               dropdownItems: [
