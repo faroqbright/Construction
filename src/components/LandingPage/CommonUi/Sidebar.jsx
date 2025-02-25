@@ -55,14 +55,14 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             {
               icon: report,
               label: t("Reports"),
-              to: "/report",
-              module: "ReportsManagement",
+              to: "/report?tab=Pending",
+              module: "ReportsManagement",  
               isDropdown: true,
               dropdownItems: [
-                { label: t("Ongoing") + " " + t("Projects"), to: "/reports/ongoing" },
-                { label: t("Completed") + " " + t("Projects"), to: "/reports/completed" },
-                { label: t("Pending") + " " + t("Projects"), to: "/reports/pending" },
-              ],
+                { label: t("Pending") + " " + t("Projects"), to: "/report?tab=Pending"},
+                { label: t("Approved") + " " + t("Projects"), to: "/report?tab=Approved"},
+                { label: t("Rejected") + " " + t("Projects"), to: "/report?tab=Rejected"},
+              ],  
             },
           ]
         : [

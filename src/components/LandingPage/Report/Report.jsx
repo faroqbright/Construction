@@ -21,7 +21,7 @@ import {
   FormControl,
   OutlinedInput,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DropdownIcon from "../../../../src/assets/dropdown.svg";
 import Footer from "../CommonUi/Footer";
 import "../../../utils/i18n";
@@ -33,6 +33,9 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "react-toastify";
 
 export default function Report() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const activeTab = queryParams.get("tab") || "All Projects";
   const [selectedTab, setSelectedTab] = useState("All Projects");
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
@@ -41,6 +44,10 @@ export default function Report() {
   const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state.auth.userToken);
   console.log(documents);
+  
+  useEffect(() => {
+    setSelectedTab(activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -67,7 +74,7 @@ export default function Report() {
       return;
     }
     window.open(fileUrl, "_blank");
-  };  
+  };
 
   const handleChange = (event, value) => {
     setPage(value);
@@ -82,6 +89,7 @@ export default function Report() {
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
     setPage(1);
+    navigate(`/report?tab=${tab}`);
   };
 
   const filteredDocuments = documents.filter((doc) => {
@@ -122,6 +130,11 @@ export default function Report() {
     }
   };
 
+  useEffect(() => {
+    console.log("Active Tab:", selectedTab);
+  }, [selectedTab]);
+
+  
   return (
     <div className="bg-gray-100 min-h-screen p-8">
       <div className="flex items-center space-x-3 mb-10">
@@ -277,12 +290,11 @@ export default function Report() {
                       {new Date(doc.uploadedAt).toLocaleDateString()}
                     </td>
                     <td>
-                    <Button
-  startIcon={<MdOutlineFileDownload />}
-  sx={{ textTransform: "none", color: "#121619" }}
-  onClick={() => handleOpenFile(doc.fileUrl)}
-></Button>
-
+                      <Button
+                        startIcon={<MdOutlineFileDownload />}
+                        sx={{ textTransform: "none", color: "#121619" }}
+                        onClick={() => handleOpenFile(doc.fileUrl)}
+                      ></Button>
 
                       <Button
                         startIcon={<CheckCircle />}
