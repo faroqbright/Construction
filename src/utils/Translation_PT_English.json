@@ -168,5 +168,9 @@
     "View": "View",
     "Select_One_or_more": "Select One or more",
     "No_members": "No members",
+    "Document_Name": "Document Name",
+    "Uploaded_By": "Uploaded By",
+    "Uploaded_At": "Uploaded At",
+    "Upload_New_Document": "Upload New Document",
     "More": "More"
   }

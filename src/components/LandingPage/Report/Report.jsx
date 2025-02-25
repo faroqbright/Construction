@@ -67,7 +67,7 @@ export default function Report() {
       return;
     }
     window.open(fileUrl, "_blank");
-  };  
+  };
 
   const handleChange = (event, value) => {
     setPage(value);
@@ -277,12 +277,11 @@ export default function Report() {
                       {new Date(doc.uploadedAt).toLocaleDateString()}
                     </td>
                     <td>
-                    <Button
-  startIcon={<MdOutlineFileDownload />}
-  sx={{ textTransform: "none", color: "#121619" }}
-  onClick={() => handleOpenFile(doc.fileUrl)}
-></Button>
-
+                      <Button
+                        startIcon={<MdOutlineFileDownload />}
+                        sx={{ textTransform: "none", color: "#121619" }}
+                        onClick={() => handleOpenFile(doc.fileUrl)}
+                      ></Button>
 
                       <Button
                         startIcon={<CheckCircle />}

@@ -169,5 +169,9 @@
     "View": "Visualizar",
     "Select_One_or_more": "selecione um ou mais",
     "No_members": "Nenhum membro",
+    "Document_Name": "Nome do Documento",
+    "Uploaded_By": "Carregado Por",
+    "Uploaded_At": "Carregado Em",
+    "Upload_New_Document":"Carregar Novo Documento",
     "More": "Mais"
 }
