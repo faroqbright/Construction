@@ -13,6 +13,7 @@
     "View_All": "View All", 
     "Days_Left": "Days Left",
     "Deadline": "Deadline",
+    "Production" : "Production",
     "Status_changed_to" : "Status Changed To",
     "Project_name_changed_to": "Project Name Changed To",
     "Project_updated_by": "Project Updated By",
@@ -182,5 +183,20 @@
     "Browse_Files": "Browse Files",
     "Upload_Changes": "Upload Changes",
     "Upload_Report": "Upload Report",
+    "All_Companies": "All Companies",
+    "Finance_Client_List": "Finance Client List",
+    "Create_New_Client" : "Create New Client",
+    "Production_Clients_List": "Production Clients List",
+    "Choose_User_Type": "Choose User Type",
+    "Choose_Company": "Choose Company",
+    "Create_New_Company": "Create New Company",
+    "Add_New_Company": "Add New Company",
+    "Company_Name": "Company Name",
+    "Company_Email": "Company Email",
+    "Company_Phone_Number": "Company Phone Number",
+    "Enter_Company_Name": "Enter Company Name",
+    "Enter_Company_Email": "Enter Company Email",
+    "Enter_Company_Phone_Number": "Enter Company Phone Number",
+    
     "More": "More"
   }

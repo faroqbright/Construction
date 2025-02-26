@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Login from "../pages/LoginPages/Login/Login";
 import ForgotPass from "../pages/LoginPages/ForgotPassword/ForgotPass";
 import OtpPage from "../pages/LoginPages/Otp/OtpPage";
@@ -22,6 +27,7 @@ import UserReportsPage from "../pages/MainPages/Report/userReport";
 import SubmitReportPage from "../pages/MainPages/Report/submitReport";
 import Documentpage from "../pages/MainPages/documents/documents";
 import SubmitDocumentPage from "../pages/MainPages/documents/submitDocument";
+import AllComapnies from "../pages/MainPages/AllCompanies/AllCompanies";
 
 const App = () => {
   return (
@@ -128,7 +134,7 @@ const App = () => {
               }
             />
 
-<Route
+            <Route
               path="/submitDocument"
               element={
                 <RouteMiddleware
@@ -178,6 +184,17 @@ const App = () => {
                   requiredModules={["ClientsManagement"]}
                 >
                   <AllClients />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/all-companies"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["CompaniesManagement"]}
+                >
+                  <AllComapnies />
                 </RouteMiddleware>
               }
             />

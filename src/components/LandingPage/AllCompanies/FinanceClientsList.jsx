@@ -9,6 +9,10 @@ import {
   TextField,
   Typography,
   IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { RiCloseLine } from "react-icons/ri";
@@ -21,7 +25,7 @@ import RolePermissions from "../../../utils/RolePermissions";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
 
-const ClientsTable = () => {
+const FinanceClientsList = () => {
   const [openStates, setOpenStates] = useState({});
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -29,6 +33,8 @@ const ClientsTable = () => {
   const [formData, setFormData] = useState();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [projecto, setProjecto] = useState([]);
+  const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state?.auth?.userToken);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -49,8 +55,7 @@ const ClientsTable = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await apiRequest("get", "/companies", {}, token);
-      console.log(response);
+      const response = await apiRequest("get", "/clients", {}, token);
       if (response.data && Array.isArray(response.data.data)) {
         setUsers(response.data.data);
         setTotalPages(response.data.totalPages);
@@ -70,24 +75,26 @@ const ClientsTable = () => {
     setEditData(user);
     if (user) {
       setFormData({
-        name: user.name,
+        userName: user.userName,
         email: user.email,
-        number: user.number, 
+        phoneNumber: user.phoneNumber,
+        password: "",
       });
     } else {
       setFormData({
-        name: "",
+        userName: "",
         email: "",
-        number: "",
+        phoneNumber: "",
+        password: "",
       });
     }
-    setOpen(true); 
+    setOpen(true);
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     if (editData) {
-      handleEditSubmit(); 
+      handleEditSubmit();
     } else {
       handleAdd();
     }
@@ -107,9 +114,9 @@ const ClientsTable = () => {
 
   const handleAdd = async () => {
     if (
-      !formData.name.trim() ||
+      !formData.userName.trim() ||
       !formData.email.trim() ||
-      !formData.number.trim()
+      !formData.phoneNumber.trim()
     ) {
       toast.error("All fields are required.");
       return;
@@ -118,12 +125,7 @@ const ClientsTable = () => {
       if (!token) {
         throw new Error("No token found");
       }
-      const response = await apiRequest(
-        "post",
-        "/companies",
-        formData,
-        token
-      );
+      const response = await apiRequest("post", "/clients", formData, token);
 
       if (response.data.statusCode === 201) {
         toast.success(response.data.message);
@@ -144,7 +146,7 @@ const ClientsTable = () => {
 
   const handleDelete = async (userId) => {
     try {
-      await apiRequest("delete", `/companies/${userId}`, {}, token);
+      await apiRequest("delete", `/clients/${userId}`, {}, token);
       toast.success("User deleted successfully.");
       fetchUsers();
     } catch (error) {
@@ -156,11 +158,13 @@ const ClientsTable = () => {
   const handleEditSubmit = async () => {
     try {
       const updatedData = {
-        name: formData.name,
+        userName: formData.userName,
         email: formData.email,
-        number: formData.number,
+        phoneNumber: formData.phoneNumber,
+        userType: formData.userType,
+        companyName: formData.companyName,
       };
-      await apiRequest("patch", `/companies/${editData._id}`, updatedData, token);
+      await apiRequest("patch", `/clients/${editData._id}`, updatedData, token);
 
       toast.success("User updated successfully.");
       fetchUsers();
@@ -208,11 +212,29 @@ const ClientsTable = () => {
 
   const { t } = useTranslation();
 
+  useEffect(() => {
+    const fetchProjecto = async () => {
+      setLoading(true);
+      try {
+        const response = await apiRequest("get", "/companies", {}, token);
+        if (response?.data?.statusCode === 200) {
+          setProjecto(response?.data?.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjecto();
+  }, [token]);
+
   return (
     <>
       <div className="mx-5">
         <div className="flex justify-between items-center mb-4 mx-5">
-          <h2 className="text-xl font-semibold">{t("All_Companies")}</h2>
+          <h2 className="text-xl font-semibold">{t("Finance_Client_List")}</h2>
           {hasCLientCreatePermission && (
             <Button
               variant="contained"
@@ -226,7 +248,7 @@ const ClientsTable = () => {
                 },
               }}
             >
-              + {t("Create_New_Company")}
+              + {t("Create_New_Client")}
             </Button>
           )}
         </div>
@@ -240,80 +262,83 @@ const ClientsTable = () => {
                 </th>
                 <th className="p-4 border-b">{t("User_Name")}</th>
                 <th className="p-4 border-b">{t("Email")}</th>
-              <th className="p-4 border-b">{t("Phone_Number")}</th>
-                <th className="p-4 border-b">{t("Join_Date")}</th>
-              <th className="p-4 border-b">{t("Status")}</th>
+                <th className="p-4 border-b">{t("Company_Name")}</th>
+                <th className="p-4 border-b">{t("Phone_Number")}</th>
+                <th className="p-4 border-b">{t("Role")}</th>
+                <th className="p-4 border-b">{t("Status")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
                   <th className="p-4 border-b">{t("Actions")}</th>
                 )}
               </tr>
             </thead>
             <tbody>
-              {users.map((user, idx) => (
-                <tr key={user._id} className="hover:bg-gray-50">
-                  <td className="p-4">
-                    <Checkbox />
-                  </td>
-                  <td className="p-4">{user.name}</td>
-                  <td className="p-4">{user.email}</td>
-                  <td className="p-4">{user.number}</td>
-                  <td className="p-4">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 text-xs rounded ${
-                        user.status === "active"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
-                    <td className="p-4 relative">
-                      <button
-                        className="text-3xl"
-                        onClick={() => toggleRow(idx)}
-                      >
-                        ...
-                      </button>
-                      {openStates[idx] && (
-                        <div
-                          ref={modalRef}
-                          className="absolute p-2 -left-10 w-[130px] mt-2 bg-white shadow-lg z-20 rounded-md"
-                          style={{ top: "70%" }}
-                        >
-                          {hasCLientUpdatePermission && (
-                            <Button
-                              onClick={() => handleOpen(user)}
-                              size="small"
-                            >
-                              <FaEdit className="text-black-blacknew" />
-                              <span className="mx-3 items-center flex text-black-blacknew">
-                                {t("Edit")}
-                              </span>
-                            </Button>
-                          )}
-                          {hasCLientDeletePermission && (
-                            <Button
-                              onClick={() => handleDelete(user._id)}
-                              className="text-red-500"
-                              size="small"
-                            >
-                              <FaTrash className="text-black-blacknew" />
-                              <span className="mx-2 items-center flex text-black-blacknew">
-                                {t("Delete")}
-                              </span>
-                            </Button>
-                          )}
-                        </div>
-                      )}
+              {users
+                .filter((user) => user.userType === "Finance")
+                .map((user, idx) => (
+                  <tr key={user._id} className="hover:bg-gray-50">
+                    <td className="p-4">
+                      <Checkbox />
                     </td>
-                  )}
-                </tr>
-              ))}
+                    <td className="p-4">{user.userName}</td>
+                    <td className="p-4">{user.email}</td>
+                    <td className="p-4">{user.companyName}</td>
+                    <td className="p-4">{user.phoneNumber}</td>
+                    <td className="p-4">{user.userType}</td>
+                    <td className="p-4">
+                      <span
+                        className={`px-3 py-1 text-xs rounded ${
+                          user.status === "Active"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {user.status}
+                      </span>
+                    </td>
+                    {(hasCLientUpdatePermission ||
+                      hasCLientDeletePermission) && (
+                      <td className="p-4 relative">
+                        <button
+                          className="text-3xl"
+                          onClick={() => toggleRow(idx)}
+                        >
+                          ...
+                        </button>
+                        {openStates[idx] && (
+                          <div
+                            ref={modalRef}
+                            className="absolute p-2 -left-10 w-[130px] mt-2 bg-white shadow-lg z-20 rounded-md"
+                            style={{ top: "70%" }}
+                          >
+                            {hasCLientUpdatePermission && (
+                              <Button
+                                onClick={() => handleOpen(user)}
+                                size="small"
+                              >
+                                <FaEdit className="text-black-blacknew" />
+                                <span className="mx-3 items-center flex text-black-blacknew">
+                                  {t("Edit")}
+                                </span>
+                              </Button>
+                            )}
+                            {hasCLientDeletePermission && (
+                              <Button
+                                onClick={() => handleDelete(user._id)}
+                                className="text-red-500"
+                                size="small"
+                              >
+                                <FaTrash className="text-black-blacknew" />
+                                <span className="mx-2 items-center flex text-black-blacknew">
+                                  {t("Delete")}
+                                </span>
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -352,7 +377,7 @@ const ClientsTable = () => {
         <Box sx={modalStyles}>
           <div className="flex justify-between items-center mb-4">
             <Typography variant="h6">
-              {editData ? t("Edit_Client") : t("Add_New_Company")}
+              {editData ? t("Edit_Client") : t("Add_New_Client")}
             </Typography>
             <IconButton onClick={handleClose}>
               <RiCloseLine />
@@ -361,37 +386,86 @@ const ClientsTable = () => {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <TextField
-              label={t("Company_Name")}
+              label={t("Name")}
               variant="outlined"
               fullWidth
-              placeholder={t("Enter_Company_Name")}
-              value={formData?.name}
+              placeholder={t("Enter_User_Name")}
+              value={formData?.userName}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, userName: e.target.value })
               }
             />
             <TextField
-              label={t("Company_Email")}
+              label={t("Email")}
               variant="outlined"
               fullWidth
-              placeholder={t("Enter_Company_Email")}
+              placeholder={t("Enter_User_Email")}
               value={formData?.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
             />
             <TextField
-              label={t("Company_Phone_Number")}
+              label="Phone"
               variant="outlined"
               fullWidth
-              placeholder={t("Enter_Company_Phone_Number")}
-              value={formData?.number}
+              placeholder={t("Enter_User_Phone_Number")}
+              value={formData?.phoneNumber}
               onChange={(e) =>
-                setFormData({ ...formData, number: e.target.value })
+                setFormData({ ...formData, phoneNumber: e.target.value })
               }
             />
 
-            
+            {/* Choose User Type Dropdown */}
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>{t("Choose_User_Type")}</InputLabel>
+              <Select
+                value={formData?.userType || editData?.userType || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, userType: e.target.value })
+                }
+                label={t("Choose_User_Type")}
+              >
+                <MenuItem value="Finance">{t("Finance")}</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* Choose Company Dropdown */}
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>{t("Choose_Company")}</InputLabel>
+              <Select
+                value={formData?.companyName || editData?.companyName || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, companyName: e.target.value })
+                }
+                label={t("Choose_Company")}
+              >
+                {loading ? (
+                  <MenuItem disabled>{t("Loading...")}</MenuItem>
+                ) : (
+                  projecto.map((project) => (
+                    <MenuItem key={project._id} value={project.name}>
+                      {project.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+            </FormControl>
+
+            {/* Conditionally render the password field */}
+            {!editData && (
+              <TextField
+                label="Password"
+                variant="outlined"
+                fullWidth
+                placeholder={t("Enter_Your_Password")}
+                type="password"
+                value={formData?.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
+            )}
 
             <div className="flex justify-end space-x-2">
               <Button
@@ -423,4 +497,4 @@ const ClientsTable = () => {
   );
 };
 
-export default ClientsTable;
+export default FinanceClientsList;

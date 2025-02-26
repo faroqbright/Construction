@@ -13,9 +13,11 @@ import document from "../../../assets/solar_document-linear.png";
 import solar from "../../../assets/solar_user-broken.png";
 import dash from "../../../assets/solar_user-broken.png";
 import report from "../../../assets/iconoir_reports.png";
+import building from "../../../assets/building-2.png";
 import { useSelector } from "react-redux";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
+
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [reportDropdown, setReportDropdown] = useState(false);
@@ -96,12 +98,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             },
           ]
         : []),
-      {
-        icon: solar,
-        label: t("All_Clients"),
-        to: "/all-clients",
-        module: "ClientsManagement",
-      },
+        {
+          icon: solar,
+          label: t("All_Clients"),
+          to: "/all-companies",
+          module: "ClientsManagement",
+        },
+        {
+          icon: building,
+          label: t("All_Companies"),
+          to: "/all-clients",
+          module: "null",
+        },
     ];    
 
   const filteredItems = Admin
