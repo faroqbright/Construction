@@ -420,7 +420,7 @@ const ProjectManager = () => {
                           {t("Physical_Execution")}
                         </p>
                         <h6 className="text-gray-800 font-semibold">
-                          {project.physicalEducationRange}%
+                          {project?.financeDocuments?.[0]?.physicalExecution}%
                         </h6>
                       </div>
 
@@ -432,13 +432,13 @@ const ProjectManager = () => {
                               : "bg-red-500"
                           }`}
                           style={{
-                            width: `${project.physicalEducationRange}%`,
+                            width: `${project?.financeDocuments?.[0]?.physicalExecution}%`,
                           }}
                         ></div>
                         <div
                           className="absolute w-5 h-5 rounded-full bg-red-redNew border-2 border-red-redNew"
                           style={{
-                            left: `calc(${project.physicalEducationRange}% - 10px)`,
+                            left: `calc(${project?.financeDocuments?.[0]?.physicalExecution}% - 10px)`,
                             top: "-6px",
                           }}
                         ></div>
@@ -450,21 +450,21 @@ const ProjectManager = () => {
                           {t("Financial_Execution")}
                         </p>
                         <h6 className="text-red-redNew">
-                          {project.physicalEducationRange}%
+                          {project?.financeDocuments?.[0]?.financialExecution}%
                         </h6>
                       </div>
                       <div className="w-full bg-gray-200 h-2 rounded-full relative">
                         <div
                           className="bg-red-redNew h-2 rounded-full"
                           style={{
-                            width: `${project.physicalEducationRange}%`,
+                            width: `${project?.financeDocuments?.[0]?.financialExecution}%`,
                           }}
                         ></div>
                         <div
                           className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
                  flex items-center justify-center shadow-md cursor-pointer transition-all"
                           style={{
-                            left: `calc(${project.physicalEducationRange}% - 10px)`,
+                            left: `calc(${project?.financeDocuments?.[0]?.financialExecution}% - 10px)`,
                           }}
                         >
                           <span className="w-2 h-2 bg-red-redNew rounded-full"></span>

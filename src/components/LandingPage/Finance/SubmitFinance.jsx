@@ -6,162 +6,62 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 
-// const ProgressGauge = ({ percentage, color, label }) => {
-//     return (
-//       <div className="flex flex-col items-center m-4">
-//         <RadialBarChart
-//           width={300}
-//           height={300}
-//           cx={150}
-//           cy={150}
-//           innerRadius="80%"
-//           outerRadius="100%"
-//           barSize={20}
-//           data={[{ value: percentage }]}
-//           startAngle={180}
-//           endAngle={0}
-//         >
-//           <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-//           <RadialBar
-//             background={{ fill: "#f0f0f0" }}
-//             dataKey="value"
-//             fill={color}
-//             cornerRadius={5}
-//           />
-//         </RadialBarChart>
-//         <div
-//           className="flex items-center justify-center w-12 h-12 rounded-full -mt-48 text-white font-semibold text-lg"
-//           style={{ backgroundColor: color }}
-//         >
-//           {percentage}%
-//         </div>
-//         <p className="mt-2 text-center text-black font-semibold">{label}</p>
-//       </div>
-//     );
-//   }
-
-// const ProgressGauge = ({ initialPercentage, color, label }) => {
-//     const [percentage, setPercentage] = useState(initialPercentage);
-  
-//     // Function to handle clicks on the chart
-//     const handleChartClick = (event) => {
-//       if (!event || !event.activeCoordinate) return;
-  
-//       // Extract the Y-coordinate
-//       const { y } = event.activeCoordinate;
-  
-//       // Convert Y-position to percentage (assuming 0-100)
-//       let newPercentage = Math.round((1 - y / 300) * 100); // Adjust scaling
-//       newPercentage = Math.max(0, Math.min(100, newPercentage)); // Ensure 0-100 range
-  
-//       setPercentage(newPercentage);
-//     };
-  
-//     return (
-//       <div className="flex flex-col items-center m-4 relative">
-//         <RadialBarChart
-//           width={300}
-//           height={300}
-//           cx={150}
-//           cy={150}
-//           innerRadius="80%"
-//           outerRadius="100%"
-//           barSize={20}
-//           data={[{ value: percentage }]}
-//           startAngle={180}
-//           endAngle={0}
-//           onClick={handleChartClick} // Make chart interactive
-//         >
-//           <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-//           <RadialBar
-//             background={{ fill: "#f0f0f0" }}
-//             dataKey="value"
-//             fill={color}
-//             cornerRadius={5}
-//           />
-//         </RadialBarChart>
-  
-//         {/* Percentage Display */}
-//         <div
-//           className="absolute top-[110px] left-[110px] flex items-center justify-center w-16 h-16 rounded-full text-white font-semibold text-lg"
-//           style={{ backgroundColor: color }}
-//         >
-//           {percentage}%
-//         </div>
-//         <p className="mt-2 text-center text-black font-semibold">{label}</p>
-//       </div>
-//     );
-//   };
-
-
-const ProgressGauge = ({ initialPercentage, color, label }) => {
-    const [percentage, setPercentage] = useState(initialPercentage);
-    const isDragging = useRef(false); // Track dragging state
-  
-    // Convert mouse Y-position to percentage
-    const calculatePercentage = (y) => {
-      let newPercentage = Math.round((1 - y / 300) * 100); // Convert Y-coordinate to percentage
-      return Math.max(0, Math.min(100, newPercentage)); // Ensure range 0-100
-    };
-  
-    // Start Drag
-    const handleMouseDown = () => {
-      isDragging.current = true;
-    };
-  
-    // Dragging to update percentage
-    const handleMouseMove = (event) => {
-      if (!isDragging.current) return;
-      const { clientY } = event;
-      setPercentage(calculatePercentage(clientY));
-    };
-  
-    // Stop Drag
-    const handleMouseUp = () => {
-      isDragging.current = false;
-    };
-  
-    return (
-      <div
-        className="flex flex-col items-center m-4 relative"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp} // Stop if cursor leaves
+const ProgressGauge = ({
+  percentage,
+  color,
+  label,
+  onIncrease,
+  onDecrease,
+}) => {
+  return (
+    <div className="flex flex-col items-center m-4 relative">
+      <RadialBarChart
+        width={300}
+        height={300}
+        cx={150}
+        cy={150}
+        innerRadius="80%"
+        outerRadius="100%"
+        barSize={20}
+        data={[{ value: percentage }]}
+        startAngle={180}
+        endAngle={0}
       >
-        <RadialBarChart
-          width={300}
-          height={300}
-          cx={150}
-          cy={150}
-          innerRadius="80%"
-          outerRadius="100%"
-          barSize={20}
-          data={[{ value: percentage }]}
-          startAngle={180}
-          endAngle={0}
-          onMouseDown={handleMouseDown} // Start dragging
-        >
-          <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-          <RadialBar
-            background={{ fill: "#f0f0f0" }}
-            dataKey="value"
-            fill={color}
-            cornerRadius={5}
-            isAnimationActive={false} // Instant update
-          />
-        </RadialBarChart>
-  
-        {/* Percentage Display */}
-        <div
-          className="absolute top-[110px] left-[110px] flex items-center justify-center w-16 h-16 rounded-full text-white font-semibold text-lg"
-          style={{ backgroundColor: color }}
-        >
-          {percentage}%
-        </div>
-        <p className="mt-2 text-center text-black font-semibold">{label}</p>
+        <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+        <RadialBar
+          background={{ fill: "#f0f0f0" }}
+          dataKey="value"
+          fill={color}
+          cornerRadius={5}
+          isAnimationActive={false}
+        />
+      </RadialBarChart>
+
+      <div
+        className="absolute top-[110px] left-[110px] flex items-center justify-center w-16 h-16 rounded-full text-white font-semibold text-lg"
+        style={{ backgroundColor: color }}
+      >
+        {percentage}%
       </div>
-    );
-  };
+
+      <div className="flex items-center -mt-10">
+        <button
+          onClick={onIncrease}
+          className="px-3 py-1 bg-green-600 text-white rounded-lg"
+        >
+          +
+        </button>
+        <p className="mx-4 text-black font-semibold">{label}</p>
+        <button
+          onClick={onDecrease}
+          className="px-3 py-1 bg-red-600 text-white rounded-lg"
+        >
+          -
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default function SubmitFinance() {
   const fileInputRef = useRef(null);
@@ -174,6 +74,16 @@ export default function SubmitFinance() {
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [financial, setFinancial] = useState(90);
+  const [physical, setPhysical] = useState(75);
+
+  const handleChange = (type, change) => {
+    if (type === "financial") {
+      setFinancial((prev) => Math.min(100, Math.max(0, prev + change)));
+    } else {
+      setPhysical((prev) => Math.min(100, Math.max(0, prev + change)));
+    }
+  };
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -217,17 +127,13 @@ export default function SubmitFinance() {
     formData.append("file", selectedFile);
     formData.append("projName", selectedProject);
     formData.append("user", user);
+    formData.append("financialExecution", financial);
+    formData.append("physicalExecution", physical);
 
     try {
-      const response = await apiRequest(
-        "post",
-        "/userdocuments",
-        formData,
-        token,
-        {
-          "Content-Type": "multipart/form-data",
-        }
-      );
+      const response = await apiRequest("post", "/finance", formData, token, {
+        "Content-Type": "multipart/form-data",
+      });
       console.log(response);
 
       if (response?.status === 200 || response?.status === 201) {
@@ -235,7 +141,7 @@ export default function SubmitFinance() {
         setSelectedFile(null);
         setSelectedProject("");
 
-        navigate("/documents");
+        navigate("/finance");
       } else {
         toast.error("Upload failed. Please try again.");
       }
@@ -250,11 +156,14 @@ export default function SubmitFinance() {
   return (
     <>
       <h1 className="font-semibold text-2xl mx-4 mb-3">
-        {t("Project_Details")} <span className="text-red-600 pr-1">*</span>
+        {t("Project Finance Details")}
       </h1>
 
       <div className="mx-4 mb-3">
-        <h3>{t("Project_Name")}</h3>
+        <h3>
+          {t("Project_Name")}{" "}
+          <span className="text-red-600 text-xl pr-1">*</span>
+        </h3>
         <select
           className="mt-2 border border-gray-300 rounded-md p-2 w-full"
           value={selectedProject}
@@ -304,29 +213,38 @@ export default function SubmitFinance() {
             {selectedFile && <p className="mt-2">{selectedFile.name}</p>}
           </div>
         </div>
+      </div>
 
-        <div className="items-center flex flex-col justify-center mt-5">
-          <button
-            className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-full"
-            onClick={handleUpload}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading..." : `${t("Upload_Changes")}`}
-          </button>
+      <h1 className="font-semibold text-2xl mx-4 mt-10">
+        {t("Finance Execution")}
+      </h1>
+      <div className="flex flex-col items-center">
+        <div className="flex justify-center p-5 flex-col lg:flex-row mt-3">
+          <ProgressGauge
+            percentage={financial}
+            color="#222"
+            label="Financial Execution"
+            onIncrease={() => handleChange("financial", 5)}
+            onDecrease={() => handleChange("financial", -5)}
+          />
+          <ProgressGauge
+            percentage={physical}
+            color="#d32f2f"
+            label="Physical Execution"
+            onIncrease={() => handleChange("physical", 5)}
+            onDecrease={() => handleChange("physical", -5)}
+          />
         </div>
       </div>
 
-      <div className="flex justify-center p-5 flex-col lg:flex-row mt-3">
-        <ProgressGauge
-          initialPercentage={90}
-          color="#222"
-          label="Financial Execution"
-        />
-        <ProgressGauge
-          initialPercentage={75}
-          color="#d32f2f"
-          label="Physical Execution"
-        />
+      <div className="items-center flex flex-col justify-center mt-5">
+        <button
+          className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-full"
+          onClick={handleUpload}
+          disabled={uploading}
+        >
+          {uploading ? "Uploading..." : `${t("Upload_Changes")}`}
+        </button>
       </div>
     </>
   );

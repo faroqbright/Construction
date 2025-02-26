@@ -147,7 +147,7 @@ const ProjectDetails = () => {
                           <span className="text-xs text-lightpurple-light text-nowrap mt-1">
                             {t("Submitted_By")}:{" "}
                             <span className="text-lightpurple-light">
-                            {doc.user}
+                              {doc.user}
                             </span>
                           </span>
                         </div>
@@ -155,86 +155,153 @@ const ProjectDetails = () => {
                     ))}
                   </div>
                 </div>
-                <div className="flex gap-8 justify-center">
-                  <div className="flex flex-col items-center mt-10">
-                    <svg
-                      viewBox="0 0 100 55"
-                      className="w-40 h-25"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      {Array.from({ length: totalTicks }).map((_, index) => {
-                        const angle = (360 / (totalTicks - 1)) * index - 65;
-                        const isActive = totalTicks - index >= activeTicks;
-                        const tickColor = isActive ? color : "#1A1A18";
-                        return (
-                          <line
-                            key={index}
-                            x1={50 + 40 * Math.cos((angle * Math.PI) / 180)}
-                            y1={50 + 40 * Math.sin((angle * Math.PI) / 180)}
-                            x2={50 + 45 * Math.cos((angle * Math.PI) / 180)}
-                            y2={50 + 45 * Math.sin((angle * Math.PI) / 180)}
-                            stroke={tickColor}
-                            strokeWidth="2"
-                          />
-                        );
-                      })}
-                      <circle cx="50" cy="38" r="12" fill="#1A1A18" />
-                      <text
-                        x="50"
-                        y="42"
-                        textAnchor="middle"
-                        fontSize="10"
-                        fill="white"
-                        fontWeight="bold"
+                <div className="mt-14">
+                  <h3 className="text-md font-semibold text-gray-800">
+                    {t("Finance Status")}:
+                  </h3>
+                  <div className="flex mt-4 gap-3 flex-wrap">
+                    {projectData?.financeDocuments?.map((doc, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = doc.fileUrl;
+                          link.setAttribute(
+                            "download",
+                            doc.fileUrl.split("/").pop()
+                          ); // Force download
+                          link.setAttribute("target", "_blank"); // Open in a new tab
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
                       >
-                        {value}%
-                      </text>
-                    </svg>
-                    <p className="text-center mt-2 text-sm font-medium">
-                      {t("Financial_Execution")}
-                    </p>
+                        <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
+                        <div className="mt-1">
+                          <span className="text-sm font-semibold">
+                            {doc.fileName}
+                          </span>
+                          <br />
+                          <span className="text-xs text-lightpurple-light text-nowrap mt-1">
+                            {t("Submitted_By")}:{" "}
+                            <span className="text-lightpurple-light">
+                              {doc.user}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="flex gap-8 justify-center">
-                  <div className="flex flex-col items-center mt-10">
-                    <svg
-                      viewBox="0 0 100 55"
-                      className="w-40 h-25"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      {Array.from({ length: totalTicks }).map((_, index) => {
-                        const angle = (360 / (totalTicks - 1)) * index - 75;
-                        const isActive = totalTicks - index >= activeTicks;
-                        const tickColor = isActive ? color : "#B91724";
-                        return (
-                          <line
-                            key={index}
-                            x1={50 + 40 * Math.cos((angle * Math.PI) / 180)}
-                            y1={50 + 40 * Math.sin((angle * Math.PI) / 180)}
-                            x2={50 + 45 * Math.cos((angle * Math.PI) / 180)}
-                            y2={50 + 45 * Math.sin((angle * Math.PI) / 180)}
-                            stroke={tickColor}
-                            strokeWidth="2"
-                          />
-                        );
-                      })}
-                      <circle cx="50" cy="38" r="12" fill="#B91724" />
-                      <text
-                        x="50"
-                        y="42"
-                        textAnchor="middle"
-                        fontSize="10"
-                        fill="white"
-                        fontWeight="bold"
-                      >
-                        {projectData?.physicalEducationRange}%
-                      </text>
-                    </svg>
-                    <p className="text-center mt-2 text-sm font-medium">
-                      {t("Physical_Execution")}
-                    </p>
-                  </div>
-                </div>
+                {projectData?.financeDocuments?.map((doc, index) => (
+                  <>
+                    <div className="flex gap-8 justify-center">
+                      <div className="flex flex-col items-center mt-10">
+                        <svg
+                          viewBox="0 0 100 55"
+                          className="w-40 h-25"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          {Array.from({ length: totalTicks }).map(
+                            (_, index) => {
+                              const angle =
+                                (360 / (totalTicks - 1)) * index - 65;
+                              const isActive =
+                                totalTicks - index >= activeTicks;
+                              const tickColor = isActive ? color : "#1A1A18";
+                              return (
+                                <line
+                                  key={index}
+                                  x1={
+                                    50 + 40 * Math.cos((angle * Math.PI) / 180)
+                                  }
+                                  y1={
+                                    50 + 40 * Math.sin((angle * Math.PI) / 180)
+                                  }
+                                  x2={
+                                    50 + 45 * Math.cos((angle * Math.PI) / 180)
+                                  }
+                                  y2={
+                                    50 + 45 * Math.sin((angle * Math.PI) / 180)
+                                  }
+                                  stroke={tickColor}
+                                  strokeWidth="2"
+                                />
+                              );
+                            }
+                          )}
+                          <circle cx="50" cy="38" r="12" fill="#1A1A18" />
+                          <text
+                            x="50"
+                            y="42"
+                            textAnchor="middle"
+                            fontSize="10"
+                            fill="white"
+                            fontWeight="bold"
+                          >
+                            {doc?.financialExecution}%
+                          </text>
+                        </svg>
+                        <p className="text-center mt-2 text-sm font-medium">
+                          {t("Financial_Execution")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-8 justify-center">
+                      <div className="flex flex-col items-center mt-10">
+                        <svg
+                          viewBox="0 0 100 55"
+                          className="w-40 h-25"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          {Array.from({ length: totalTicks }).map(
+                            (_, index) => {
+                              const angle =
+                                (360 / (totalTicks - 1)) * index - 75;
+                              const isActive =
+                                totalTicks - index >= activeTicks;
+                              const tickColor = isActive ? color : "#B91724";
+                              return (
+                                <line
+                                  key={index}
+                                  x1={
+                                    50 + 40 * Math.cos((angle * Math.PI) / 180)
+                                  }
+                                  y1={
+                                    50 + 40 * Math.sin((angle * Math.PI) / 180)
+                                  }
+                                  x2={
+                                    50 + 45 * Math.cos((angle * Math.PI) / 180)
+                                  }
+                                  y2={
+                                    50 + 45 * Math.sin((angle * Math.PI) / 180)
+                                  }
+                                  stroke={tickColor}
+                                  strokeWidth="2"
+                                />
+                              );
+                            }
+                          )}
+                          <circle cx="50" cy="38" r="12" fill="#B91724" />
+                          <text
+                            x="50"
+                            y="42"
+                            textAnchor="middle"
+                            fontSize="10"
+                            fill="white"
+                            fontWeight="bold"
+                          >
+                            {doc?.physicalExecution}%
+                          </text>
+                        </svg>
+                        <p className="text-center mt-2 text-sm font-medium">
+                          {t("Physical_Execution")}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ))}
               </div>
               <div className="mt-6">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -300,7 +367,7 @@ const ProjectDetails = () => {
                         alt={member.name}
                       />
                       <span className="text-sm text-black-blacknew">
-                        {member.name}
+                        {member.userName} ({member.role.roleName})
                       </span>
                     </div>
                   ))}

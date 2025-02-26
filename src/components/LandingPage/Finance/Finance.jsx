@@ -26,9 +26,17 @@ export default function Finance() {
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState(null);
-  const [formData, setFormData] = useState();
+  const [formData, setFormData] = useState({
+    projName: "",
+    financialExecution: "",
+    physicalExecution: "",
+    file: null,
+  });
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [projecto, setProjecto] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const token = useSelector((state) => state?.auth?.userToken);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -49,11 +57,9 @@ export default function Finance() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await apiRequest("get", "/companies", {}, token);
-      console.log(response);
-      if (response.data && Array.isArray(response.data.data)) {
-        setUsers(response.data.data);
-        setTotalPages(response.data.totalPages);
+      const response = await apiRequest("get", "/finance", {}, token);
+      if (response.status === 200) {
+        setUsers(response.data);
       }
     } catch (error) {
       if (error?.response?.status === 401) {
@@ -70,27 +76,29 @@ export default function Finance() {
     setEditData(user);
     if (user) {
       setFormData({
-        name: user.name,
-        email: user.email,
-        number: user.number,
+        projName: user.projName,
+        financialExecution: user.financialExecution,
+        physicalExecution: user.physicalExecution,
+        file: user.file,
       });
+      setSelectedProject(user.projName);
+      setSelectedFile(user.file);
     } else {
       setFormData({
-        name: "",
-        email: "",
-        number: "",
+        projName: "",
+        financialExecution: "",
+        physicalExecution: "",
+        file: null,
       });
+      setSelectedProject("");
+      setSelectedFile(null);
     }
     setOpen(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editData) {
-      handleEditSubmit();
-    } else {
-      handleAdd();
-    }
+    handleEditSubmit();
   };
 
   const handleClose = () => {
@@ -105,41 +113,9 @@ export default function Finance() {
     }));
   };
 
-  const handleAdd = async () => {
-    if (
-      !formData.name.trim() ||
-      !formData.email.trim() ||
-      !formData.number.trim()
-    ) {
-      toast.error("All fields are required.");
-      return;
-    }
-    try {
-      if (!token) {
-        throw new Error("No token found");
-      }
-      const response = await apiRequest("post", "/companies", formData, token);
-
-      if (response.data.statusCode === 201) {
-        toast.success(response.data.message);
-        fetchUsers();
-        handleClose();
-      } else {
-        toast.error("Failed to add user.");
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
-      console.error("Error:", error);
-    }
-  };
-
   const handleDelete = async (userId) => {
     try {
-      await apiRequest("delete", `/companies/${userId}`, {}, token);
+      await apiRequest("delete", `/finance/${userId}`, {}, token);
       toast.success("User deleted successfully.");
       fetchUsers();
     } catch (error) {
@@ -148,18 +124,50 @@ export default function Finance() {
     }
   };
 
+  useEffect(() => {
+    const fetchProjecto = async () => {
+      setLoading(true);
+      try {
+        const response = await apiRequest("get", "/projects", {}, token);
+        if (response?.data?.statusCode === 200) {
+          setProjecto(response?.data?.data?.projects || []);
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjecto();
+  }, [token]);
+
   const handleEditSubmit = async () => {
     try {
-      const updatedData = {
-        name: formData.name,
-        email: formData.email,
-        number: formData.number,
-      };
+      // Create a FormData object
+      const formDataPayload = new FormData();
+
+      // Append the file if it exists
+      if (selectedFile) {
+        formDataPayload.append("file", selectedFile);
+      }
+
+      // Append other fields
+      formDataPayload.append("projName", selectedProject);
+      formDataPayload.append("financialExecution", formData.financialExecution || ""); // Ensure it's not undefined
+      formDataPayload.append("physicalExecution", formData.physicalExecution || ""); // Ensure it's not undefined
+
+      // Send the request with FormData
       await apiRequest(
         "patch",
-        `/companies/${editData._id}`,
-        updatedData,
-        token
+        `/finance/${editData._id}`,
+        formDataPayload,
+        token,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Ensure the correct content type
+          },
+        }
       );
 
       toast.success("User updated successfully.");
@@ -174,20 +182,6 @@ export default function Finance() {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
-
-  const modalStyles = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    bgcolor: "background.paper",
-    boxShadow: 24,
-    borderRadius: "8px",
-    p: 4,
-    width: "400px",
-    maxHeight: "90vh",
-    overflow: "auto",
-  };
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -240,12 +234,11 @@ export default function Finance() {
                 </th>
                 <th className="p-4 border-b">{t("PROJECT NAME")}</th>
                 <th className="p-4 border-b">{t("INVOICE NAME")}</th>
-                <th className="p-4 border-b">{t("UPLOADED By")}</th>
+                <th className="p-4 border-b">{t("UPLOADED BY")}</th>
+                <th className="p-4 border-b">{t("Financial Execution")}</th>
+                <th className="p-4 border-b">{t("Physical Execution")}</th>
                 <th className="p-4 border-b">{t("DATE")}</th>
                 <th className="p-4 border-b">{t("ACTION")}</th>
-                {/* {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
-                  <th className="p-4 border-b">{t("Actions")}</th>
-                )} */}
               </tr>
             </thead>
             <tbody>
@@ -254,22 +247,13 @@ export default function Finance() {
                   <td className="p-4">
                     <Checkbox />
                   </td>
-                  <td className="p-4">{user.name}</td>
-                  <td className="p-4">{user.email}</td>
-                  <td className="p-4">{user.number}</td>
+                  <td className="p-4">{user.projName}</td>
+                  <td className="p-4">{user.fileName}</td>
+                  <td className="p-4">{user.user}</td>
+                  <td className="p-4">{user.financialExecution}%</td>
+                  <td className="p-4">{user.physicalExecution}%</td>
                   <td className="p-4">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 text-xs rounded-2xl border-[2px] ${
-                        user.status === "view"
-                          ? "bg-green-100 text-[#0ECB0A]"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
+                    {new Date(user.uploadedAt).toLocaleDateString()}
                   </td>
                   {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
                     <td className="p-4 relative">
@@ -320,7 +304,7 @@ export default function Finance() {
 
         <div className="flex justify-end mt-4">
           <Pagination
-            count={totalPages}
+            // count={totalPages}
             page={page}
             onChange={handlePageChange}
             sx={{
@@ -347,6 +331,123 @@ export default function Finance() {
           />
         </div>
       </div>
+
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={modalStyles}>
+          <div className="flex justify-between items-center mb-4">
+            <Typography className="font-semibold text-lg">
+              {t("Document_Details")}
+            </Typography>
+            <IconButton onClick={handleClose}>
+              <RiCloseLine />
+            </IconButton>
+          </div>
+
+          <select
+            className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-blue-500"
+            value={selectedProject}
+            onChange={(e) => {
+              setSelectedProject(e.target.value);
+              setFormData((prev) => ({ ...prev, projName: e.target.value }));
+            }}
+          >
+            <option value="">{t("Select_a_project")}</option>
+            {loading ? (
+              <option>Loading...</option>
+            ) : (
+              projecto.map((project) => (
+                <option key={project._id} value={project.projectName}>
+                  {project.projectName}{" "}
+                </option>
+              ))
+            )}
+          </select>
+
+          <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
+            <div className="flex justify-between items-center border border-gray-300 rounded-md p-2">
+              <Typography className="text-gray-700">
+                {selectedFile
+                  ? selectedFile.name
+                  : editData?.fileName || "No file selected"}
+              </Typography>
+              <button
+                type="button"
+                className="bg-[#F9F9F9] text-[#1A1A18] text-[14px] font-[500] border px-4 py-2 rounded-md"
+                onClick={() => document.getElementById("fileInput").click()}
+              >
+                {t("Upload_Files")}
+              </button>
+              <input
+                type="file"
+                id="fileInput"
+                accept="application/pdf"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setSelectedFile(file);
+                  setFormData((prev) => ({ ...prev, file }));
+                }}
+              />
+            </div>
+
+            <TextField
+              label="Financial Execution"
+              value={formData.financialExecution}
+              onChange={(e) =>
+                setFormData({ ...formData, financialExecution: e.target.value })
+              }
+              fullWidth
+              margin="normal"
+            />
+
+            <TextField
+              label="Physical Execution"
+              value={formData.physicalExecution}
+              onChange={(e) =>
+                setFormData({ ...formData, physicalExecution: e.target.value })
+              }
+              fullWidth
+              margin="normal"
+            />
+
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="contained"
+                type="submit"
+                sx={{
+                  backgroundColor: "black",
+                  color: "white",
+                  textTransform: "none",
+                  "&:hover": { backgroundColor: "#333333" },
+                }}
+              >
+                {editData ? t("Update") : t("Save")}
+              </Button>
+              <Button
+                sx={{
+                  backgroundColor: "#E9E9E9",
+                  color: "black",
+                  "&:hover": { backgroundColor: "#d1d1d1" },
+                }}
+                onClick={handleClose}
+              >
+                {t("Close")}
+              </Button>
+            </div>
+          </form>
+        </Box>
+      </Modal>
     </>
   );
 }
+
+const modalStyles = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+};
