@@ -28,6 +28,8 @@ import SubmitReportPage from "../pages/MainPages/Report/submitReport";
 import Documentpage from "../pages/MainPages/documents/documents";
 import SubmitDocumentPage from "../pages/MainPages/documents/submitDocument";
 import AllComapnies from "../pages/MainPages/AllCompanies/AllCompanies";
+import Finance from "../components/LandingPage/Finance/Finance";
+import SubmitFinance from "../components/LandingPage/Finance/SubmitFinance";
 
 const App = () => {
   return (
@@ -74,6 +76,22 @@ const App = () => {
               element={
                 <RouteMiddleware isAuthRequired={true}>
                   <Dashboard />
+                </RouteMiddleware>
+              }
+            />
+              <Route
+              path="/finance"
+              element={
+                <RouteMiddleware isAuthRequired={true}>
+                  <Finance />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/SubmitFinance"
+              element={
+                <RouteMiddleware isAuthRequired={true}>
+                  <SubmitFinance />
                 </RouteMiddleware>
               }
             />
