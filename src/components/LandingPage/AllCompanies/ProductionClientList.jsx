@@ -408,7 +408,7 @@ const ProductionClientList = () => {
               }
             />
             <TextField
-              label="Phone"
+              label={t("Phone_Number")}
               variant="outlined"
               fullWidth
               placeholder={t("Enter_User_Phone_Number")}
@@ -456,7 +456,7 @@ const ProductionClientList = () => {
             {/* Conditionally render the password field */}
             {!editData && (
               <TextField
-                label="Password"
+                label={t("Password")}
                 variant="outlined"
                 fullWidth
                 placeholder={t("Enter_Your_Password")}

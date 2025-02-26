@@ -278,6 +278,8 @@ const Documents = () => {
 
   const { t } = useTranslation();
 
+  console.log("projects", projects);
+
   return (
     <>
       <div className="mx-5">
@@ -309,8 +311,10 @@ const Documents = () => {
                   <Checkbox />
                 </th>
                 <th className="p-4 border-b">{t("Document_Name")}</th>
+                <th className="p-4 border-b">{t("Project_Name")}</th>
                 <th className="p-4 border-b">{t("Uploaded_By")}</th>
                 <th className="p-4 border-b">{t("Uploaded_At")}</th>
+                <th className="p-4 border-b">{t("Actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -319,6 +323,7 @@ const Documents = () => {
                   <td className="p-4">
                     <Checkbox />
                   </td>
+                  <td className="p-4">{user.fileName}</td>
                   <td className="p-4">{user.projName}</td>
                   <td className="p-4">{user.user}</td>
                   <td className="p-4">{user.uploadedAt}</td>
@@ -415,7 +420,7 @@ const Documents = () => {
             value={selectedProject || editData?.projName || ""}
             onChange={(e) => setSelectedProject(e.target.value)}
           >
-            <option value="">Select a project</option>
+            <option value="">{t("Select_a_project")}</option>
             {loading ? (
               <option>Loading...</option>
             ) : (
@@ -439,7 +444,7 @@ const Documents = () => {
                 className="bg-[#F9F9F9] text-[#1A1A18] text-[14px] font-[500] border px-4 py-2 rounded-md"
                 onClick={() => document.getElementById("fileInput").click()}
               >
-                Upload Files
+                {t("Upload_Files")}
               </button>
               <input
                 type="file"
