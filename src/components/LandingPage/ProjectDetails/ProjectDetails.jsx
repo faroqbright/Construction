@@ -120,52 +120,19 @@ const ProjectDetails = () => {
                   <h3 className="text-md font-semibold text-gray-800">
                     {t("Project_Deliverables")}:
                   </h3>
-                  <div className="flex mt-4 gap-3">
-                    {projectData?.lastDelivered && (
-                      <div
-                        className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
-                        onClick={() => {
-                          const link = document.createElement("a");
-                          link.href = projectData.lastDelivered;
-                          link.setAttribute(
-                            "download",
-                            projectData.lastDelivered.split("/").pop()
-                          ); // Force download
-                          link.setAttribute("target", "_blank"); // Ensures no interruptions
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        }}
-                      >
-                        <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
-                        <div className="mt-1">
-                          <span className="text-sm font-semibold">
-                            {projectData.lastDelivered
-                              .split("/")
-                              .pop()
-                              .split("_")
-                              .slice(1)
-                              .join("_")}{" "}
-                          </span>
-                          <br />
-                          <span className="text-xs text-lightpurple-light text-nowrap mt-1">
-                            {t("Submitted_By")}:{" "}
-                            <span className="text-lightpurple-light">
-                              John Doe
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    {projectData?.older?.map((item, index) => (
+                  <div className="flex mt-4 gap-3 flex-wrap">
+                    {projectData?.documents?.map((doc, index) => (
                       <div
                         key={index}
                         className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
                         onClick={() => {
                           const link = document.createElement("a");
-                          link.href = item;
-                          link.setAttribute("download", item.split("/").pop());
-                          link.setAttribute("target", "_blank");
+                          link.href = doc.fileUrl;
+                          link.setAttribute(
+                            "download",
+                            doc.fileUrl.split("/").pop()
+                          ); // Force download
+                          link.setAttribute("target", "_blank"); // Open in a new tab
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);
@@ -174,18 +141,13 @@ const ProjectDetails = () => {
                         <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
                         <div className="mt-1">
                           <span className="text-sm font-semibold">
-                            {item
-                              .split("/")
-                              .pop()
-                              .split("_")
-                              .slice(1)
-                              .join("_")}{" "}
+                            {doc.fileName}
                           </span>
                           <br />
                           <span className="text-xs text-lightpurple-light text-nowrap mt-1">
                             {t("Submitted_By")}:{" "}
                             <span className="text-lightpurple-light">
-                              John Doe
+                            {doc.user}
                             </span>
                           </span>
                         </div>
