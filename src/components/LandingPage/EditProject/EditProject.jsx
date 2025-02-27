@@ -191,11 +191,14 @@ export default function EditProject() {
     fetchProjects();
   }, [fetchProjects]);
 
+  const [clietMembers, setclietMembers] = useState([]);
+
   const fetchProjectsOwner = useCallback(async () => {
     if (!isCreateMode) return;
     try {
       const response = await apiRequest("get", "/clients", {}, token);
       if (response?.data?.statusCode === 200) {
+        setclietMembers(response?.data?.data);
         setOwners(response?.data?.data);
       } else {
         setError("Owners not found.");
@@ -369,8 +372,10 @@ export default function EditProject() {
   
     if (isCreateMode) {
       const data = new FormData();
+
+      // Append all form fields except teamMembers
       for (const key in formData) {
-        if (key !== "teamMembers") {
+        if (key !== "teamMembers" && key !== "clientMembers") {
           data.append(key, formData[key]);
         }
       }
@@ -594,7 +599,7 @@ export default function EditProject() {
         open={isModalOpens}
         handleClose={handleCloseButton}
       />
-      <form
+      <form 
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
@@ -894,56 +899,6 @@ export default function EditProject() {
               <label className="block text-2xl font-semibold mb-2 text-red-800">
                 <span className="text-gray-700 text-sm">
                   {" "}
-                  {t("Project_Owner")}
-                </span>
-                *
-              </label>
-              <Controller
-                name="projectOwner"
-                control={control}
-                rules={{ required: "Project Owner is required" }}
-                render={({ field }) => (
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleOwnerChange(e.target.value);
-                    }}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                  >
-                    <option value="">Select Project Owner</option>
-                    {owners.map((owner) => (
-                      <option key={owner._id} value={owner.userName}>
-                        {owner.userName}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              />
-              {errors.projectOwner && (
-                <span className="text-red-600">
-                  {errors.projectOwner.message}
-                </span>
-              )}
-            </div> */}
-
-            <Controller
-              name="projectOwnerId"
-              control={control}
-              render={({ field }) => (
-                <input {...field} type="hidden" value={field.value || ""} />
-              )}
-            />
-          </>
-        )}
-
-        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Team_Members")}</h2>
-        <div className="mb-4">
-          {!isViewMode && (
-            <>
-              <label className="block text-2xl font-semibold mb-2 text-red-800">
-                <span className="text-gray-700 text-sm">
-                  {" "}
                   {t("Add_Team_Members")}
                 </span>
                 *
@@ -999,9 +954,226 @@ export default function EditProject() {
                   {errors.teamMembers.message}
                 </span>
               )}
+            </div> */}
+
+            <div>
+              {!isViewMode && (
+                <>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    {t("Add_Team_Members")}
+                  </label>
+                  <Controller
+                    name="teamMembers"
+                    control={control}
+                    rules={{
+                      required:
+                        teamMembers.length === 0
+                          ? "Team Members is required"
+                          : false,
+                    }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        isMulti
+                        options={users
+                          .filter(
+                            (user) =>
+                              !modalTeamMembers.some(
+                                (member) => member._id === user._id
+                              )
+                          )
+                          .map((user) => ({
+                            value: user._id,
+                            label: user.userName,
+                            avatar: user.avatar,
+                          }))}
+                        value={modalTeamMembers.map((member) => ({
+                          value: member._id,
+                          label: member.userName,
+                          avatar: member.avatar,
+                        }))}
+                        onChange={(selectedOptions) => {
+                          handleUsersChange(selectedOptions);
+                          field.onChange(selectedOptions);
+                        }}
+                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                      />
+                    )}
+                  />
+                  {errors.teamMembers && (
+                    <span className="text-red-600">
+                      {errors.teamMembers.message}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+
+            {!isCreateMode && (
+              <div className="mt-4 flex-grow scrollbar-custom">
+                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
+                  {t("Added_Members")}
+                </h3>
+                <ul className="space-y-2">
+                  {modalTeamMembers.map((member) => (
+                    <li
+                      key={member._id}
+                      className="flex items-center bg-gray-100 p-2 rounded-lg"
+                    >
+                      {member.avatar ? (
+                        <img
+                          src={member.avatar}
+                          alt={member.userName}
+                          className="w-10 h-10 rounded-full mr-3"
+                        />
+                      ) : (
+                        <User
+                          key={member._id}
+                          className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                          size={32}
+                        />
+                      )}
+                      <span>{member.userName}</span>
+                      {!isViewMode && (
+                        <button
+                          className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
+                          onClick={() => handleDelete(member._id)}
+                        >
+                          <span className="text-lg">🗑️</span>
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex justify-between mt-4 w-full">
+              <button
+                onClick={saveChanges}
+                className="px-4 py-3 w-1/2 mr-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
+              >
+                {t("Save_Changes")}
+              </button>
+              <button
+                onClick={closeModal}
+                className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+              >
+                {t("Cancel")}
+              </button>
+            </div>
+          </Box>
+        </Modal>
+
+        {!isCreateMode && (
+          <>
+            <h2 className="block text-sm font-semibold mb-4 text-gray-700">
+              {t("Added_Members")}
+            </h2>
+            <div>
+              <ul>
+                {teamMembers.map((member) => (
+                  <li key={member._id} className="flex items-center mb-2">
+                    {member.avatar ? (
+                      <img
+                        src={member.avatar}
+                        alt={member.userName}
+                        className="w-10 h-10 rounded-full mr-3"
+                      />
+                    ) : (
+                      <User
+                        key={member._id}
+                        className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                        size={32}
+                      />
+                    )}
+                    <span>{member.userName}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Client_Members")}</h2>
+        <div className="mb-4">
+          {!isViewMode && (
+            <>
+              <label className="block text-2xl font-semibold mb-2 text-red-800">
+                <span className="text-gray-700 text-sm">
+                  {t("Add_Client_Members")}
+                </span>{" "}
+                *
+              </label>
+              <Controller
+                name="clientMembers"
+                control={control}
+                rules={{
+                  required:
+                    clietMembers.length === 0
+                      ? "Client Members is required"
+                      : false,
+                }}
+                render={({ field }) =>
+                  isCreateMode ? (
+                    <Select
+                      {...field}
+                      isMulti
+                      // Combine owners and users in the options
+                      options={[
+                        ...owners.map((owner) => ({
+                          value: owner._id, // using _id as value for consistency
+                          label: owner.userName,
+                          avatar: owner.avatar,
+                        })),
+                        ...owners
+                          .filter(
+                            (user) =>
+                              !clietMembers.some(
+                                (member) => member._id === user._id
+                              )
+                          )
+                          .map((user) => ({
+                            value: user._id,
+                            label: user.userName,
+                            avatar: user.avatar,
+                          })),
+                      ]}
+                      value={field.value || []}
+                      onChange={(selectedOptions) => {
+                        handleUsersChange(selectedOptions);
+                        field.onChange(selectedOptions);
+                      }}
+                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                    />
+                  ) : (
+                    <select
+                      {...field}
+                      onClick={openModal}
+                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                    >
+                      <option value="" disabled selected hidden>
+                        {t("Add_Client_Members")}
+                      </option>
+                      {/* Owners mapping added here */}
+                      {owners.map((owner) => (
+                        <option key={owner._id} value={owner._id}>
+                          {owner.userName}
+                        </option>
+                      ))}
+                    </select>
+                  )
+                }
+              />
+              {errors.clietMembers && (
+                <span className="text-red-600">
+                  {errors.clietMembers.message}
+                </span>
+              )}
             </>
           )}
         </div>
+
         <Modal
           open={isModalOpen}
           onClose={closeModal}
@@ -1035,33 +1207,41 @@ export default function EditProject() {
               {!isViewMode && (
                 <>
                   <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    {t("Add_Team_Members")}
+                    {t("Add_Client_Members")}
                   </label>
                   <Controller
                     name="teamMembers"
                     control={control}
                     rules={{
                       required:
-                        teamMembers.length === 0
-                          ? "Team Members is required"
+                        modalTeamMembers.length === 0
+                          ? "Client Members is required"
                           : false,
                     }}
                     render={({ field }) => (
                       <Select
                         {...field}
                         isMulti
-                        options={users
-                          .filter(
-                            (user) =>
-                              !modalTeamMembers.some(
-                                (member) => member._id === user._id
-                              )
-                          )
-                          .map((user) => ({
-                            value: user._id,
-                            label: user.userName,
-                            avatar: user.avatar,
-                          }))}
+                        // Combine owners mapping with users mapping here as well
+                        options={[
+                          ...owners.map((owner) => ({
+                            value: owner._id,
+                            label: owner.userName,
+                            avatar: owner.avatar,
+                          })),
+                          ...owners
+                            .filter(
+                              (user) =>
+                                !modalTeamMembers.some(
+                                  (member) => member._id === user._id
+                                )
+                            )
+                            .map((user) => ({
+                              value: user._id,
+                              label: user.userName,
+                              avatar: user.avatar,
+                            })),
+                        ]}
                         value={modalTeamMembers.map((member) => ({
                           value: member._id,
                           label: member.userName,
