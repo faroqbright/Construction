@@ -34,12 +34,45 @@ export default function EditProject() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedFil, setSelectedFil] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedClientUsers, setSelectedClientUsers] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [clientMembers, setClientMembers] = useState([]);
   const [initialValues, setInitialValues] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isclientModalOpen, setIsclientModalOpen] = useState(false);
   const [modalTeamMembers, setModalTeamMembers] = useState([]);
+  const [modalClientMembers, setModalClientMembers] = useState([]);
   const [logs, setlogs] = useState([]);
   const [isModalOpens, setIsModalOpens] = useState(false);
+  const [image, setImage] = useState(null);
+  const [imageError, setImageError] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [physicalExecution, setPhysicalExecution] = useState([]);
+  const [financialExecution, setFinancialExecution] = useState([]);
+  const [fileName, setFileName] = useState([]);
+  const [projectName, SetProjectName] = useState([]);
+  console.log(projectName);
+
+  useEffect(() => {
+    if (initialValues?.projectBanner) {
+      setSelectedFiles(
+        initialValues.projectBanner.map((banner) => ({ url: banner.url }))
+      );
+    }
+  }, [initialValues]);
+
+  const handleImageUpload = (event) => {
+    const files = Array.from(event.target.files);
+    const newFiles = files.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
+    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  };
+
+  const removeFile = (index) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
 
   const handleOPenButton = () => {
     setIsModalOpens(true);
@@ -55,8 +88,16 @@ export default function EditProject() {
     }
   }, [isModalOpen, teamMembers]);
 
+  useEffect(() => {
+    if (isclientModalOpen) {
+      setModalClientMembers([...clientMembers]);
+    }
+  }, [isclientModalOpen, clientMembers]);
+
   const openModal = () => setIsModalOpen(true);
+  const openClientModal = () => setIsclientModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+  const closeClientModal = () => setIsclientModalOpen(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -105,6 +146,15 @@ export default function EditProject() {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
       if (response?.data?.statusCode === 200) {
         const data = response?.data?.data;
+
+        const financeResponse = await apiRequest("get", "/finance", {}, token);
+        if (financeResponse?.status === 200) {
+          const filteredFinanceRecords = financeResponse?.data.filter(
+            (item) => item.projName === data.projectName
+          );
+          setFileName(filteredFinanceRecords);
+        }
+
         setInitialValues({
           projectName: data.projectName,
           description: data.description,
@@ -113,7 +163,9 @@ export default function EditProject() {
           projectBanner: data.projectBanner,
           deadline: data.deadline,
           members: data.members,
+          projectOwners: data.projectOwners,
           logs: data.logs,
+          financeDocuments: data.financeDocuments,
         });
         setValue("projectName", data.projectName);
         setValue("description", data.description);
@@ -122,6 +174,10 @@ export default function EditProject() {
         setValue("projectBanner", data.projectBanner);
         setValue("deadline", data.deadline);
         setTeamMembers(data.members);
+        setClientMembers(data.projectOwners);
+        setPhysicalExecution(data.financeDocuments);
+        setFinancialExecution(data.financeDocuments);
+        setFileName(data.financeDocuments);
         setlogs(data.logs);
       } else {
         setError("Project not found.");
@@ -171,12 +227,146 @@ export default function EditProject() {
     fetchProjectsUser();
   }, [fetchProjectsUser]);
 
+  // const onSubmit = async (formData) => {
+  //   if (!image) {
+  //     setImageError("Image is required.");
+  //     return;
+  //   }
+  //   setImageError("");
+  //   const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
+  //   const method = isCreateMode ? "post" : "put";
+
+  //   let requestData;
+
+  //   if (isCreateMode) {
+  //     const data = new FormData();
+  //     for (const key in formData) {
+  //       if (key !== "teamMembers") {
+  //         data.append(key, formData[key]);
+  //       }
+  //     }
+  //     data.append("projectBanner", formData.projectBanner);
+  //     data.append("physicalEducationRange", "100");
+  //     data.append("daysLeft", t("Awaiting_Start"));
+
+  //     requestData = data;
+  //   } else {
+  //     const updatedFields = {};
+
+  //     if (formData.projectName !== initialValues.projectName) {
+  //       updatedFields.projectName = formData.projectName;
+  //     }
+  //     if (formData.description !== initialValues.description) {
+  //       updatedFields.description = formData.description;
+  //     }
+  //     if (formData.location !== initialValues.location) {
+  //       updatedFields.location = formData.location;
+  //     }
+  //     if (formData.status !== initialValues.status) {
+  //       updatedFields.status = formData.status;
+  //     }
+  //     if (formData.deadline !== initialValues.deadline) {
+  //       updatedFields.deadline = formData.deadline;
+  //     }
+  //     const initialMemberIds = initialValues.members
+  //       ? initialValues.members.map((member) => member._id)
+  //       : [];
+  //     const initialClientMemberIds = initialValues.members
+  //       ? initialValues.members.map((member) => member._id)
+  //       : [];
+  //     const modalMemberIds = modalTeamMembers
+  //       ? modalTeamMembers.map((member) => member._id)
+  //       : [];
+  //     const modalClientMemberIds = modalClientMembers
+  //       ? modalClientMembers.map((member) => member._id)
+  //       : [];
+
+  //     const areArraysEqual = (arr1, arr2) =>
+  //       arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
+
+  //     const isMembersChanged = !areArraysEqual(
+  //       initialMemberIds,
+  //       modalMemberIds
+  //     );
+
+  //     const isClientMembersChanged = !areArraysEqual(
+  //       initialClientMemberIds,
+  //       modalClientMemberIds
+  //     );
+
+  //     if (isMembersChanged && modalMemberIds.length > 0) {
+  //       updatedFields.members = modalMemberIds;
+  //     }
+  //     if (isClientMembersChanged && modalClientMemberIds.length > 0) {
+  //       updatedFields.member = modalClientMemberIds;
+  //     }
+
+  //     if (Object.keys(updatedFields).length === 0) {
+  //       toast.info("No changes were made.");
+  //       return;
+  //     }
+
+  //     if (formData.projectBanner) {
+  //       const data = new FormData();
+  //       data.append("projectBanner", formData.projectBanner);
+  //       Object.keys(updatedFields).forEach((key) =>
+  //         data.append(key, updatedFields[key])
+  //       );
+  //     }
+  //     requestData = updatedFields;
+  //   }
+  //   try {
+  //     const response = await apiRequest(method, endpoint, requestData, token);
+  //     if (
+  //       response?.data?.statusCode === 201 ||
+  //       response?.data?.statusCode === 200
+  //     ) {
+  //       const responseid = response?.data?.data._id;
+
+  //       if (isCreateMode && selectedUsers.length > 0) {
+  //         try {
+  //           const updateResponse = await apiRequest(
+  //             "put",
+  //             `/projects/${responseid}`,
+  //             { members: selectedUsers },
+  //             { projectOwners: selectedClientUsers },
+  //             token
+  //           );
+
+  //           if (
+  //             updateResponse?.data?.statusCode === 201 ||
+  //             updateResponse?.data?.statusCode === 200
+  //           ) {
+  //             navigate("/project-management");
+  //             toast.success(updateResponse?.data?.message);
+  //           } else {
+  //             toast.error("Error updating users.");
+  //           }
+  //         } catch (error) {
+  //           toast.error("Error updating project members.");
+  //         }
+  //       } else {
+  //         navigate("/project-management");
+  //         toast.success(response?.data?.message);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     toast.error("Error saving project.");
+  //   }
+  // };
+
   const onSubmit = async (formData) => {
+    if (!image) {
+      setImageError("Image is required.");
+      return;
+    }
+    setImageError("");
+  
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
-
+  
     let requestData;
-
+  
     if (isCreateMode) {
       const data = new FormData();
       for (const key in formData) {
@@ -184,13 +374,19 @@ export default function EditProject() {
           data.append(key, formData[key]);
         }
       }
+  
+      // Append each selected file to the FormData object
+      selectedFiles.forEach((file, index) => {
+        data.append("projectBanner", file.file);
+      });
+  
       data.append("physicalEducationRange", "100");
-      data.append("daysLeft", (t("Awaiting_Start")));
-
+      data.append("daysLeft", t("Awaiting_Start"));
+  
       requestData = data;
     } else {
       const updatedFields = {};
-
+  
       if (formData.projectName !== initialValues.projectName) {
         updatedFields.projectName = formData.projectName;
       }
@@ -206,32 +402,55 @@ export default function EditProject() {
       if (formData.deadline !== initialValues.deadline) {
         updatedFields.deadline = formData.deadline;
       }
+  
       const initialMemberIds = initialValues.members
+        ? initialValues.members.map((member) => member._id)
+        : [];
+      const initialClientMemberIds = initialValues.members
         ? initialValues.members.map((member) => member._id)
         : [];
       const modalMemberIds = modalTeamMembers
         ? modalTeamMembers.map((member) => member._id)
         : [];
-
+      const modalClientMemberIds = modalClientMembers
+        ? modalClientMembers.map((member) => member._id)
+        : [];
+  
       const areArraysEqual = (arr1, arr2) =>
         arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
-
-      const isMembersChanged = !areArraysEqual(
-        initialMemberIds,
-        modalMemberIds
+  
+      const isMembersChanged = !areArraysEqual(initialMemberIds, modalMemberIds);
+      const isClientMembersChanged = !areArraysEqual(
+        initialClientMemberIds,
+        modalClientMemberIds
       );
-
+  
       if (isMembersChanged && modalMemberIds.length > 0) {
         updatedFields.members = modalMemberIds;
       }
-
+      if (isClientMembersChanged && modalClientMemberIds.length > 0) {
+        updatedFields.member = modalClientMemberIds;
+      }
+  
       if (Object.keys(updatedFields).length === 0) {
         toast.info("No changes were made.");
         return;
       }
-
-      requestData = updatedFields;
+  
+      if (selectedFiles.length > 0) {
+        const data = new FormData();
+        selectedFiles.forEach((file, index) => {
+          data.append("projectBanner", file.file);
+        });
+        Object.keys(updatedFields).forEach((key) =>
+          data.append(key, updatedFields[key])
+        );
+        requestData = data;
+      } else {
+        requestData = updatedFields;
+      }
     }
+  
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
       if (
@@ -239,16 +458,16 @@ export default function EditProject() {
         response?.data?.statusCode === 200
       ) {
         const responseid = response?.data?.data._id;
-
+  
         if (isCreateMode && selectedUsers.length > 0) {
           try {
             const updateResponse = await apiRequest(
               "put",
               `/projects/${responseid}`,
-              { members: selectedUsers },
+              { members: selectedUsers, projectOwners: selectedClientUsers },
               token
             );
-
+  
             if (
               updateResponse?.data?.statusCode === 201 ||
               updateResponse?.data?.statusCode === 200
@@ -278,6 +497,7 @@ export default function EditProject() {
     }
   };
 
+
   const handleUsersChange = (selectedOptions) => {
     const existingMembers = modalTeamMembers || [];
     const newMembers = selectedOptions.map((option) => ({
@@ -296,9 +516,31 @@ export default function EditProject() {
     setSelectedUsers(selectedUserIds);
   };
 
+  const handleClientUsersChange = (selectedOptions) => {
+    const existingMembers = modalClientMembers || [];
+    const newMembers = selectedOptions.map((option) => ({
+      _id: option.value,
+      userName: option.label,
+      avatar: option.avatar,
+    }));
+
+    const mergedMembers = [...existingMembers, ...newMembers].filter(
+      (member, index, self) =>
+        index === self.findIndex((m) => m._id === member._id)
+    );
+
+    setModalClientMembers(mergedMembers);
+    const selectedUserIds = mergedMembers.map((member) => member._id);
+    setSelectedClientUsers(selectedUserIds);
+  };
+
   const saveChanges = () => {
     setTeamMembers(modalTeamMembers);
     closeModal();
+  };
+  const saveClientChanges = () => {
+    setClientMembers(modalClientMembers);
+    closeClientModal();
   };
 
   const handleDelete = (memberId) => {
@@ -307,6 +549,16 @@ export default function EditProject() {
     );
 
     setSelectedUsers((prevUsers) =>
+      prevUsers.filter((userId) => userId !== memberId)
+    );
+  };
+
+  const handleClientDelete = (memberId) => {
+    setModalClientMembers((prevMembers) =>
+      prevMembers.filter((member) => member._id !== memberId)
+    );
+
+    setSelectedClientUsers((prevUsers) =>
       prevUsers.filter((userId) => userId !== memberId)
     );
   };
@@ -346,6 +598,51 @@ export default function EditProject() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-6">Project Gallery</h2>
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-black font-bold text-sm">Project Banner</span>
+          </label>
+          <div className="border-dashed border-[#A1AEBE] rounded-lg border-[2px] h-32 flex justify-center items-center relative cursor-pointer overflow-hidden">
+            <label className="text-black font-bold text-center cursor-pointer w-full h-full flex justify-center items-center">
+              Drop your images here or{" "}
+              <span className="text-blue-600 font-semibold">Upload</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
+          </div>
+          {imageError && (
+            <p className="text-red-500 text-sm mt-2">{imageError}</p>
+          )}
+          {errors[name] && (
+            <p className="text-red-500 text-sm mt-2">{errors[name].message}</p>
+          )}
+
+          {/* Preview Images */}
+          <div className="mt-4 grid grid-cols-3 gap-4">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={file.url}
+                  alt="Preview"
+                  className="w-full h-24 object-cover rounded-lg"
+                />
+                <button
+                  onClick={() => removeFile(index)}
+                  className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex justify-center items-center text-xs"
+                >
+                  ✖
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
         <div className="mb-4">
           <label className="block text-2xl font-semibold mb-2 text-red-800">
@@ -412,8 +709,8 @@ export default function EditProject() {
           )}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-semibold mb-2 text-gray-700">
-            {t("Status")}
+          <label className="block text-2xl font-semibold mb-2 text-red-800">
+            <span className="text-gray-700 text-sm">{t("Status")}</span>*
           </label>
           <Controller
             name="status"
@@ -480,6 +777,87 @@ export default function EditProject() {
           )}
         </div>
 
+        <h2 className="text-2xl font-bold mt-6 mb-6">Invoice</h2>
+        <div className="mb-4">
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">Choose Invoice</span>
+          </label>
+          <Controller
+            name="Choose_Invoice"
+            disabled={isViewMode}
+            // rules={{ required: "Invoice is required" }}
+            control={control}
+            defaultValue={financialExecution?.[0]?.fileName || ""} // Set default value
+            render={({ field }) => (
+              <select
+                {...field}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              >
+                {financialExecution?.map((file, index) => (
+                  <option key={index} value={file.fileName}>
+                    {file.fileName}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+
+          {errors.Choose_Invoice && (
+            <span className="text-red-600">
+              {errors.Choose_Invoice.message}
+            </span>
+          )}
+        </div>
+
+        <h2 className="text-2xl font-bold mt-6 mb-6">Execution</h2>
+        <div className="mb-4">
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">Physical Execution</span>
+          </label>
+          <Controller
+            name="Physical_Execution"
+            disabled={isViewMode}
+            // rules={{ required: "Physical Execution is required" }}
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                value={financialExecution?.[0]?.physicalExecution}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              />
+            )}
+          />
+          {errors.Physical_Execution && (
+            <span className="text-red-600">
+              {errors.Physical_Execution.message}
+            </span>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">Financial Execution</span>
+          </label>
+          <Controller
+            name="Financial_Execution"
+            disabled={isViewMode}
+            // rules={{ required: "Financial Execution is required" }}
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                value={financialExecution?.[0]?.financialExecution}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              />
+            )}
+          />
+          {errors.Financial_Execution && (
+            <span className="text-red-600">
+              {errors.Financial_Execution.message}
+            </span>
+          )}
+        </div>
+
         {isCreateMode && (
           <>
             <div className="mb-4">
@@ -512,7 +890,7 @@ export default function EditProject() {
                 </span>
               )}
             </div>
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label className="block text-2xl font-semibold mb-2 text-red-800">
                 <span className="text-gray-700 text-sm">
                   {" "}
@@ -547,7 +925,7 @@ export default function EditProject() {
                   {errors.projectOwner.message}
                 </span>
               )}
-            </div>
+            </div> */}
 
             <Controller
               name="projectOwnerId"
@@ -785,6 +1163,240 @@ export default function EditProject() {
                       />
                     )}
                     <span>{member.userName}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <h2 className="text-2xl font-bold mt-6 mb-6">Client Members</h2>
+        <div className="mb-4">
+          {!isViewMode && (
+            <>
+              <label className="block text-2xl font-semibold mb-2 text-red-800">
+                <span className="text-gray-700 text-sm">
+                  {" "}
+                  Add Client Members
+                </span>
+                *
+              </label>
+              <Controller
+                name="clientMembers"
+                control={control}
+                rules={{
+                  required:
+                    clientMembers.length === 0
+                      ? "Client Members is required"
+                      : false,
+                }}
+                render={({ field }) =>
+                  isCreateMode ? (
+                    <Select
+                      {...field}
+                      isMulti
+                      options={owners
+                        .filter(
+                          (user) =>
+                            !clientMembers.some(
+                              (member) => member._id === user._id
+                            )
+                        )
+                        .map((user) => ({
+                          value: user._id,
+                          label: user.ownerName,
+                          avatar: user.avatar,
+                        }))}
+                      value={field.value || []}
+                      onChange={(selectedOptions) => {
+                        handleClientUsersChange(selectedOptions);
+                        field.onChange(selectedOptions);
+                      }}
+                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                    />
+                  ) : (
+                    <select
+                      {...field}
+                      onClick={openClientModal}
+                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                    >
+                      <option value="" disabled selected hidden>
+                        Add Client Members
+                      </option>
+                    </select>
+                  )
+                }
+              />
+              {errors.clientMembers && (
+                <span className="text-red-600">
+                  {errors.clientMembers.message}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+
+        <Modal
+          open={isclientModalOpen}
+          onClose={closeClientModal}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box
+            sx={{
+              ...modalStyle,
+              borderRadius: "16px",
+              height: "460px",
+              display: "flex",
+              flexDirection: "column",
+              padding: "24px",
+            }}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-700">
+                {t("Edit_Members")}
+              </h2>
+              <button
+                onClick={closeClientModal}
+                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div>
+              {!isViewMode && (
+                <>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Add Client Members
+                  </label>
+                  <Controller
+                    name="clientMembers"
+                    control={control}
+                    rules={{
+                      required:
+                        clientMembers.length === 0
+                          ? "Client Members is required"
+                          : false,
+                    }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        isMulti
+                        options={owners
+                          .filter(
+                            (user) =>
+                              !modalClientMembers.some(
+                                (member) => member._id === user._id
+                              )
+                          )
+                          .map((user) => ({
+                            value: user._id,
+                            label: user.ownerName,
+                            avatar: user.avatar,
+                          }))}
+                        value={modalClientMembers.map((member) => ({
+                          value: member._id,
+                          label: member.ownerName,
+                          avatar: member.avatar,
+                        }))}
+                        onChange={(selectedOptions) => {
+                          handleClientUsersChange(selectedOptions);
+                          field.onChange(selectedOptions);
+                        }}
+                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                      />
+                    )}
+                  />
+                  {errors.clientMembers && (
+                    <span className="text-red-600">
+                      {errors.clientMembers.message}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+
+            {!isCreateMode && (
+              <div className="mt-4 flex-grow scrollbar-custom">
+                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
+                  Added Clients
+                </h3>
+                <ul className="space-y-2">
+                  {modalClientMembers.map((member) => (
+                    <li
+                      key={member._id}
+                      className="flex items-center bg-gray-100 p-2 rounded-lg"
+                    >
+                      {member.avatar ? (
+                        <img
+                          src={member.avatar}
+                          alt={member.userName}
+                          className="w-10 h-10 rounded-full mr-3"
+                        />
+                      ) : (
+                        <User
+                          key={member._id}
+                          className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                          size={32}
+                        />
+                      )}
+                      <span>{member.ownerName}</span>
+                      {!isViewMode && (
+                        <button
+                          className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
+                          onClick={() => handleClientDelete(member._id)}
+                        >
+                          <span className="text-lg">🗑️</span>
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex justify-between mt-4 w-full">
+              <button
+                onClick={saveClientChanges}
+                className="px-4 py-3 w-1/2 mr-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
+              >
+                {t("Save_Changes")}
+              </button>
+              <button
+                onClick={closeClientModal}
+                className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+              >
+                {t("Cancel")}
+              </button>
+            </div>
+          </Box>
+        </Modal>
+
+        {!isCreateMode && (
+          <>
+            <h2 className="block text-sm font-semibold mb-4 text-gray-700">
+              {t("Added_Members")}
+            </h2>
+            <div>
+              <ul>
+                {clientMembers.map((member) => (
+                  <li key={member._id} className="flex items-center mb-2">
+                    {member.avatar ? (
+                      <img
+                        src={member.avatar}
+                        alt={member.userName}
+                        className="w-10 h-10 rounded-full mr-3"
+                      />
+                    ) : (
+                      <User
+                        key={member._id}
+                        className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                        size={32}
+                      />
+                    )}
+                    <span>{member.ownerName}</span>
                   </li>
                 ))}
               </ul>
