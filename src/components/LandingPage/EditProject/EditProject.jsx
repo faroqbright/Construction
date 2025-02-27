@@ -230,168 +230,32 @@ export default function EditProject() {
     fetchProjectsUser();
   }, [fetchProjectsUser]);
 
-  // const onSubmit = async (formData) => {
-  //   if (!image) {
-  //     setImageError("Image is required.");
-  //     return;
-  //   }
-  //   setImageError("");
-  //   const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
-  //   const method = isCreateMode ? "post" : "put";
-
-  //   let requestData;
-
-  //   if (isCreateMode) {
-  //     const data = new FormData();
-  //     for (const key in formData) {
-  //       if (key !== "teamMembers") {
-  //         data.append(key, formData[key]);
-  //       }
-  //     }
-  //     data.append("projectBanner", formData.projectBanner);
-  //     data.append("physicalEducationRange", "100");
-  //     data.append("daysLeft", t("Awaiting_Start"));
-
-  //     requestData = data;
-  //   } else {
-  //     const updatedFields = {};
-
-  //     if (formData.projectName !== initialValues.projectName) {
-  //       updatedFields.projectName = formData.projectName;
-  //     }
-  //     if (formData.description !== initialValues.description) {
-  //       updatedFields.description = formData.description;
-  //     }
-  //     if (formData.location !== initialValues.location) {
-  //       updatedFields.location = formData.location;
-  //     }
-  //     if (formData.status !== initialValues.status) {
-  //       updatedFields.status = formData.status;
-  //     }
-  //     if (formData.deadline !== initialValues.deadline) {
-  //       updatedFields.deadline = formData.deadline;
-  //     }
-  //     const initialMemberIds = initialValues.members
-  //       ? initialValues.members.map((member) => member._id)
-  //       : [];
-  //     const initialClientMemberIds = initialValues.members
-  //       ? initialValues.members.map((member) => member._id)
-  //       : [];
-  //     const modalMemberIds = modalTeamMembers
-  //       ? modalTeamMembers.map((member) => member._id)
-  //       : [];
-  //     const modalClientMemberIds = modalClientMembers
-  //       ? modalClientMembers.map((member) => member._id)
-  //       : [];
-
-  //     const areArraysEqual = (arr1, arr2) =>
-  //       arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
-
-  //     const isMembersChanged = !areArraysEqual(
-  //       initialMemberIds,
-  //       modalMemberIds
-  //     );
-
-  //     const isClientMembersChanged = !areArraysEqual(
-  //       initialClientMemberIds,
-  //       modalClientMemberIds
-  //     );
-
-  //     if (isMembersChanged && modalMemberIds.length > 0) {
-  //       updatedFields.members = modalMemberIds;
-  //     }
-  //     if (isClientMembersChanged && modalClientMemberIds.length > 0) {
-  //       updatedFields.member = modalClientMemberIds;
-  //     }
-
-  //     if (Object.keys(updatedFields).length === 0) {
-  //       toast.info("No changes were made.");
-  //       return;
-  //     }
-
-  //     if (formData.projectBanner) {
-  //       const data = new FormData();
-  //       data.append("projectBanner", formData.projectBanner);
-  //       Object.keys(updatedFields).forEach((key) =>
-  //         data.append(key, updatedFields[key])
-  //       );
-  //     }
-  //     requestData = updatedFields;
-  //   }
-  //   try {
-  //     const response = await apiRequest(method, endpoint, requestData, token);
-  //     if (
-  //       response?.data?.statusCode === 201 ||
-  //       response?.data?.statusCode === 200
-  //     ) {
-  //       const responseid = response?.data?.data._id;
-
-  //       if (isCreateMode && selectedUsers.length > 0) {
-  //         try {
-  //           const updateResponse = await apiRequest(
-  //             "put",
-  //             `/projects/${responseid}`,
-  //             { members: selectedUsers },
-  //             { projectOwners: selectedClientUsers },
-  //             token
-  //           );
-
-  //           if (
-  //             updateResponse?.data?.statusCode === 201 ||
-  //             updateResponse?.data?.statusCode === 200
-  //           ) {
-  //             navigate("/project-management");
-  //             toast.success(updateResponse?.data?.message);
-  //           } else {
-  //             toast.error("Error updating users.");
-  //           }
-  //         } catch (error) {
-  //           toast.error("Error updating project members.");
-  //         }
-  //       } else {
-  //         navigate("/project-management");
-  //         toast.success(response?.data?.message);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error saving project.");
-  //   }
-  // };
-
   const onSubmit = async (formData) => {
     if (!image) {
       setImageError("Image is required.");
       return;
     }
     setImageError("");
-  
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
-  
+
     let requestData;
-  
+
     if (isCreateMode) {
       const data = new FormData();
-
-      // Append all form fields except teamMembers
       for (const key in formData) {
-        if (key !== "teamMembers" && key !== "clientMembers") {
+        if (key !== "teamMembers") {
           data.append(key, formData[key]);
         }
       }
-  
-      // Append each selected file to the FormData object
-      selectedFiles.forEach((file, index) => {
-        data.append("projectBanner", file.file);
-      });
-  
+      data.append("projectBanner", formData.projectBanner);
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
-  
+
       requestData = data;
     } else {
       const updatedFields = {};
-  
+
       if (formData.projectName !== initialValues.projectName) {
         updatedFields.projectName = formData.projectName;
       }
@@ -407,7 +271,6 @@ export default function EditProject() {
       if (formData.deadline !== initialValues.deadline) {
         updatedFields.deadline = formData.deadline;
       }
-  
       const initialMemberIds = initialValues.members
         ? initialValues.members.map((member) => member._id)
         : [];
@@ -420,42 +283,41 @@ export default function EditProject() {
       const modalClientMemberIds = modalClientMembers
         ? modalClientMembers.map((member) => member._id)
         : [];
-  
+
       const areArraysEqual = (arr1, arr2) =>
         arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
-  
-      const isMembersChanged = !areArraysEqual(initialMemberIds, modalMemberIds);
+
+      const isMembersChanged = !areArraysEqual(
+        initialMemberIds,
+        modalMemberIds
+      );
+
       const isClientMembersChanged = !areArraysEqual(
         initialClientMemberIds,
         modalClientMemberIds
       );
-  
+
       if (isMembersChanged && modalMemberIds.length > 0) {
         updatedFields.members = modalMemberIds;
       }
       if (isClientMembersChanged && modalClientMemberIds.length > 0) {
         updatedFields.member = modalClientMemberIds;
       }
-  
+
       if (Object.keys(updatedFields).length === 0) {
         toast.info("No changes were made.");
         return;
       }
-  
-      if (selectedFiles.length > 0) {
+
+      if (formData.projectBanner) {
         const data = new FormData();
-        selectedFiles.forEach((file, index) => {
-          data.append("projectBanner", file.file);
-        });
+        data.append("projectBanner", formData.projectBanner);
         Object.keys(updatedFields).forEach((key) =>
           data.append(key, updatedFields[key])
         );
-        requestData = data;
-      } else {
-        requestData = updatedFields;
       }
+      requestData = updatedFields;
     }
-  
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
       if (
@@ -463,16 +325,17 @@ export default function EditProject() {
         response?.data?.statusCode === 200
       ) {
         const responseid = response?.data?.data._id;
-  
+
         if (isCreateMode && selectedUsers.length > 0) {
           try {
             const updateResponse = await apiRequest(
               "put",
               `/projects/${responseid}`,
-              { members: selectedUsers, projectOwners: selectedClientUsers },
+              { members: selectedUsers },
+              { projectOwners: selectedClientUsers },
               token
             );
-  
+
             if (
               updateResponse?.data?.statusCode === 201 ||
               updateResponse?.data?.statusCode === 200
@@ -494,6 +357,7 @@ export default function EditProject() {
       toast.error("Error saving project.");
     }
   };
+
 
   const handleOwnerChange = (selectedOwner) => {
     const owner = owners.find((owner) => owner.userName === selectedOwner);
