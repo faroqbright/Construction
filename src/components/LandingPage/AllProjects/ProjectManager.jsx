@@ -21,6 +21,8 @@ import RolePermissions from "../../../utils/RolePermissions";
 import { CiSearch } from "react-icons/ci";
 import { FaArrowLeft } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 import RouteMiddleware from "../../../routes/RouteMIddleware";
 import { t } from "i18next";
 import "../../../utils/i18n";
@@ -383,14 +385,24 @@ const ProjectManager = () => {
                   className="max-w-sm h-[22rem] md:h-[22rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
                 >
                   <div onClick={() => handleProjectClick(project._id)}>
-                    <img
-                      className="w-full h-32 object-cover rounded"
-                      src={
-                        project.projectBanner ||
-                        "https://via.placeholder.com/150"
-                      }
-                      alt={project.projectName || "Project"}
-                    />
+                    <Swiper
+                      spaceBetween={10}
+                      slidesPerView={1}
+                      grabCursor={true}
+                    >
+                      {project.projectBanner?.map((banner, index) => (
+                        <SwiperSlide
+                          key={banner._id || index}
+                          className="w-[300px]"
+                        >
+                          <img
+                            className="w-[300px] h-32 object-cover rounded"
+                            src={banner.url}
+                            alt={`Project Banner ${index + 1}`}
+                          />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
 
                     <div className="flex justify-between py-2">
                       <div

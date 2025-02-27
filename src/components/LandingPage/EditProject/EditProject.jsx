@@ -40,6 +40,23 @@ export default function EditProject() {
   const [modalTeamMembers, setModalTeamMembers] = useState([]);
   const [logs, setlogs] = useState([]);
   const [isModalOpens, setIsModalOpens] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
+  const handleFileChangetwo = (e) => {
+    const files = Array.from(e.target.files);
+
+    // Ensure max 3 files are selected
+    if (selectedFiles.length + files.length > 3) {
+      toast.error("You can only select up to 3 files.");
+      return;
+    }
+
+    setSelectedFiles([...selectedFiles, ...files]);
+  };
+
+  const removeFile = (index) => {
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+  };
 
   const handleOPenButton = () => {
     setIsModalOpens(true);
@@ -135,11 +152,14 @@ export default function EditProject() {
     fetchProjects();
   }, [fetchProjects]);
 
+  const [clietMembers, setclietMembers] = useState([]);
+
   const fetchProjectsOwner = useCallback(async () => {
     if (!isCreateMode) return;
     try {
       const response = await apiRequest("get", "/clients", {}, token);
       if (response?.data?.statusCode === 200) {
+        setclietMembers(response?.data?.data);
         setOwners(response?.data?.data);
       } else {
         setError("Owners not found.");
@@ -171,6 +191,7 @@ export default function EditProject() {
     fetchProjectsUser();
   }, [fetchProjectsUser]);
 
+  
   const onSubmit = async (formData) => {
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
@@ -179,14 +200,32 @@ export default function EditProject() {
 
     if (isCreateMode) {
       const data = new FormData();
+
+      // Append all form fields except teamMembers
       for (const key in formData) {
-        if (key !== "teamMembers") {
+        if (key !== "teamMembers" && key !== "clientMembers") {
           data.append(key, formData[key]);
         }
       }
-      data.append("physicalEducationRange", "100");
-      data.append("daysLeft", (t("Awaiting_Start")));
 
+      // Append physical education range and days left
+      data.append("physicalEducationRange", "100");
+      data.append("daysLeft", t("Awaiting_Start"));
+
+      // Convert clientMembers to projectOwners format
+      if (formData.clientMembers && formData.clientMembers.length > 0) {
+        formData.clientMembers.forEach((member, index) => {
+          data.append(`projectOwners[${index}][ownerId]`, member.value);
+          data.append(`projectOwners[${index}][ownerName]`, member.label);
+        });
+      }
+
+      if (selectedFiles.length > 0) {
+        selectedFiles.forEach((file, index) => {
+          data.append(`projectBanner`, file); 
+        });
+      }
+    
       requestData = data;
     } else {
       const updatedFields = {};
@@ -206,23 +245,13 @@ export default function EditProject() {
       if (formData.deadline !== initialValues.deadline) {
         updatedFields.deadline = formData.deadline;
       }
-      const initialMemberIds = initialValues.members
-        ? initialValues.members.map((member) => member._id)
-        : [];
-      const modalMemberIds = modalTeamMembers
-        ? modalTeamMembers.map((member) => member._id)
-        : [];
 
-      const areArraysEqual = (arr1, arr2) =>
-        arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
-
-      const isMembersChanged = !areArraysEqual(
-        initialMemberIds,
-        modalMemberIds
-      );
-
-      if (isMembersChanged && modalMemberIds.length > 0) {
-        updatedFields.members = modalMemberIds;
+      // Convert clientMembers to projectOwners format
+      if (formData.clientMembers && formData.clientMembers.length > 0) {
+        updatedFields.projectOwners = formData.clientMembers.map((member) => ({
+          ownerId: member.value,
+          ownerName: member.label,
+        }));
       }
 
       if (Object.keys(updatedFields).length === 0) {
@@ -232,6 +261,7 @@ export default function EditProject() {
 
       requestData = updatedFields;
     }
+
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
       if (
@@ -342,7 +372,7 @@ export default function EditProject() {
         open={isModalOpens}
         handleClose={handleCloseButton}
       />
-      <form
+      <form 
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
@@ -480,84 +510,51 @@ export default function EditProject() {
           )}
         </div>
 
-        {isCreateMode && (
-          <>
-            <div className="mb-4">
-              <label className="block text-2xl font-semibold mb-2 text-red-800">
-                <span className="text-gray-700 text-sm">
-                  {" "}
-                  {t("Project_Banner")}
-                </span>
-                *
-              </label>
-              <Controller
-                name="projectBanner"
-                rules={{ required: "Project Banner is required" }}
-                control={control}
-                render={({ field }) => (
-                  <input
-                    type="file"
-                    accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
-                    onChange={(e) => {
-                      handleFileChange(e);
-                      field.onChange(e.target.files[0]);
-                    }}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                  />
-                )}
+        <div className="mb-4">
+          {/* Project Banner Upload */}
+          <label className="block text-2xl font-semibold mb-2 text-red-800">
+            <span className="text-gray-700 text-sm">{t("Project_Banner")}</span>{" "}
+            *
+          </label>
+          <Controller
+            name="projectBanner"
+            rules={{ required: "Project Banner is required" }}
+            control={control}
+            render={({ field }) => (
+              <input
+                type="file"
+                accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
+                onChange={(e) => {
+                  handleFileChangetwo(e);
+                  field.onChange(e.target.files[0]); // Pass only the first file to react-hook-form
+                }}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                multiple
               />
-              {errors.projectBanner && (
-                <span className="text-red-600">
-                  {errors.projectBanner.message}
-                </span>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block text-2xl font-semibold mb-2 text-red-800">
-                <span className="text-gray-700 text-sm">
-                  {" "}
-                  {t("Project_Owner")}
-                </span>
-                *
-              </label>
-              <Controller
-                name="projectOwner"
-                control={control}
-                rules={{ required: "Project Owner is required" }}
-                render={({ field }) => (
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleOwnerChange(e.target.value);
-                    }}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                  >
-                    <option value="">Select Project Owner</option>
-                    {owners.map((owner) => (
-                      <option key={owner._id} value={owner.userName}>
-                        {owner.userName}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              />
-              {errors.projectOwner && (
-                <span className="text-red-600">
-                  {errors.projectOwner.message}
-                </span>
-              )}
-            </div>
+            )}
+          />
+          {errors.projectBanner && (
+            <span className="text-red-600">{errors.projectBanner.message}</span>
+          )}
 
-            <Controller
-              name="projectOwnerId"
-              control={control}
-              render={({ field }) => (
-                <input {...field} type="hidden" value={field.value || ""} />
-              )}
-            />
-          </>
-        )}
+          {/* Selected Files Display */}
+          <div className="mt-4 space-y-2">
+            {selectedFiles.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between border px-3 py-2 rounded-md"
+              >
+                <span className="text-gray-700">{file.name}</span>
+                <button
+                  onClick={() => removeFile(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ✖
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <h2 className="text-2xl font-bold mt-6 mb-6">{t("Team_Members")}</h2>
         <div className="mb-4">
@@ -684,6 +681,261 @@ export default function EditProject() {
                             label: user.userName,
                             avatar: user.avatar,
                           }))}
+                        value={modalTeamMembers.map((member) => ({
+                          value: member._id,
+                          label: member.userName,
+                          avatar: member.avatar,
+                        }))}
+                        onChange={(selectedOptions) => {
+                          handleUsersChange(selectedOptions);
+                          field.onChange(selectedOptions);
+                        }}
+                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                      />
+                    )}
+                  />
+                  {errors.teamMembers && (
+                    <span className="text-red-600">
+                      {errors.teamMembers.message}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+
+            {!isCreateMode && (
+              <div className="mt-4 flex-grow scrollbar-custom">
+                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
+                  {t("Added_Members")}
+                </h3>
+                <ul className="space-y-2">
+                  {modalTeamMembers.map((member) => (
+                    <li
+                      key={member._id}
+                      className="flex items-center bg-gray-100 p-2 rounded-lg"
+                    >
+                      {member.avatar ? (
+                        <img
+                          src={member.avatar}
+                          alt={member.userName}
+                          className="w-10 h-10 rounded-full mr-3"
+                        />
+                      ) : (
+                        <User
+                          key={member._id}
+                          className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                          size={32}
+                        />
+                      )}
+                      <span>{member.userName}</span>
+                      {!isViewMode && (
+                        <button
+                          className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
+                          onClick={() => handleDelete(member._id)}
+                        >
+                          <span className="text-lg">🗑️</span>
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex justify-between mt-4 w-full">
+              <button
+                onClick={saveChanges}
+                className="px-4 py-3 w-1/2 mr-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
+              >
+                {t("Save_Changes")}
+              </button>
+              <button
+                onClick={closeModal}
+                className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+              >
+                {t("Cancel")}
+              </button>
+            </div>
+          </Box>
+        </Modal>
+
+        {!isCreateMode && (
+          <>
+            <h2 className="block text-sm font-semibold mb-4 text-gray-700">
+              {t("Added_Members")}
+            </h2>
+            <div>
+              <ul>
+                {teamMembers.map((member) => (
+                  <li key={member._id} className="flex items-center mb-2">
+                    {member.avatar ? (
+                      <img
+                        src={member.avatar}
+                        alt={member.userName}
+                        className="w-10 h-10 rounded-full mr-3"
+                      />
+                    ) : (
+                      <User
+                        key={member._id}
+                        className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                        size={32}
+                      />
+                    )}
+                    <span>{member.userName}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Client_Members")}</h2>
+        <div className="mb-4">
+          {!isViewMode && (
+            <>
+              <label className="block text-2xl font-semibold mb-2 text-red-800">
+                <span className="text-gray-700 text-sm">
+                  {t("Add_Client_Members")}
+                </span>{" "}
+                *
+              </label>
+              <Controller
+                name="clientMembers"
+                control={control}
+                rules={{
+                  required:
+                    clietMembers.length === 0
+                      ? "Client Members is required"
+                      : false,
+                }}
+                render={({ field }) =>
+                  isCreateMode ? (
+                    <Select
+                      {...field}
+                      isMulti
+                      // Combine owners and users in the options
+                      options={[
+                        ...owners.map((owner) => ({
+                          value: owner._id, // using _id as value for consistency
+                          label: owner.userName,
+                          avatar: owner.avatar,
+                        })),
+                        ...owners
+                          .filter(
+                            (user) =>
+                              !clietMembers.some(
+                                (member) => member._id === user._id
+                              )
+                          )
+                          .map((user) => ({
+                            value: user._id,
+                            label: user.userName,
+                            avatar: user.avatar,
+                          })),
+                      ]}
+                      value={field.value || []}
+                      onChange={(selectedOptions) => {
+                        handleUsersChange(selectedOptions);
+                        field.onChange(selectedOptions);
+                      }}
+                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                    />
+                  ) : (
+                    <select
+                      {...field}
+                      onClick={openModal}
+                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                    >
+                      <option value="" disabled selected hidden>
+                        {t("Add_Client_Members")}
+                      </option>
+                      {/* Owners mapping added here */}
+                      {owners.map((owner) => (
+                        <option key={owner._id} value={owner._id}>
+                          {owner.userName}
+                        </option>
+                      ))}
+                    </select>
+                  )
+                }
+              />
+              {errors.clietMembers && (
+                <span className="text-red-600">
+                  {errors.clietMembers.message}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+
+        <Modal
+          open={isModalOpen}
+          onClose={closeModal}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box
+            sx={{
+              ...modalStyle,
+              borderRadius: "16px",
+              height: "460px",
+              display: "flex",
+              flexDirection: "column",
+              padding: "24px",
+            }}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-700">
+                {t("Edit_Members")}
+              </h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div>
+              {!isViewMode && (
+                <>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    {t("Add_Client_Members")}
+                  </label>
+                  <Controller
+                    name="teamMembers"
+                    control={control}
+                    rules={{
+                      required:
+                        modalTeamMembers.length === 0
+                          ? "Client Members is required"
+                          : false,
+                    }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        isMulti
+                        // Combine owners mapping with users mapping here as well
+                        options={[
+                          ...owners.map((owner) => ({
+                            value: owner._id,
+                            label: owner.userName,
+                            avatar: owner.avatar,
+                          })),
+                          ...owners
+                            .filter(
+                              (user) =>
+                                !modalTeamMembers.some(
+                                  (member) => member._id === user._id
+                                )
+                            )
+                            .map((user) => ({
+                              value: user._id,
+                              label: user.userName,
+                              avatar: user.avatar,
+                            })),
+                        ]}
                         value={modalTeamMembers.map((member) => ({
                           value: member._id,
                           label: member.userName,
