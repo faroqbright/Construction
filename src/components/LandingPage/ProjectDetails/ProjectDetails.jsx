@@ -39,6 +39,7 @@ const ProjectDetails = () => {
     },
   ];
 
+  
   const fetchProjects = useCallback(async () => {
     try {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
