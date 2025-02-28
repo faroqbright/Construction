@@ -105,8 +105,8 @@ export default function EditProject() {
           status: data.status,
           projectBanner: data.projectBanner,
           deadline: data.deadline,
-          members: data.members,
-          projectOwners: data.projectOwners,
+          members: data.projectOwners,
+          projectOwners: data.members,
           logs: data.logs,
           financeDocuments: data.financeDocuments,
         });
@@ -116,8 +116,8 @@ export default function EditProject() {
         setValue("status", data.status);
         setValue("projectBanner", data.projectBanner);
         setValue("deadline", data.deadline);
-        setTeamMembers(data.members);
-        setClientMembers(data.projectOwners);
+        setTeamMembers(data.projectOwners);
+        setClientMembers(data.members);
         setFinancialExecution(data.financeDocuments);
         setFileName(data.financeDocuments);
         setlogs(data.logs);
@@ -139,8 +139,9 @@ export default function EditProject() {
     try {
       const response = await apiRequest("get", "/clients", {}, token);
       if (response?.data?.statusCode === 200) {
-        setclietMembers(response?.data?.data);
-        setOwners(response?.data?.data);
+        setUsers(response?.data?.data);
+        // setclietMembers(response?.data?.data);
+        // setOwners(response?.data?.data);
       } else {
         setError("Owners not found.");
       }
@@ -158,7 +159,10 @@ export default function EditProject() {
     try {
       const response = await apiRequest("get", "/rolesUser", {}, token);
       if (response?.data?.statusCode === 200) {
-        setUsers(response?.data?.data);
+        // setUsers(response?.data?.data);
+
+        setclietMembers(response?.data?.data);
+        setOwners(response?.data?.data);
       } else {
         setError("Users not found.");
       }
@@ -187,7 +191,9 @@ export default function EditProject() {
           data.append(key, formData[key]);
         }
       }
-      data.append("projectBanner", formData.projectBanner);
+          selectedFiles.forEach((file) => {
+      data.append("projectBanner", file.file);
+    });
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
 
@@ -212,9 +218,9 @@ export default function EditProject() {
       }
 
       const initialMemberIds =
-        initialValues.members?.map((member) => member._id) || [];
-      const initialClientMemberIds =
         initialValues.projectOwners?.map((member) => member._id) || [];
+      const initialClientMemberIds =
+        initialValues.members?.map((member) => member._id) || [];
       const modalMemberIds =
         modalTeamMembers?.map((member) => member._id) || [];
       const modalClientMemberIds =
@@ -233,10 +239,10 @@ export default function EditProject() {
       );
 
       if (isMembersChanged && modalMemberIds.length > 0) {
-        updatedFields.members = modalMemberIds;
+        updatedFields.projectOwners = modalMemberIds;
       }
       if (isClientMembersChanged && modalClientMemberIds.length > 0) {
-        updatedFields.projectOwners = modalClientMemberIds;
+        updatedFields.members = modalClientMemberIds;
       }
 
       const existingBannerUrls =
@@ -262,10 +268,24 @@ export default function EditProject() {
       const data = new FormData();
 
       Object.keys(formData).forEach((key) => {
-        if (key !== "projectBanner") {
+        if (key !== "projectBanner" && key !== "teamMembers" && key !== "clientMembers") {
           data.append(key, formData[key]);
         }
       });
+      
+      // 🔥 Fix: Append members and projectOwners as JSON strings
+      if (updatedFields.projectOwners) {
+        updatedFields.projectOwners.forEach((member, index) => {
+          data.append(`members[${index}]`, member);  // ✅ Correcting members
+        });
+      }
+      
+      if (updatedFields.members) {
+        updatedFields.members.forEach((owner, index) => {
+          data.append(`projectOwners[${index}]`, owner);  // ✅ Correcting projectOwners
+        });
+      }
+      
 
       selectedFiles.forEach((file) => {
         if (file.file) {
@@ -309,7 +329,7 @@ export default function EditProject() {
               "put",
               `/projects/${responseid}`,
               {
-                members: selectedUsers,
+                members: selectedUsers  ,
                 projectOwners: selectedClientUsers,
               },
               token
@@ -427,26 +447,13 @@ export default function EditProject() {
   };
 
   const handleFileChangetwo = (e) => {
-    if (!e.target.files.length) return;
-
-    const files = Array.from(e.target.files);
-
-    setSelectedFiles((prevFiles) => {
-      const existingFiles = prevFiles.filter((file) => file.url);
-      const newFiles = files.map((file) => ({ file, name: file.name }));
-
-      const allFiles = [...existingFiles, ...newFiles];
-
-      if (allFiles.length > 3) {
-        toast.error("You can only select up to 3 files.");
-        return prevFiles;
-      }
-
-      return allFiles;
-    });
-
-    e.target.value = "";
+    const newFiles = Array.from(e.target.files).map((file) => ({
+      file,
+      name: file.name,
+    }));
+    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
   };
+  
 
   const removeFile = (index) => {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
@@ -699,7 +706,7 @@ export default function EditProject() {
                   accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
                   onChange={(e) => {
                     handleFileChangetwo(e);
-                    field.onChange(e.target.files[0]);
+                    field.onChange(e.target.files);
                   }}
                   className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                   multiple
@@ -757,7 +764,7 @@ export default function EditProject() {
                 control={control}
                 rules={{
                   required:
-                    teamMembers.length === 0
+                    teamMembers?.length === 0
                       ? "Team Members is required"
                       : false,
                 }}
@@ -775,7 +782,7 @@ export default function EditProject() {
                         )
                         .map((user) => ({
                           value: user._id,
-                          label: user.userName,
+                          label: user.userName || user.ownerName,
                           avatar: user.avatar,
                         }))}
                       value={field.value || []}
@@ -846,7 +853,7 @@ export default function EditProject() {
                     control={control}
                     rules={{
                       required:
-                        teamMembers.length === 0
+                        teamMembers?.length === 0
                           ? "Team Members is required"
                           : false,
                     }}
@@ -863,12 +870,12 @@ export default function EditProject() {
                           )
                           .map((user) => ({
                             value: user._id,
-                            label: user.userName,
+                            label: user.userName || user.ownerName,
                             avatar: user.avatar,
                           }))}
                         value={modalTeamMembers.map((member) => ({
                           value: member._id,
-                          label: member.userName,
+                          label: member.userName || member.ownerName,
                           avatar: member.avatar,
                         }))}
                         onChange={(selectedOptions) => {
@@ -912,7 +919,7 @@ export default function EditProject() {
                           size={32}
                         />
                       )}
-                      <span>{member.userName}</span>
+                      <span>{member.userName || member.ownerName}</span>
                       {!isViewMode && (
                         <button
                           className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
@@ -951,7 +958,7 @@ export default function EditProject() {
             </h2>
             <div>
               <ul>
-                {teamMembers.map((member) => (
+                {teamMembers?.map((member) => (
                   <li key={member._id} className="flex items-center mb-2">
                     {member.avatar ? (
                       <img
@@ -966,7 +973,7 @@ export default function EditProject() {
                         size={32}
                       />
                     )}
-                    <span>{member.userName}</span>
+                    <span>{member.userName || member.ownerName}</span>
                   </li>
                 ))}
               </ul>
@@ -1193,7 +1200,7 @@ export default function EditProject() {
             </h2>
             <div>
               <ul>
-                {clientMembers.map((member) => (
+                {clientMembers?.map((member) => (
                   <li key={member._id} className="flex items-center mb-2">
                     {member.avatar ? (
                       <img
