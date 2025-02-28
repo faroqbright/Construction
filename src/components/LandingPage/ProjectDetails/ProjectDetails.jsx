@@ -16,7 +16,7 @@ const totalTicks = 50;
 const ProjectDetails = () => {
   const value = 65;
   const activeTicks = Math.round((value / 100) * totalTicks);
-  const navigate = useNavigate() 
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const color = "#d6d6d6";
   const token = useSelector((state) => state.auth.userToken);
@@ -39,7 +39,6 @@ const ProjectDetails = () => {
     },
   ];
 
-  
   const fetchProjects = useCallback(async () => {
     try {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
@@ -72,9 +71,14 @@ const ProjectDetails = () => {
                 {t("Project_Owner")}:
               </strong>
               <span className="text-[#54577A] font-bold text-base">
-                {projectData?.projectOwner
-                  ? projectData.projectOwner.charAt(0).toUpperCase() +
-                    projectData.projectOwner.slice(1)
+                {projectData?.projectOwners?.length
+                  ? projectData.projectOwners
+                      .map(
+                        (owner) =>
+                          owner.ownerName.charAt(0).toUpperCase() +
+                          owner.ownerName.slice(1)
+                      )
+                      .join(", ")
                   : ""}
               </span>
             </div>
@@ -345,7 +349,7 @@ const ProjectDetails = () => {
         </div>
 
         {/* Team Members */}
-        <div className="mt-6 p-6" >
+        <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
             {t("Team_Members")}
           </h3>
@@ -365,7 +369,10 @@ const ProjectDetails = () => {
         </div>
 
         <div className="flex justify-end gap-5 pr-6 pb-6">
-          <button onClick={() => (navigate(`/details/edit/${projectData?._id}`))} className="px-5 py-2 bg-black-blacknew text-white rounded-md">
+          <button
+            onClick={() => navigate(`/details/edit/${projectData?._id}`)}
+            className="px-5 py-2 bg-black-blacknew text-white rounded-md"
+          >
             Edit Project
           </button>
           <button className="px-5 py-2 rounded-md bg-gray-100">
