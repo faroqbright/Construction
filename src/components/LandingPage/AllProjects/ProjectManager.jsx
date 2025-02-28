@@ -406,7 +406,7 @@ const ProjectManager = () => {
                         ))}
                       </Swiper>
                     ) : (
-                      <div className="w-[340px] h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
+                      <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
                         <FaRecordVinyl className="w-8 h-8 text-gray-500" />
                         <p className="text-gray-500 text-sm mt-1">
                           No image yet
@@ -466,6 +466,8 @@ const ProjectManager = () => {
                         ></div>
                       </div>
                     </div>
+
+                    
                     <div className="mb-4 mt-2 relative">
                       <div className="flex justify-between">
                         <p className="black text-sm mb-1">
@@ -476,8 +478,13 @@ const ProjectManager = () => {
                         </h6>
                       </div>
                       <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                        <div
-                          className="bg-red-redNew h-2 rounded-full"
+                      <div
+                          className={`h-2 rounded-full transition-all ${
+                            project?.financeDocuments?.[0]?.financialExecution >
+                            0
+                              ? "bg-red-500"
+                              : "bg-gray-300"
+                          }`}
                           style={{
                             width: `${project?.financeDocuments?.[0]?.financialExecution}%`,
                           }}

@@ -286,7 +286,7 @@ export default function RolesTable() {
                 className="text-black-blacknew font-raleway hover:underline text-sm font-medium underline"
                 onClick={handleManageAccessOpen}
               >
-                {t("Manage_Access")}
+                {/* {t("Manage_Access")} */}
               </a>
               <div className="flex justify-end space-x-3">
                 <Button

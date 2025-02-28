@@ -58,15 +58,22 @@ const OngoingPro = () => {
     navigate(`/details/${id}`);
   };
   return (
-    <div className="flex flex-col w-full max-w-4xl space-y-1 items-center overflow-x-auto">
+    <div className="flex flex-col w-full max-w-4xl space-y-1 items-center overflow-x-hidden">
       <DatePicker
         selected={selectedDate}
-        onChange={(date) => setSelectedDate(date)}
+        onChange={() => {}} // Prevents any change in date
         inline
         calendarClassName="custom-calendar"
-        className="w-full hover:rounded-full "
+        className="w-[360px]"
+        dayClassName={(date) =>
+          date.toDateString() === new Date().toDateString()
+            ? "!bg-red-500 font-bold text-white" // Added text-white for contrast
+            : "text-gray-400"
+        }
+        filterDate={(date) => date.toDateString() === new Date().toDateString()}
       />
-      <div className="w-[400px] pr-6">
+
+      <div className="w-[350px]">
         {datas.length > 0 ? (
           datas.slice(0, 1).map((project, index) => (
             <div
@@ -93,7 +100,7 @@ const OngoingPro = () => {
                           className="w-[300px]"
                         >
                           <img
-                            className="w-[300px] h-32 object-cover rounded"
+                            className="w-full h-32 object-cover rounded"
                             src={banner.url}
                             alt={`Project Banner ${index + 1}`}
                           />
@@ -101,7 +108,7 @@ const OngoingPro = () => {
                       ))}
                     </Swiper>
                   ) : (
-                    <div className="w-[340px] h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
+                    <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
                       <FaRecordVinyl className="w-8 h-8 text-gray-500" />
                       <p className="text-gray-500 text-sm mt-1">No image yet</p>
                     </div>
@@ -161,7 +168,11 @@ const OngoingPro = () => {
                     </div>
                     <div className="w-full bg-gray-200 h-2 rounded-full relative">
                       <div
-                        className="bg-red-redNew h-2 rounded-full"
+                        className={`h-2 rounded-full transition-all ${
+                          project?.financeDocuments?.[0]?.financialExecution > 0
+                            ? "bg-red-500"
+                            : "bg-gray-300"
+                        }`}
                         style={{
                           width: `${project?.financeDocuments?.[0]?.financialExecution}%`,
                         }}
