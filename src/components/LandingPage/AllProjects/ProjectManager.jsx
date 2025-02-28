@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { CiSearch } from "react-icons/ci";
-import { FaArrowLeft } from "react-icons/fa6";
+import { FaArrowLeft, FaRecordVinyl } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -59,8 +59,8 @@ const ProjectManager = () => {
     }
   };
 
-  const fetchProjects = useCallback(
-    async (page = 1) => {
+  useEffect(() => {
+    const fetchProjects = async (page) => {
       setLoading(true);
       try {
         const formattedStatus =
@@ -78,7 +78,11 @@ const ProjectManager = () => {
 
         if (response?.data?.statusCode === 200) {
           setProjects(response?.data?.data?.projects || []);
-          setCurrentPage(response?.data?.data?.currentPage || 1);
+          setCurrentPage((prev) =>
+            prev === response?.data?.data?.currentPage
+              ? prev
+              : response?.data?.data?.currentPage
+          );
           setTotalPages(response?.data?.data?.totalPages || 1);
         }
       } catch (error) {
@@ -92,16 +96,13 @@ const ProjectManager = () => {
       } finally {
         setLoading(false);
       }
-    },
-    [selectedTab, token]
-  );
+    };
 
-  useEffect(() => {
     fetchProjects(currentPage);
-  }, [fetchProjects, currentPage]);
+  }, [currentPage, selectedTab, token]);
 
   useEffect(() => {
-    fetchProjects(1);
+    setCurrentPage(1);
   }, [selectedTab]);
 
   const handleTabClick = (tab) => {
@@ -385,24 +386,33 @@ const ProjectManager = () => {
                   className="max-w-sm h-[22rem] md:h-[22rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
                 >
                   <div onClick={() => handleProjectClick(project._id)}>
-                    <Swiper
-                      spaceBetween={10}
-                      slidesPerView={1}
-                      grabCursor={true}
-                    >
-                      {project.projectBanner?.map((banner, index) => (
-                        <SwiperSlide
-                          key={banner._id || index}
-                          className="w-[300px]"
-                        >
-                          <img
-                            className="w-[300px] h-32 object-cover rounded"
-                            src={banner.url}
-                            alt={`Project Banner ${index + 1}`}
-                          />
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
+                    {project.projectBanner?.length > 0 ? (
+                      <Swiper
+                        spaceBetween={10}
+                        slidesPerView={1}
+                        grabCursor={true}
+                      >
+                        {project.projectBanner.map((banner, index) => (
+                          <SwiperSlide
+                            key={banner._id || index}
+                            className="w-[300px]"
+                          >
+                            <img
+                              className="w-[300px] h-32 object-cover rounded"
+                              src={banner.url}
+                              alt={`Project Banner ${index + 1}`}
+                            />
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    ) : (
+                      <div className="w-[340px] h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
+                        <FaRecordVinyl className="w-8 h-8 text-gray-500" />
+                        <p className="text-gray-500 text-sm mt-1">
+                          No image yet
+                        </p>
+                      </div>
+                    )}
 
                     <div className="flex justify-between py-2">
                       <div

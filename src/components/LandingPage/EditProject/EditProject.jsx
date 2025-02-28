@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useForm, Controller, Form } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";
 import Select from "react-select";
@@ -9,7 +9,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ChangeLogModal from "../../ChangeLog/ChangeLog";
 import { Modal, Box } from "@mui/material";
-import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { User } from "lucide-react";
@@ -44,35 +43,19 @@ export default function EditProject() {
   const [modalClientMembers, setModalClientMembers] = useState([]);
   const [logs, setlogs] = useState([]);
   const [isModalOpens, setIsModalOpens] = useState(false);
-  const [image, setImage] = useState(null);
-  const [imageError, setImageError] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [physicalExecution, setPhysicalExecution] = useState([]);
-  const [financialExecution, setFinancialExecution] = useState([]);
+  const [FinancialExecution, setFinancialExecution] = useState([]);
   const [fileName, setFileName] = useState([]);
-  const [projectName, SetProjectName] = useState([]);
-  console.log(projectName);
 
   useEffect(() => {
     if (initialValues?.projectBanner) {
       setSelectedFiles(
-        initialValues.projectBanner.map((banner) => ({ url: banner.url }))
+        initialValues.projectBanner.map((banner) => ({
+          url: banner.url, // Already uploaded files
+        }))
       );
     }
   }, [initialValues]);
-
-  const handleImageUpload = (event) => {
-    const files = Array.from(event.target.files);
-    const newFiles = files.map((file) => ({
-      file,
-      url: URL.createObjectURL(file),
-    }));
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-  };
-
-  const removeFile = (index) => {
-    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  };
 
   const handleOPenButton = () => {
     setIsModalOpens(true);
@@ -98,46 +81,6 @@ export default function EditProject() {
   const openClientModal = () => setIsclientModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const closeClientModal = () => setIsclientModalOpen(false);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-
-    if (
-      file &&
-      (file.type === "image/png" ||
-        file.type === "image/jpeg" ||
-        file.type === "image/gif" ||
-        file.type === "image/bmp" ||
-        file.type === "image/webp")
-    ) {
-      setSelectedFile(file);
-    } else {
-      toast.error("Please select a valid image file.");
-      e.target.value = null;
-    }
-  };
-
-  const handleFileChang = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      // Validate file type (for example, allow only image files)
-      if (
-        file.type === "image/png" ||
-        file.type === "image/jpeg" ||
-        file.type === "image/gif" ||
-        file.type === "image/bmp" ||
-        file.type === "image/webp"
-      ) {
-        // File is valid
-        setSelectedFil(file);
-      } else {
-        // Invalid file type, show an error
-        toast.error("Please select a valid image file.");
-        e.target.value = null; // Clear the input field
-      }
-    }
-  };
 
   const fetchProjects = useCallback(async () => {
     if (isCreateMode) return;
@@ -175,7 +118,6 @@ export default function EditProject() {
         setValue("deadline", data.deadline);
         setTeamMembers(data.members);
         setClientMembers(data.projectOwners);
-        setPhysicalExecution(data.financeDocuments);
         setFinancialExecution(data.financeDocuments);
         setFileName(data.financeDocuments);
         setlogs(data.logs);
@@ -194,7 +136,6 @@ export default function EditProject() {
   const [clietMembers, setclietMembers] = useState([]);
 
   const fetchProjectsOwner = useCallback(async () => {
-    if (!isCreateMode) return;
     try {
       const response = await apiRequest("get", "/clients", {}, token);
       if (response?.data?.statusCode === 200) {
@@ -231,11 +172,9 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
 
   const onSubmit = async (formData) => {
-    if (!image) {
-      setImageError("Image is required.");
-      return;
-    }
-    setImageError("");
+    if (selectedFiles.length === 0)
+      return toast.error("Please upload a banner for the project.");
+
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
 
@@ -244,7 +183,7 @@ export default function EditProject() {
     if (isCreateMode) {
       const data = new FormData();
       for (const key in formData) {
-        if (key !== "teamMembers") {
+        if (key !== "teamMembers" && key !== "clientMembers") {
           data.append(key, formData[key]);
         }
       }
@@ -271,18 +210,15 @@ export default function EditProject() {
       if (formData.deadline !== initialValues.deadline) {
         updatedFields.deadline = formData.deadline;
       }
-      const initialMemberIds = initialValues.members
-        ? initialValues.members.map((member) => member._id)
-        : [];
-      const initialClientMemberIds = initialValues.members
-        ? initialValues.members.map((member) => member._id)
-        : [];
-      const modalMemberIds = modalTeamMembers
-        ? modalTeamMembers.map((member) => member._id)
-        : [];
-      const modalClientMemberIds = modalClientMembers
-        ? modalClientMembers.map((member) => member._id)
-        : [];
+
+      const initialMemberIds =
+        initialValues.members?.map((member) => member._id) || [];
+      const initialClientMemberIds =
+        initialValues.projectOwners?.map((member) => member._id) || [];
+      const modalMemberIds =
+        modalTeamMembers?.map((member) => member._id) || [];
+      const modalClientMemberIds =
+        modalClientMembers?.map((member) => member._id) || [];
 
       const areArraysEqual = (arr1, arr2) =>
         arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
@@ -291,7 +227,6 @@ export default function EditProject() {
         initialMemberIds,
         modalMemberIds
       );
-
       const isClientMembersChanged = !areArraysEqual(
         initialClientMemberIds,
         modalClientMemberIds
@@ -301,7 +236,22 @@ export default function EditProject() {
         updatedFields.members = modalMemberIds;
       }
       if (isClientMembersChanged && modalClientMemberIds.length > 0) {
-        updatedFields.member = modalClientMemberIds;
+        updatedFields.projectOwners = modalClientMemberIds;
+      }
+
+      const existingBannerUrls =
+        initialValues.projectBanner?.map((banner) => banner.url) || [];
+      const newFiles = selectedFiles.filter((file) => file.file);
+      const keptFiles = selectedFiles
+        .filter((file) => !file.file)
+        .map((file) => file.url);
+
+      if (
+        newFiles.length > 0 ||
+        existingBannerUrls.length !== keptFiles.length ||
+        existingBannerUrls.some((url) => !keptFiles.includes(url))
+      ) {
+        updatedFields.projectBanner = true;
       }
 
       if (Object.keys(updatedFields).length === 0) {
@@ -309,21 +259,48 @@ export default function EditProject() {
         return;
       }
 
-      if (formData.projectBanner) {
-        const data = new FormData();
-        data.append("projectBanner", formData.projectBanner);
-        Object.keys(updatedFields).forEach((key) =>
-          data.append(key, updatedFields[key])
-        );
-      }
-      requestData = updatedFields;
+      const data = new FormData();
+
+      Object.keys(formData).forEach((key) => {
+        if (key !== "projectBanner") {
+          data.append(key, formData[key]);
+        }
+      });
+
+      selectedFiles.forEach((file) => {
+        if (file.file) {
+          data.append("projectBanner", file.file);
+        }
+      });
+
+      requestData = data;
     }
+
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
       if (
         response?.data?.statusCode === 201 ||
         response?.data?.statusCode === 200
       ) {
+        const { physicalExecution, financialExecution } = selectedExecution;
+        const id = FinancialExecution?.[0]?.id;
+
+        if (physicalExecution.length > 0 || financialExecution.length > 0) {
+          try {
+            const financeUpdateResponse = await apiRequest(
+              "patch",
+              `/finance/${id}`,
+              {
+                physicalExecution,
+                financialExecution,
+              },
+              token
+            );
+          } catch (error) {
+            toast.error("Error updating finance execution.");
+          }
+        }
+
         const responseid = response?.data?.data._id;
 
         if (isCreateMode && selectedUsers.length > 0) {
@@ -331,8 +308,10 @@ export default function EditProject() {
             const updateResponse = await apiRequest(
               "put",
               `/projects/${responseid}`,
-              { members: selectedUsers },
-              { projectOwners: selectedClientUsers },
+              {
+                members: selectedUsers,
+                projectOwners: selectedClientUsers,
+              },
               token
             );
 
@@ -357,15 +336,6 @@ export default function EditProject() {
       toast.error("Error saving project.");
     }
   };
-
-
-  const handleOwnerChange = (selectedOwner) => {
-    const owner = owners.find((owner) => owner.userName === selectedOwner);
-    if (owner) {
-      setValue("projectOwnerId", owner._id);
-    }
-  };
-
 
   const handleUsersChange = (selectedOptions) => {
     const existingMembers = modalTeamMembers || [];
@@ -456,6 +426,65 @@ export default function EditProject() {
     p: 4,
   };
 
+  const handleFileChangetwo = (e) => {
+    if (!e.target.files.length) return;
+
+    const files = Array.from(e.target.files);
+
+    setSelectedFiles((prevFiles) => {
+      const existingFiles = prevFiles.filter((file) => file.url);
+      const newFiles = files.map((file) => ({ file, name: file.name }));
+
+      const allFiles = [...existingFiles, ...newFiles];
+
+      if (allFiles.length > 3) {
+        toast.error("You can only select up to 3 files.");
+        return prevFiles;
+      }
+
+      return allFiles;
+    });
+
+    e.target.value = "";
+  };
+
+  const removeFile = (index) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+
+  const [selectedInvoice, setSelectedInvoice] = useState(
+    FinancialExecution?.[0]?.fileName || ""
+  );
+  const [selectedExecution, setSelectedExecution] = useState({
+    financialExecution: FinancialExecution?.[0]?.financialExecution ?? "",
+    physicalExecution: FinancialExecution?.[0]?.physicalExecution ?? "",
+  });
+
+  const handleInvoiceChange = (e) => {
+    const selectedFile = e.target.value;
+    setSelectedInvoice(selectedFile);
+
+    const selectedData = FinancialExecution?.find(
+      (file) => file.fileName === selectedFile
+    );
+    if (selectedData) {
+      setSelectedExecution({
+        financialExecution: selectedData.financialExecution,
+        physicalExecution: selectedData.physicalExecution,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (FinancialExecution?.length > 0) {
+      setSelectedInvoice(FinancialExecution[0].fileName);
+      setSelectedExecution({
+        financialExecution: FinancialExecution[0].financialExecution,
+        physicalExecution: FinancialExecution[0].physicalExecution,
+      });
+    }
+  }, [FinancialExecution]);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <ChangeLogModal
@@ -463,55 +492,10 @@ export default function EditProject() {
         open={isModalOpens}
         handleClose={handleCloseButton}
       />
-      <form 
+      <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-6">Project Gallery</h2>
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-black font-bold text-sm">Project Banner</span>
-          </label>
-          <div className="border-dashed border-[#A1AEBE] rounded-lg border-[2px] h-32 flex justify-center items-center relative cursor-pointer overflow-hidden">
-            <label className="text-black font-bold text-center cursor-pointer w-full h-full flex justify-center items-center">
-              Drop your images here or{" "}
-              <span className="text-blue-600 font-semibold">Upload</span>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-            </label>
-          </div>
-          {imageError && (
-            <p className="text-red-500 text-sm mt-2">{imageError}</p>
-          )}
-          {errors[name] && (
-            <p className="text-red-500 text-sm mt-2">{errors[name].message}</p>
-          )}
-
-          {/* Preview Images */}
-          <div className="mt-4 grid grid-cols-3 gap-4">
-            {selectedFiles.map((file, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={file.url}
-                  alt="Preview"
-                  className="w-full h-24 object-cover rounded-lg"
-                />
-                <button
-                  onClick={() => removeFile(index)}
-                  className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex justify-center items-center text-xs"
-                >
-                  ✖
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
         <div className="mb-4">
           <label className="block text-2xl font-semibold mb-2 text-red-800">
@@ -578,8 +562,8 @@ export default function EditProject() {
           )}
         </div>
         <div className="mb-4">
-          <label className="block text-2xl font-semibold mb-2 text-red-800">
-            <span className="text-gray-700 text-sm">{t("Status")}</span>*
+          <label className="block text-sm font-semibold mb-2 text-gray-700">
+            {t("Status")}
           </label>
           <Controller
             name="status"
@@ -645,121 +629,122 @@ export default function EditProject() {
             <span className="text-red-600">{errors.deadline.message}</span>
           )}
         </div>
+        {!isCreateMode &&  (
+        <>
+          <h2 className="text-2xl font-bold mt-6 mb-6">Invoice</h2>
+          <div className="mb-4">
+            <label className="block text-2xl font-semibold mb-2">
+              <span className="text-gray-700 text-sm">Invoice</span>
+            </label>
+            <select
+              value={selectedInvoice}
+              onChange={handleInvoiceChange}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              disabled={isViewMode}
+            >
+              {FinancialExecution?.map((file, index) => (
+                <option key={index} value={file.fileName}>
+                  {file.fileName}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">Invoice</h2>
+          <h2 className="text-2xl font-bold mt-6 mb-6">Execution</h2>
+          <div className="mb-4">
+            <label className="block text-2xl font-semibold mb-2">
+              <span className="text-gray-700 text-sm">Physical Execution</span>
+            </label>
+            <input
+              value={selectedExecution.physicalExecution}
+              onChange={(e) =>
+                setSelectedExecution({
+                  ...selectedExecution,
+                  physicalExecution: e.target.value,
+                })
+              }
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-2xl font-semibold mb-2">
+              <span className="text-gray-700 text-sm">Financial Execution</span>
+            </label>
+            <input
+              value={selectedExecution.financialExecution}
+              onChange={(e) =>
+                setSelectedExecution({
+                  ...selectedExecution,
+                  financialExecution: e.target.value,
+                })
+              }
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+            />
+          </div>
+        </>
+        )}
         <div className="mb-4">
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">Choose Invoice</span>
+          <label className="block text-2xl font-semibold mb-2 text-red-800">
+            <span className="text-gray-700 text-sm">{t("Project_Banner")}</span>{" "}
+            *
           </label>
-          <Controller
-            name="Choose_Invoice"
-            disabled={isViewMode}
-            // rules={{ required: "Invoice is required" }}
-            control={control}
-            defaultValue={financialExecution?.[0]?.fileName || ""} // Set default value
-            render={({ field }) => (
-              <select
-                {...field}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-              >
-                {financialExecution?.map((file, index) => (
-                  <option key={index} value={file.fileName}>
-                    {file.fileName}
-                  </option>
-                ))}
-              </select>
-            )}
-          />
-
-          {errors.Choose_Invoice && (
-            <span className="text-red-600">
-              {errors.Choose_Invoice.message}
-            </span>
-          )}
-        </div>
-
-        <h2 className="text-2xl font-bold mt-6 mb-6">Execution</h2>
-        <div className="mb-4">
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">Physical Execution</span>
-          </label>
-          <Controller
-            name="Physical_Execution"
-            disabled={isViewMode}
-            // rules={{ required: "Physical Execution is required" }}
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                value={financialExecution?.[0]?.physicalExecution}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-              />
-            )}
-          />
-          {errors.Physical_Execution && (
-            <span className="text-red-600">
-              {errors.Physical_Execution.message}
-            </span>
-          )}
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">Financial Execution</span>
-          </label>
-          <Controller
-            name="Financial_Execution"
-            disabled={isViewMode}
-            // rules={{ required: "Financial Execution is required" }}
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                value={financialExecution?.[0]?.financialExecution}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-              />
-            )}
-          />
-          {errors.Financial_Execution && (
-            <span className="text-red-600">
-              {errors.Financial_Execution.message}
-            </span>
-          )}
-        </div>
-
-        {isCreateMode && (
-          <>
-            <div className="mb-4">
-              <label className="block text-2xl font-semibold mb-2 text-red-800">
-                <span className="text-gray-700 text-sm">
-                  {" "}
-                  {t("Project_Banner")}
-                </span>
-                *
-              </label>
-              <Controller
-                name="projectBanner"
-                rules={{ required: "Project Banner is required" }}
-                control={control}
-                render={({ field }) => (
-                  <input
-                    type="file"
-                    accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
-                    onChange={(e) => {
-                      handleFileChange(e);
-                      field.onChange(e.target.files[0]);
-                    }}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                  />
-                )}
-              />
-              {errors.projectBanner && (
-                <span className="text-red-600">
-                  {errors.projectBanner.message}
-                </span>
+          {!isViewMode && (
+            <Controller
+              name="projectBanner"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="file"
+                  accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
+                  onChange={(e) => {
+                    handleFileChangetwo(e);
+                    field.onChange(e.target.files[0]);
+                  }}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                  multiple
+                />
               )}
-            </div>
-            {/* <div className="mb-4">
+            />
+          )}
+          {errors.projectBanner && (
+            <span className="text-red-600">{errors.projectBanner.message}</span>
+          )}
+
+          <div className="mt-4 space-y-2">
+            {selectedFiles.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between border px-3 py-2 rounded-md"
+              >
+                <span className="text-gray-700">
+                  {file?.name
+                    ? file?.name
+                    : (() => {
+                        const filename = file?.url?.split("/").pop();
+                        return filename?.length > 40
+                          ? filename?.slice(0, 30) +
+                              "..." +
+                              filename?.slice(-10)
+                          : filename;
+                      })()}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ✖
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Team_Members")}</h2>
+        <div className="mb-4">
+          {!isViewMode && (
+            <>
               <label className="block text-2xl font-semibold mb-2 text-red-800">
                 <span className="text-gray-700 text-sm">
                   {" "}
@@ -818,226 +803,9 @@ export default function EditProject() {
                   {errors.teamMembers.message}
                 </span>
               )}
-            </div> */}
-
-            <div>
-              {!isViewMode && (
-                <>
-                  <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    {t("Add_Team_Members")}
-                  </label>
-                  <Controller
-                    name="teamMembers"
-                    control={control}
-                    rules={{
-                      required:
-                        teamMembers.length === 0
-                          ? "Team Members is required"
-                          : false,
-                    }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        isMulti
-                        options={users
-                          .filter(
-                            (user) =>
-                              !modalTeamMembers.some(
-                                (member) => member._id === user._id
-                              )
-                          )
-                          .map((user) => ({
-                            value: user._id,
-                            label: user.userName,
-                            avatar: user.avatar,
-                          }))}
-                        value={modalTeamMembers.map((member) => ({
-                          value: member._id,
-                          label: member.userName,
-                          avatar: member.avatar,
-                        }))}
-                        onChange={(selectedOptions) => {
-                          handleUsersChange(selectedOptions);
-                          field.onChange(selectedOptions);
-                        }}
-                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                      />
-                    )}
-                  />
-                  {errors.teamMembers && (
-                    <span className="text-red-600">
-                      {errors.teamMembers.message}
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
-
-            {!isCreateMode && (
-              <div className="mt-4 flex-grow scrollbar-custom">
-                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
-                  {t("Added_Members")}
-                </h3>
-                <ul className="space-y-2">
-                  {modalTeamMembers.map((member) => (
-                    <li
-                      key={member._id}
-                      className="flex items-center bg-gray-100 p-2 rounded-lg"
-                    >
-                      {member.avatar ? (
-                        <img
-                          src={member.avatar}
-                          alt={member.userName}
-                          className="w-10 h-10 rounded-full mr-3"
-                        />
-                      ) : (
-                        <User
-                          key={member._id}
-                          className="bg-slate-400 rounded-full p-2 text-white mr-2"
-                          size={32}
-                        />
-                      )}
-                      <span>{member.userName}</span>
-                      {!isViewMode && (
-                        <button
-                          className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
-                          onClick={() => handleDelete(member._id)}
-                        >
-                          <span className="text-lg">🗑️</span>
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="flex justify-between mt-4 w-full">
-              <button
-                onClick={saveChanges}
-                className="px-4 py-3 w-1/2 mr-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
-              >
-                {t("Save_Changes")}
-              </button>
-              <button
-                onClick={closeModal}
-                className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
-              >
-                {t("Cancel")}
-              </button>
-            </div>
-          </Box>
-        </Modal>
-
-        {!isCreateMode && (
-          <>
-            <h2 className="block text-sm font-semibold mb-4 text-gray-700">
-              {t("Added_Members")}
-            </h2>
-            <div>
-              <ul>
-                {teamMembers.map((member) => (
-                  <li key={member._id} className="flex items-center mb-2">
-                    {member.avatar ? (
-                      <img
-                        src={member.avatar}
-                        alt={member.userName}
-                        className="w-10 h-10 rounded-full mr-3"
-                      />
-                    ) : (
-                      <User
-                        key={member._id}
-                        className="bg-slate-400 rounded-full p-2 text-white mr-2"
-                        size={32}
-                      />
-                    )}
-                    <span>{member.userName}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
-
-        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Client_Members")}</h2>
-        <div className="mb-4">
-          {!isViewMode && (
-            <>
-              <label className="block text-2xl font-semibold mb-2 text-red-800">
-                <span className="text-gray-700 text-sm">
-                  {t("Add_Client_Members")}
-                </span>{" "}
-                *
-              </label>
-              <Controller
-                name="clientMembers"
-                control={control}
-                rules={{
-                  required:
-                    clietMembers.length === 0
-                      ? "Client Members is required"
-                      : false,
-                }}
-                render={({ field }) =>
-                  isCreateMode ? (
-                    <Select
-                      {...field}
-                      isMulti
-                      // Combine owners and users in the options
-                      options={[
-                        ...owners.map((owner) => ({
-                          value: owner._id, // using _id as value for consistency
-                          label: owner.userName,
-                          avatar: owner.avatar,
-                        })),
-                        ...owners
-                          .filter(
-                            (user) =>
-                              !clietMembers.some(
-                                (member) => member._id === user._id
-                              )
-                          )
-                          .map((user) => ({
-                            value: user._id,
-                            label: user.userName,
-                            avatar: user.avatar,
-                          })),
-                      ]}
-                      value={field.value || []}
-                      onChange={(selectedOptions) => {
-                        handleUsersChange(selectedOptions);
-                        field.onChange(selectedOptions);
-                      }}
-                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                    />
-                  ) : (
-                    <select
-                      {...field}
-                      onClick={openModal}
-                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                    >
-                      <option value="" disabled selected hidden>
-                        {t("Add_Client_Members")}
-                      </option>
-                      {/* Owners mapping added here */}
-                      {owners.map((owner) => (
-                        <option key={owner._id} value={owner._id}>
-                          {owner.userName}
-                        </option>
-                      ))}
-                    </select>
-                  )
-                }
-              />
-              {errors.clietMembers && (
-                <span className="text-red-600">
-                  {errors.clietMembers.message}
-                </span>
-              )}
             </>
           )}
         </div>
-
         <Modal
           open={isModalOpen}
           onClose={closeModal}
@@ -1071,41 +839,33 @@ export default function EditProject() {
               {!isViewMode && (
                 <>
                   <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    {t("Add_Client_Members")}
+                    {t("Add_Team_Members")}
                   </label>
                   <Controller
                     name="teamMembers"
                     control={control}
                     rules={{
                       required:
-                        modalTeamMembers.length === 0
-                          ? "Client Members is required"
+                        teamMembers.length === 0
+                          ? "Team Members is required"
                           : false,
                     }}
                     render={({ field }) => (
                       <Select
                         {...field}
                         isMulti
-                        // Combine owners mapping with users mapping here as well
-                        options={[
-                          ...owners.map((owner) => ({
-                            value: owner._id,
-                            label: owner.userName,
-                            avatar: owner.avatar,
-                          })),
-                          ...owners
-                            .filter(
-                              (user) =>
-                                !modalTeamMembers.some(
-                                  (member) => member._id === user._id
-                                )
-                            )
-                            .map((user) => ({
-                              value: user._id,
-                              label: user.userName,
-                              avatar: user.avatar,
-                            })),
-                        ]}
+                        options={users
+                          .filter(
+                            (user) =>
+                              !modalTeamMembers.some(
+                                (member) => member._id === user._id
+                              )
+                          )
+                          .map((user) => ({
+                            value: user._id,
+                            label: user.userName,
+                            avatar: user.avatar,
+                          }))}
                         value={modalTeamMembers.map((member) => ({
                           value: member._id,
                           label: member.userName,
@@ -1248,7 +1008,7 @@ export default function EditProject() {
                         )
                         .map((user) => ({
                           value: user._id,
-                          label: user.ownerName,
+                          label: user?.userName || user?.ownerName,
                           avatar: user.avatar,
                         }))}
                       value={field.value || []}
@@ -1324,35 +1084,43 @@ export default function EditProject() {
                           ? "Client Members is required"
                           : false,
                     }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        isMulti
-                        options={owners
-                          .filter(
-                            (user) =>
-                              !modalClientMembers.some(
-                                (member) => member._id === user._id
-                              )
-                          )
-                          .map((user) => ({
-                            value: user._id,
-                            label: user.ownerName,
-                            avatar: user.avatar,
+                    render={({ field }) => {
+                      const filteredOptions = owners
+                        .filter(
+                          (user) =>
+                            !modalClientMembers.some(
+                              (member) =>
+                                (member.ownerId &&
+                                  member.ownerId === user._id) ||
+                                (member.ownerName &&
+                                  member.ownerName === user.ownerName)
+                            )
+                        )
+                        .map((user) => ({
+                          value: user._id,
+                          label: user.ownerName || user.userName,
+                          avatar: user.avatar,
+                        }));
+                      return (
+                        <Select
+                          {...field}
+                          isMulti
+                          options={filteredOptions}
+                          value={modalClientMembers.map((member) => ({
+                            value: member._id,
+                            label: member.ownerName || member.userName,
+                            avatar: member.avatar,
                           }))}
-                        value={modalClientMembers.map((member) => ({
-                          value: member._id,
-                          label: member.ownerName,
-                          avatar: member.avatar,
-                        }))}
-                        onChange={(selectedOptions) => {
-                          handleClientUsersChange(selectedOptions);
-                          field.onChange(selectedOptions);
-                        }}
-                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                      />
-                    )}
+                          onChange={(selectedOptions) => {
+                            handleClientUsersChange(selectedOptions);
+                            field.onChange(selectedOptions);
+                          }}
+                          className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                        />
+                      );
+                    }}
                   />
+
                   {errors.clientMembers && (
                     <span className="text-red-600">
                       {errors.clientMembers.message}
@@ -1386,7 +1154,7 @@ export default function EditProject() {
                           size={32}
                         />
                       )}
-                      <span>{member.ownerName}</span>
+                      <span>{member?.userName || member?.ownerName}</span>
                       {!isViewMode && (
                         <button
                           className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
@@ -1440,7 +1208,7 @@ export default function EditProject() {
                         size={32}
                       />
                     )}
-                    <span>{member.ownerName}</span>
+                    <span>{member.ownerName || member.userName}</span>
                   </li>
                 ))}
               </ul>

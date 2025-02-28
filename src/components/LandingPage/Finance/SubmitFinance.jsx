@@ -37,23 +37,31 @@ const ProgressGauge = ({
         />
       </RadialBarChart>
 
+      {/* Ensure the percentage display doesn't block button clicks */}
       <div
-        className="absolute top-[110px] left-[110px] flex items-center justify-center w-16 h-16 rounded-full text-white font-semibold text-lg"
+        className="absolute top-[110px] left-[110px] flex items-center justify-center w-16 h-16 rounded-full text-white font-semibold text-lg z-10"
         style={{ backgroundColor: color }}
       >
         {percentage}%
       </div>
 
-      <div className="flex items-center -mt-10">
+      {/* Buttons */}
+      <div className="flex items-center -mt-10 z-20">
         <button
-          onClick={onIncrease}
+          onClick={() => {
+            console.log(`Increasing ${label}`);
+            onIncrease();
+          }}
           className="px-3 py-1 bg-green-600 text-white rounded-lg"
         >
           +
         </button>
         <p className="mx-4 text-black font-semibold">{label}</p>
         <button
-          onClick={onDecrease}
+          onClick={() => {
+            console.log(`Decreasing ${label}`);
+            onDecrease();
+          }}
           className="px-3 py-1 bg-red-600 text-white rounded-lg"
         >
           -
@@ -62,7 +70,6 @@ const ProgressGauge = ({
     </div>
   );
 };
-
 export default function SubmitFinance() {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);

@@ -11,6 +11,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useSelector } from "react-redux";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 import { Clock, Clock1 } from "lucide-react";
 import "../../../utils/i18n";
 import {
@@ -31,6 +33,7 @@ import Footer from "../CommonUi/Footer";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { FaRecordVinyl } from "react-icons/fa6";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
@@ -181,12 +184,33 @@ const PendingProjects = () => {
                       className="bg-white rounded-lg shadow-lg p-4 flex flex-col "
                     >
                       {/* Image */}
-                      <img
-                        className="w-full h-40 object-cover rounded-lg mb-4 cursor-pointer"
-                        onClick={() => handleViewProjectClick(project._id)}
-                        src={project.projectBanner}
-                        alt={project.projectName}
-                      />
+                      {project.projectBanner?.length > 0 ? (
+                        <Swiper
+                          spaceBetween={10}
+                          slidesPerView={1}
+                          grabCursor={true}
+                        >
+                          {project.projectBanner.map((banner, index) => (
+                            <SwiperSlide
+                              key={banner._id || index}
+                              className="w-[300px]"
+                            >
+                              <img
+                                className="w-[400px] h-32 object-cover rounded"
+                                src={banner.url}
+                                alt={`Project Banner ${index + 1}`}
+                              />
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      ) : (
+                        <div className="w-[400px] h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
+                          <FaRecordVinyl className="w-8 h-8 text-gray-500" />
+                          <p className="text-gray-500 text-sm mt-1">
+                            No image yet
+                          </p>
+                        </div>
+                      )}
                       {/* Content */}
                       <div>
                         <div
@@ -207,68 +231,78 @@ const PendingProjects = () => {
                           <div className="flex flex-row items-center gap-2 mb-3">
                             <Clock1 className="w-4 h-4" />
                             <p className="text-sm text-black">
-                            {project.daysLeft === "Awaiting Start" ? t("Awaiting_Start") : project.daysLeft}
+                              {project.daysLeft === "Awaiting Start"
+                                ? t("Awaiting_Start")
+                                : project.daysLeft}
                             </p>
                           </div>
 
                           {/* Progress Bars */}
                           <div className="mt-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-black font-medium text-sm">
-                          {t("Physical_Execution")}
-                        </p>
-                        <h6 className="text-gray-800 font-semibold">
-                          {project?.financeDocuments?.[0]?.physicalExecution}%
-                        </h6>
-                      </div>
+                            <div className="flex items-center justify-between">
+                              <p className="text-black font-medium text-sm">
+                                {t("Physical_Execution")}
+                              </p>
+                              <h6 className="text-gray-800 font-semibold">
+                                {
+                                  project?.financeDocuments?.[0]
+                                    ?.physicalExecution
+                                }
+                                %
+                              </h6>
+                            </div>
 
-                      <div className="relative w-full h-2 bg-gray-200 rounded-full">
-                        <div
-                          className={`absolute top-0 left-0 h-2 rounded-full bg-red-redNew ${
-                            project.status === "Completed"
-                              ? "bg-green-500"
-                              : "bg-red-500"
-                          }`}
-                          style={{
-                            width: `${project?.financeDocuments?.[0]?.physicalExecution}%`,
-                          }}
-                        ></div>
-                        <div
-                          className="absolute w-5 h-5 rounded-full bg-red-redNew border-2 border-red-redNew"
-                          style={{
-                            left: `calc(${project?.financeDocuments?.[0]?.physicalExecution}% - 10px)`,
-                            top: "-6px",
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="mb-4 mt-2 relative">
-                      <div className="flex justify-between">
-                        <p className="black text-sm mb-1">
-                          {t("Financial_Execution")}
-                        </p>
-                        <h6 className="text-red-redNew">
-                          {project?.financeDocuments?.[0]?.financialExecution}%
-                        </h6>
-                      </div>
-                      <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                        <div
-                          className="bg-red-redNew h-2 rounded-full"
-                          style={{
-                            width: `${project?.financeDocuments?.[0]?.financialExecution}%`,
-                          }}
-                        ></div>
-                        <div
-                          className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
+                            <div className="relative w-full h-2 bg-gray-200 rounded-full">
+                              <div
+                                className={`absolute top-0 left-0 h-2 rounded-full bg-red-redNew ${
+                                  project.status === "Completed"
+                                    ? "bg-green-500"
+                                    : "bg-red-500"
+                                }`}
+                                style={{
+                                  width: `${project?.financeDocuments?.[0]?.physicalExecution}%`,
+                                }}
+                              ></div>
+                              <div
+                                className="absolute w-5 h-5 rounded-full bg-red-redNew border-2 border-red-redNew"
+                                style={{
+                                  left: `calc(${project?.financeDocuments?.[0]?.physicalExecution}% - 10px)`,
+                                  top: "-6px",
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                          <div className="mb-4 mt-2 relative">
+                            <div className="flex justify-between">
+                              <p className="black text-sm mb-1">
+                                {t("Financial_Execution")}
+                              </p>
+                              <h6 className="text-red-redNew">
+                                {
+                                  project?.financeDocuments?.[0]
+                                    ?.financialExecution
+                                }
+                                %
+                              </h6>
+                            </div>
+                            <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                              <div
+                                className="bg-red-redNew h-2 rounded-full"
+                                style={{
+                                  width: `${project?.financeDocuments?.[0]?.financialExecution}%`,
+                                }}
+                              ></div>
+                              <div
+                                className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
                  flex items-center justify-center shadow-md cursor-pointer transition-all"
-                          style={{
-                            left: `calc(${project?.financeDocuments?.[0]?.financialExecution}% - 10px)`,
-                          }}
-                        >
-                          <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
-                        </div>
-                      </div>
-                    </div>
+                                style={{
+                                  left: `calc(${project?.financeDocuments?.[0]?.financialExecution}% - 10px)`,
+                                }}
+                              >
+                                <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         <button className="text-[#54577A] underline">
                           {t("deliverables_attached")}

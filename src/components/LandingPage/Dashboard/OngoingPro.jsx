@@ -15,6 +15,9 @@ import { Clock, User } from "lucide-react";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import { FaRecordVinyl } from "react-icons/fa6";
 
 const OngoingPro = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -78,13 +81,31 @@ const OngoingPro = () => {
                   <h6>...</h6>
                 </div>
                 <div className="border-b pb-4 mb-4">
-                  <img
-                    className="w-full h-32 object-cover rounded"
-                    src={
-                      project.projectBanner || "https://via.placeholder.com/150"
-                    }
-                    alt={project.projectName || "Project"}
-                  />
+                  {project.projectBanner?.length > 0 ? (
+                    <Swiper
+                      spaceBetween={10}
+                      slidesPerView={1}
+                      grabCursor={true}
+                    >
+                      {project.projectBanner.map((banner, index) => (
+                        <SwiperSlide
+                          key={banner._id || index}
+                          className="w-[300px]"
+                        >
+                          <img
+                            className="w-[300px] h-32 object-cover rounded"
+                            src={banner.url}
+                            alt={`Project Banner ${index + 1}`}
+                          />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  ) : (
+                    <div className="w-[340px] h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
+                      <FaRecordVinyl className="w-8 h-8 text-gray-500" />
+                      <p className="text-gray-500 text-sm mt-1">No image yet</p>
+                    </div>
+                  )}
                   <h3 className="text-lg font-semibold mt-4 text-black-blacknew">
                     {project.projectName}
                   </h3>
