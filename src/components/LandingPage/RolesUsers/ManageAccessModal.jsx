@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
 
 export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
+  console.log(roleData);
+
   const token = useSelector((state) => state?.auth?.userToken);
   const { t } = useTranslation();
 
@@ -53,12 +55,12 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
     if (roleData?.permissions) {
       const newAccess = { ...initialAccess };
 
-      roleData.permissions.forEach((permission) => {
+      roleData?.permissions.forEach((permission) => {
         const module = permission.module.toLowerCase().replace("management", "");
-        if (permission.create) newAccess.add[module] = true;
-        if (permission.read) newAccess.view[module] = true;
-        if (permission.update) newAccess.edit[module] = true;
-        if (permission.delete) newAccess.delete[module] = true;
+        if (permission?.create) newAccess.add[module] = true;
+        if (permission?.read) newAccess.view[module] = true;
+        if (permission?.update) newAccess.edit[module] = true;
+        if (permission?.delete) newAccess.delete[module] = true;
       });
 
       setAccess(newAccess);
@@ -67,21 +69,18 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
 
   const handleAccess = async () => {
     const permissions = [];
-  
-    // Loop through each action type (add, view, edit, delete)
+
     Object.keys(access).forEach((action) => {
       Object.keys(access[action]).forEach((module) => {
         const moduleName = module.charAt(0).toUpperCase() + module.slice(1) + "Management";
         const existingPermission = permissions.find((p) => p.module === moduleName);
-  
+
         if (existingPermission) {
-          // Update the existing permission based on the action
           existingPermission.create = existingPermission.create || (action === "add" && access[action][module]);
           existingPermission.read = existingPermission.read || (action === "view" && access[action][module]);
           existingPermission.update = existingPermission.update || (action === "edit" && access[action][module]);
           existingPermission.delete = existingPermission.delete || (action === "delete" && access[action][module]);
         } else {
-          // Add a new permission object
           permissions.push({
             module: moduleName,
             create: action === "add" && access[action][module],
@@ -92,8 +91,7 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
         }
       });
     });
-  
-    // Ensure that even objects where all properties are false are included
+
     const finalPermissions = permissions.map((permission) => ({
       ...permission,
       create: permission.create || false,
@@ -101,9 +99,9 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
       update: permission.update || false,
       delete: permission.delete || false,
     }));
-  
+
     const payload = { permissions: finalPermissions };
-  
+
     try {
       const response = await apiRequest("put", `/roles/${roleId}`, payload, token);
       if (response.status === 200) {
@@ -113,27 +111,20 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
         toast.error("Failed to update access.");
       }
     } catch (error) {
+      console.error("Error updating access:", error);
       toast.error(error.message || "Something went wrong.");
     }
   };
-  const dispatch = useDispatch();
 
   useEffect(() => {
-    // Listen for roleUpdated event
     socket.on("accessedUpdate", async (accessedUpdate) => {
       console.log("Role updated:", accessedUpdate);
-
-      // // Fetch updated access data
-      // const token = localStorage.getItem("authToken"); // Replace with your auth token logic
-      // const roles = await getAccess(token);
-
-      // // Update Redux state
-      // dispatch(setRoles(roles));
     });
     return () => {
       socket.off("accessedUpdate");
     };
   }, []);
+
   const handleChange = (type, field) => {
     setAccess((prev) => ({
       ...prev,
@@ -142,7 +133,7 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
   };
 
   const resetAccess = () => {
-    setAccess(initialAccess); // Reset to initial access state
+    setAccess(initialAccess);
   };
 
   const modalStyle = {
@@ -167,30 +158,27 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
 
         {["add", "edit", "delete", "view"].map((action) => (
           <div key={action} className="mb-4">
-            <Typography
-              variant="subtitle1"
-              className="font-medium capitalize mb-2"
-            >
+            <Typography variant="subtitle1" className="font-medium capitalize mb-2">
               {t("Can")} {t(action)}
             </Typography>
             <div className="grid grid-cols-3 gap-2">
               {[
-                t("Projects"),
-                t("Reports"),
-               t( "Clients"),
-                t("Roles"),
-                t("Evaluation"),
-                t("Users"),
-                ...(action === "view" ? [t("History")] : []),
-              ].map((field) => (
-                <div key={field} className="flex items-center">
+                { key: "projects", label: t("Projects") },
+                { key: "reports", label: t("Reports") },
+                { key: "clients", label: t("Clients") },
+                { key: "roles", label: t("Roles") },
+                { key: "evaluation", label: t("Evaluation") },
+                { key: "users", label: t("Users") },
+                ...(action === "view" ? [{ key: "history", label: t("History") }] : []),
+              ].map(({ key, label }) => (
+                <div key={key} className="flex items-center">
                   <Checkbox
-                    checked={access[action][field]}
-                    onChange={() => handleChange(action, field)}
+                    checked={access[action][key]}
+                    onChange={() => handleChange(action, key)}
                     color="error"
                   />
                   <Typography variant="body2" className="capitalize">
-                    {field}
+                    {label}
                   </Typography>
                 </div>
               ))}

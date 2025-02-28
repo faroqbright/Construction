@@ -284,7 +284,6 @@ export default function RolesTable() {
               <a
                 href="#"
                 className="text-black-blacknew font-raleway hover:underline text-sm font-medium underline"
-                onClick={handleManageAccessOpen}
               >
                 {/* {t("Manage_Access")} */}
               </a>

@@ -169,7 +169,7 @@ const App = () => {
               element={
                 <RouteMiddleware
                   isAuthRequired={true}
-                  requiredModules={["ReportsManagement"]}
+                  requiredModules={[]}
                 >
                   <Documentpage />
                 </RouteMiddleware>
