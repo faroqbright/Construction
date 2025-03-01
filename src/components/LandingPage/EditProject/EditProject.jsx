@@ -191,9 +191,9 @@ export default function EditProject() {
           data.append(key, formData[key]);
         }
       }
-          selectedFiles.forEach((file) => {
-      data.append("projectBanner", file.file);
-    });
+      selectedFiles.forEach((file) => {
+        data.append("projectBanner", file.file);
+      });
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
 
@@ -268,24 +268,27 @@ export default function EditProject() {
       const data = new FormData();
 
       Object.keys(formData).forEach((key) => {
-        if (key !== "projectBanner" && key !== "teamMembers" && key !== "clientMembers") {
+        if (
+          key !== "projectBanner" &&
+          key !== "teamMembers" &&
+          key !== "clientMembers"
+        ) {
           data.append(key, formData[key]);
         }
       });
-      
+
       // 🔥 Fix: Append members and projectOwners as JSON strings
       if (updatedFields.projectOwners) {
         updatedFields.projectOwners.forEach((member, index) => {
-          data.append(`members[${index}]`, member);  // ✅ Correcting members
+          data.append(`members[${index}]`, member); // ✅ Correcting members
         });
       }
-      
+
       if (updatedFields.members) {
         updatedFields.members.forEach((owner, index) => {
-          data.append(`projectOwners[${index}]`, owner);  // ✅ Correcting projectOwners
+          data.append(`projectOwners[${index}]`, owner); // ✅ Correcting projectOwners
         });
       }
-      
 
       selectedFiles.forEach((file) => {
         if (file.file) {
@@ -329,7 +332,7 @@ export default function EditProject() {
               "put",
               `/projects/${responseid}`,
               {
-                members: selectedUsers  ,
+                members: selectedUsers,
                 projectOwners: selectedClientUsers,
               },
               token
@@ -453,7 +456,6 @@ export default function EditProject() {
     }));
     setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
   };
-  
 
   const removeFile = (index) => {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
@@ -636,87 +638,98 @@ export default function EditProject() {
             <span className="text-red-600">{errors.deadline.message}</span>
           )}
         </div>
-        {!isCreateMode &&  (
-        <>
-          <h2 className="text-2xl font-bold mt-6 mb-6">Invoice</h2>
-          <div className="mb-4">
-            <label className="block text-2xl font-semibold mb-2">
-              <span className="text-gray-700 text-sm">Invoice</span>
-            </label>
-            <select
-              value={selectedInvoice}
-              onChange={handleInvoiceChange}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-              disabled={isViewMode}
-            >
-              {FinancialExecution?.map((file, index) => (
-                <option key={index} value={file.fileName}>
-                  {file.fileName}
-                </option>
-              ))}
-            </select>
-          </div>
+        {!isCreateMode && (
+          <>
+            <h2 className="text-2xl font-bold mt-6 mb-6">Invoice</h2>
+            <div className="mb-4">
+              <label className="block text-2xl font-semibold mb-2">
+                <span className="text-gray-700 text-sm">Invoice</span>
+              </label>
+              <select
+                value={selectedInvoice}
+                onChange={handleInvoiceChange}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                disabled={isViewMode}
+              >
+                {FinancialExecution?.map((file, index) => (
+                  <option key={index} value={file.fileName}>
+                    {file.fileName}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <h2 className="text-2xl font-bold mt-6 mb-6">Execution</h2>
-          <div className="mb-4">
-            <label className="block text-2xl font-semibold mb-2">
-              <span className="text-gray-700 text-sm">Physical Execution</span>
-            </label>
-            <input
-              value={selectedExecution.physicalExecution}
-              onChange={(e) =>
-                setSelectedExecution({
-                  ...selectedExecution,
-                  physicalExecution: e.target.value,
-                })
-              }
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-            />
-          </div>
+            <h2 className="text-2xl font-bold mt-6 mb-6">Execution</h2>
+            <div className="mb-4">
+              <label className="block text-2xl font-semibold mb-2">
+                <span className="text-gray-700 text-sm">
+                  Physical Execution
+                </span>
+              </label>
+              <input
+                value={selectedExecution.physicalExecution}
+                onChange={(e) =>
+                  setSelectedExecution({
+                    ...selectedExecution,
+                    physicalExecution: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              />
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-2xl font-semibold mb-2">
-              <span className="text-gray-700 text-sm">Financial Execution</span>
-            </label>
-            <input
-              value={selectedExecution.financialExecution}
-              onChange={(e) =>
-                setSelectedExecution({
-                  ...selectedExecution,
-                  financialExecution: e.target.value,
-                })
-              }
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-            />
-          </div>
-        </>
+            <div className="mb-4">
+              <label className="block text-2xl font-semibold mb-2">
+                <span className="text-gray-700 text-sm">
+                  Financial Execution
+                </span>
+              </label>
+              <input
+                value={selectedExecution.financialExecution}
+                onChange={(e) =>
+                  setSelectedExecution({
+                    ...selectedExecution,
+                    financialExecution: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              />
+            </div>
+          </>
         )}
         <div className="mb-4">
-          <label className="block text-2xl font-semibold mb-2 text-red-800">
-            <span className="text-gray-700 text-sm">{t("Project_Banner")}</span>{" "}
-            *
-          </label>
-          {!isViewMode && (
-            <Controller
-              name="projectBanner"
-              control={control}
-              render={({ field }) => (
-                <input
-                  type="file"
-                  accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
-                  onChange={(e) => {
-                    handleFileChangetwo(e);
-                    field.onChange(e.target.files);
-                  }}
-                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                  multiple
-                />
-              )}
-            />
-          )}
-          {errors.projectBanner && (
-            <span className="text-red-600">{errors.projectBanner.message}</span>
-          )}
+          <Controller
+            name="projectBanner"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="file"
+                accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
+                onChange={(e) => {
+                  const files = e.target.files;
+                  const maxSize = 1 * 1024 * 1024;
+
+                  if (files.length > 0) {
+                    const isValid = Array.from(files).every(
+                      (file) => file.size <= maxSize
+                    );
+
+                    if (!isValid) {
+                      toast.error(
+                        "Selected file should not be greater than 1MB."
+                      );
+                      return;
+                    }
+                  }
+
+                  handleFileChangetwo(e);
+                  field.onChange(files);
+                }}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                multiple
+              />
+            )}
+          />
 
           <div className="mt-4 space-y-2">
             {selectedFiles.map((file, index) => (
