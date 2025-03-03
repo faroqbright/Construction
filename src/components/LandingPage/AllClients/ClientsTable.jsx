@@ -194,15 +194,15 @@ const ClientsTable = () => {
   };
 
   const hasCLientCreatePermission = RolePermissions(
-    "ClientsManagement",
+    "CompanyManagement",
     "create"
   );
   const hasCLientUpdatePermission = RolePermissions(
-    "ClientsManagement",
+    "CompanyManagement",
     "update"
   );
   const hasCLientDeletePermission = RolePermissions(
-    "ClientsManagement",
+    "CompanyManagement",
     "delete"
   );
 

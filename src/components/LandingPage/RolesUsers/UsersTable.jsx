@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import RolePermissions from "../../../utils/RolePermissions";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
+import { useSideBar } from "../../../utils/RoleContext";
 
 
 export default function UsersTable() {
@@ -31,6 +32,7 @@ export default function UsersTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
   const modalRef = useRef(null);
+  const { clickedItem, setClickedItem } = useSideBar();
 
   const hasCreatePermission = RolePermissions("UsersManagement", "create");
   const hasDeletePermission = RolePermissions("UsersManagement", "delete");
@@ -64,6 +66,13 @@ export default function UsersTable() {
   useEffect(() => {
     fetchRoles();
   }, [fetchRoles]);
+
+  useEffect(() => {
+    if(clickedItem){
+    fetchRoles();
+    setClickedItem(null);
+    }
+  }, [clickedItem,setClickedItem,fetchRoles]);
   // Add a new user
   const addUser = async (user) => {
     try {

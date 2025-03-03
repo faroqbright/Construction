@@ -25,6 +25,7 @@ import ReportsName from "../pages/MainPages/ReportsName/ReportsName";
 import ReportsPage from "../pages/MainPages/Report/Report";
 import UserReportsPage from "../pages/MainPages/Report/userReport";
 import SubmitReportPage from "../pages/MainPages/Report/submitReport";
+import SubmitLandlordReportPage from "../pages/MainPages/Report/SubmitLandlordReport";
 import Documentpage from "../pages/MainPages/documents/documents";
 import SubmitDocumentPage from "../pages/MainPages/documents/submitDocument";
 import AllComapnies from "../pages/MainPages/AllCompanies/AllCompanies";
@@ -79,10 +80,13 @@ const App = () => {
                 </RouteMiddleware>
               }
             />
-              <Route
+            <Route
               path="/finance"
               element={
-                <RouteMiddleware isAuthRequired={true}>
+                <RouteMiddleware
+                  requiredModules={["FinanceManagement"]}
+                  isAuthRequired={true}
+                >
                   <Finance />
                 </RouteMiddleware>
               }
@@ -151,6 +155,17 @@ const App = () => {
                 </RouteMiddleware>
               }
             />
+            <Route
+              path="/submitLandlordReport"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["ReportsManagement"]}
+                >
+                  <SubmitLandlordReportPage />
+                </RouteMiddleware>
+              }
+            />
 
             <Route
               path="/submitDocument"
@@ -169,7 +184,7 @@ const App = () => {
               element={
                 <RouteMiddleware
                   isAuthRequired={true}
-                  requiredModules={[]}
+                  requiredModules={["DocumentManagement"]}
                 >
                   <Documentpage />
                 </RouteMiddleware>
@@ -199,7 +214,7 @@ const App = () => {
               element={
                 <RouteMiddleware
                   isAuthRequired={true}
-                  requiredModules={["ClientsManagement"]}
+                  requiredModules={["CompanyManagement"]}
                 >
                   <AllClients />
                 </RouteMiddleware>
@@ -210,7 +225,7 @@ const App = () => {
               element={
                 <RouteMiddleware
                   isAuthRequired={true}
-                  requiredModules={["CompaniesManagement"]}
+                  requiredModules={["ClientsManagement"]}
                 >
                   <AllComapnies />
                 </RouteMiddleware>

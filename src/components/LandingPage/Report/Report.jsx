@@ -44,7 +44,7 @@ export default function Report() {
   const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state.auth.userToken);
   console.log(documents);
-  
+
   useEffect(() => {
     setSelectedTab(activeTab);
   }, [activeTab]);
@@ -134,7 +134,6 @@ export default function Report() {
     console.log("Active Tab:", selectedTab);
   }, [selectedTab]);
 
-  
   return (
     <div className="bg-gray-100 min-h-screen p-8">
       <div className="flex items-center space-x-3 mb-10">
@@ -245,9 +244,27 @@ export default function Report() {
         )}
       </Stack>
 
-      <h2 className="text-lg font-extrabold mb-6 mt-6">
-        {t("All_Projects_Report")}s
-      </h2>
+      <div className="flex justify-between items-center w-full h-auto md:h-14 px-4 my-4">
+        <h2 className="text-lg font-extrabold mb-6 mt-6">
+          {t("All_Projects_Report")}s
+        </h2>
+        <div className="w-full flex justify-end p-4">
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "black",
+              color: "white",
+              textTransform: "none",
+              "&:hover": {
+                backgroundColor: "#333333",
+              },
+            }}
+            onClick={() => navigate("/submitLandlordReport")}
+          >
+            + {t("Create_New_Report")}
+          </Button>
+        </div>
+      </div>
       {/* Table */}
       <div className="bg-white rounded-lg shadow-md p-4 mt-4">
         <div className="overflow-x-auto">

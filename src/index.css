@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.slick-prev,
+.slick-next {
+  background: #ef4444 !important; 
+  color: white;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1;
+}
+
+.slick-prev:hover,
+.slick-next:hover {
+  color: white;
+  background: #dc2626 !important; /* Red-600 for hover */
+}
+
+.slick-prev::before,
+.slick-next::before {
+  color: white !important;
+  font-size: 12px !important;
+  opacity: 1 !important;
+}
+
+.slick-prev {
+  left: -40px !important;
+}
+
+.slick-next {
+  right: -40px !important;
+}
+
 body {
   margin: 0;
   padding: 0;

@@ -12,7 +12,7 @@ const SubmitReport = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const token = useSelector((state) => state?.auth?.userToken);  
+  const token = useSelector((state) => state?.auth?.userToken);
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -37,19 +37,26 @@ const SubmitReport = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
 
     if (file) {
       if (file.type !== "application/pdf") {
         toast.error("Only PDF files are allowed!");
         return;
       }
+
+      if (file.size > maxSize) {
+        toast.error("File size cannot be greater than 5MB!");
+        return;
+      }
+
       setSelectedFile(file);
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile || !selectedProject) {
-        toast.info("Please select a project and upload a PDF file.");
+      toast.info("Please select a project and upload a PDF file.");
       return;
     }
 
@@ -65,7 +72,6 @@ const SubmitReport = () => {
         "Content-Type": "multipart/form-data",
       });
       console.log(response);
-      
 
       if (response?.status === 200 || response?.status === 201) {
         toast.success("File uploaded successfully!");
@@ -123,7 +129,7 @@ const SubmitReport = () => {
               {t("Choose_a_file_and_Drop_it_here")}
             </p>
             <p className="text-[#626262] text-[14px] font-[500] mt-2">
-              {t("Only_PDF_files_are_allowed")}, {t("up_to")} 50MB
+              {t("Only_PDF_files_are_allowed")}, {t("up_to")} 5MB
             </p>
             <input
               type="file"

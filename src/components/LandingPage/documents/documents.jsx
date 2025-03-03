@@ -264,15 +264,15 @@ const Documents = () => {
   };
 
   const hasCLientCreatePermission = RolePermissions(
-    "ClientsManagement",
+    "DocumentManagement",
     "create"
   );
   const hasCLientUpdatePermission = RolePermissions(
-    "ClientsManagement",
+    "DocumentManagement",
     "update"
   );
   const hasCLientDeletePermission = RolePermissions(
-    "ClientsManagement",
+    "DocumentManagement",
     "delete"
   );
 

@@ -19,6 +19,7 @@ import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
+import { useSideBar } from "../../../utils/RoleContext";
 
 export default function RolesTable() {
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ export default function RolesTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const modalRef = useRef(null);
+  const { setClickedItem } = useSideBar();
 
   const hasCreatePermission = RolePermissions("RolesManagement", "create");
   const hasDeletePermission = RolePermissions("RolesManagement", "delete");
@@ -109,6 +111,7 @@ export default function RolesTable() {
         setRoleName("");
         setStatus("Active");
         handleCloses();
+        setClickedItem(true)
       } else {
         toast.error("Failed to add role.");
       }

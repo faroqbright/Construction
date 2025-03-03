@@ -110,6 +110,8 @@ const PendingProjects = () => {
     speed: 500,
     slidesToShow: 2,
     slidesToScroll: 1,
+    prevArrow: <GrFormPrevious />,
+    nextArrow: <GrFormNext />,
     responsive: [
       {
         breakpoint: 1024,
@@ -139,33 +141,34 @@ const PendingProjects = () => {
       },
     ],
   };
-  const sliderRefProjects = useRef(null);
-  const sliderRefReports = useRef(null);
 
-  const handlePrevClickProjects = () => {
-    if (sliderRefProjects.current) {
-      sliderRefProjects.current.slickPrev();
-    }
-  };
 
-  const handleNextClickProjects = () => {
-    if (sliderRefProjects.current) {
-      sliderRefProjects.current.slickNext();
-    }
-  };
+const sliderRefPending = useRef(null);
+const sliderRefCompleted = useRef(null);
 
-  const handlePrevClickReports = () => {
-    if (sliderRefReports.current) {
-      sliderRefReports.current.slickPrev();
-    }
-  };
+const handlePrevClickPending = () => {
+  if (sliderRefPending.current) {
+    sliderRefPending.current.slickPrev();
+  }
+};
 
-  const handleNextClickReports = () => {
-    if (sliderRefReports.current) {
-      sliderRefReports.current.slickNext();
-    }
-  };
+const handleNextClickPending = () => {
+  if (sliderRefPending.current) {
+    sliderRefPending.current.slickNext();
+  }
+};
 
+const handlePrevClickCompleted = () => {
+  if (sliderRefCompleted.current) {
+    sliderRefCompleted.current.slickPrev();
+  }
+};
+
+const handleNextClickCompleted = () => {
+  if (sliderRefCompleted.current) {
+    sliderRefCompleted.current.slickNext();
+  }
+};
   const handleViewProjectClick = (id) => {
     navigate(`/details/${id}`);
   };
@@ -184,7 +187,7 @@ const PendingProjects = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickProjects}
+                  onClick={handlePrevClickPending}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -193,7 +196,7 @@ const PendingProjects = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickProjects}
+                  onClick={handleNextClickPending}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -203,7 +206,7 @@ const PendingProjects = () => {
 
             {/* Slider Section */}
             <div className="slider-container  ">
-              <Slider ref={sliderRefProjects} {...settings}>
+              <Slider ref={sliderRefPending} {...settings}>
                 {datas.length > 0 ? (
                   datas?.map((project, index) => (
                     <div
@@ -360,7 +363,7 @@ const PendingProjects = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickProjects}
+                  onClick={handlePrevClickCompleted}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -369,7 +372,7 @@ const PendingProjects = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickProjects}
+                  onClick={handleNextClickCompleted}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -379,7 +382,7 @@ const PendingProjects = () => {
 
             {/* Slider Section */}
             <div className="slider-container ">
-              <Slider ref={sliderRefProjects} {...settings}>
+              <Slider ref={sliderRefCompleted} {...settings}>
                 {completed.length > 0 ? (
                   completed?.map((project, index) => (
                     <div
@@ -389,7 +392,7 @@ const PendingProjects = () => {
                       {/* Image */}
                       {project.projectBanner?.length > 0 ? (
                         <Swiper
-                          spaceBetween={10}
+                          spaceBetween={30}
                           slidesPerView={1}
                           grabCursor={true}
                         >

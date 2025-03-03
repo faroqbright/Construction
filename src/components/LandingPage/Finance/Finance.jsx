@@ -188,15 +188,15 @@ export default function Finance() {
   };
 
   const hasCLientCreatePermission = RolePermissions(
-    "ClientsManagement",
+    "FinanceManagement",
     "create"
   );
   const hasCLientUpdatePermission = RolePermissions(
-    "ClientsManagement",
+    "FinanceManagement",
     "update"
   );
   const hasCLientDeletePermission = RolePermissions(
-    "ClientsManagement",
+    "FinanceManagement",
     "delete"
   );
 
@@ -238,7 +238,8 @@ export default function Finance() {
                 <th className="p-4 border-b">{t("Financial Execution")}</th>
                 <th className="p-4 border-b">{t("Physical Execution")}</th>
                 <th className="p-4 border-b">{t("DATE")}</th>
-                <th className="p-4 border-b">{t("ACTION")}</th>
+                {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
+                <th className="p-4 border-b">{t("ACTION")}</th>)}
               </tr>
             </thead>
             <tbody>

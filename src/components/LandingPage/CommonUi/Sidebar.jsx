@@ -11,7 +11,7 @@ import message from "../../../assets/message.png";
 import users from "../../../assets/user.png";
 import document from "../../../assets/solar_document-linear.png";
 import solar from "../../../assets/solar_user-broken.png";
-import dash from "../../../assets/solar_user-broken.png";
+import dash from "../../../assets/category-2.png";
 import report from "../../../assets/iconoir_reports.png";
 import building from "../../../assets/building-2.png";
 import { useSelector } from "react-redux";
@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         to: "/project-management",
         module: "ProjectsManagement",
       },
-      { icon: user, label: t("Finance"), to: "/finance", module: null },
+      { icon: user, label: t("Finance"), to: "/finance", module: "FinanceManagement" },
       {
         icon: group,
         label: t("History"),
@@ -87,7 +87,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         to: "/notifications",
         module: null,
       },
-      { icon: document, label: t("Documents"), to: "/documents", module: null },
+      { icon: document, label: t("Documents"), to: "/documents", module: "DocumentManagement" },
       ...(showRolesUsersButton
         ? [
             {
@@ -108,7 +108,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           icon: building,
           label: t("All_Companies"),
           to: "/all-clients",
-          module: "null",
+          module: "CompanyManagement",
         },
     ];    
 

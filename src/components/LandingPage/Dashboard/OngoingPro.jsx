@@ -80,7 +80,7 @@ const OngoingPro = () => {
               key={project._id}
               className="bg-white p-6 rounded-lg shadow-lg w-full mt-6 text-xs md:text-sm relative"
             >
-              <div onClick={handleViewProjectClick} className="cursor-pointer">
+              <div onClick={() => handleViewProjectClick(project._id)} className="cursor-pointer">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold text-black-blacknew">
                     {t("Ongoing")} {t("Projects")}

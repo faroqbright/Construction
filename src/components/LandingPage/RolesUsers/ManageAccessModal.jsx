@@ -56,7 +56,9 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
       const newAccess = { ...initialAccess };
 
       roleData?.permissions.forEach((permission) => {
-        const module = permission.module.toLowerCase().replace("management", "");
+        const module = permission.module
+          .toLowerCase()
+          .replace("management", "");
         if (permission?.create) newAccess.add[module] = true;
         if (permission?.read) newAccess.view[module] = true;
         if (permission?.update) newAccess.edit[module] = true;
@@ -72,14 +74,25 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
 
     Object.keys(access).forEach((action) => {
       Object.keys(access[action]).forEach((module) => {
-        const moduleName = module.charAt(0).toUpperCase() + module.slice(1) + "Management";
-        const existingPermission = permissions.find((p) => p.module === moduleName);
+        const moduleName =
+          module.charAt(0).toUpperCase() + module.slice(1) + "Management";
+        const existingPermission = permissions.find(
+          (p) => p.module === moduleName
+        );
 
         if (existingPermission) {
-          existingPermission.create = existingPermission.create || (action === "add" && access[action][module]);
-          existingPermission.read = existingPermission.read || (action === "view" && access[action][module]);
-          existingPermission.update = existingPermission.update || (action === "edit" && access[action][module]);
-          existingPermission.delete = existingPermission.delete || (action === "delete" && access[action][module]);
+          existingPermission.create =
+            existingPermission.create ||
+            (action === "add" && access[action][module]);
+          existingPermission.read =
+            existingPermission.read ||
+            (action === "view" && access[action][module]);
+          existingPermission.update =
+            existingPermission.update ||
+            (action === "edit" && access[action][module]);
+          existingPermission.delete =
+            existingPermission.delete ||
+            (action === "delete" && access[action][module]);
         } else {
           permissions.push({
             module: moduleName,
@@ -103,7 +116,12 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
     const payload = { permissions: finalPermissions };
 
     try {
-      const response = await apiRequest("put", `/roles/${roleId}`, payload, token);
+      const response = await apiRequest(
+        "put",
+        `/roles/${roleId}`,
+        payload,
+        token
+      );
       if (response.status === 200) {
         toast.success("Access updated successfully.");
         onClose();
@@ -150,43 +168,77 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
   };
 
   return (
-    <Modal open={open} onClose={() => { resetAccess(); onClose(); }}>
-      <Box sx={{ ...modalStyle }} className="shadow-lg">
-        <Typography variant="h6" className="text-lg font-semibold mb-4">
+    <Modal
+      open={open}
+      onClose={() => {
+        resetAccess();
+        onClose();
+      }}
+      className="flex justify-center items-center"
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "70%",
+          maxWidth: "500px",
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
+        className="shadow-lg"
+      >
+        {/* Heading - Stays Fixed */}
+        <Typography variant="h6" className="text-lg font-semibold mb-6">
           {t("Manage_Access")}
         </Typography>
 
-        {["add", "edit", "delete", "view"].map((action) => (
-          <div key={action} className="mb-4">
-            <Typography variant="subtitle1" className="font-medium capitalize mb-2">
-              {t("Can")} {t(action)}
-            </Typography>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { key: "projects", label: t("Projects") },
-                { key: "reports", label: t("Reports") },
-                { key: "clients", label: t("Clients") },
-                { key: "roles", label: t("Roles") },
-                { key: "evaluation", label: t("Evaluation") },
-                { key: "users", label: t("Users") },
-                ...(action === "view" ? [{ key: "history", label: t("History") }] : []),
-              ].map(({ key, label }) => (
-                <div key={key} className="flex items-center">
-                  <Checkbox
-                    checked={access[action][key]}
-                    onChange={() => handleChange(action, key)}
-                    color="error"
-                  />
-                  <Typography variant="body2" className="capitalize">
-                    {label}
-                  </Typography>
-                </div>
-              ))}
+        {/* Scrollable Div for Access Buttons */}
+        <div className="max-h-[300px] scrollbar-custom overflow-y-auto px-2">
+          {["add", "edit", "delete", "view"].map((action) => (
+            <div key={action} className="mb-4">
+              <Typography
+                variant="subtitle1"
+                className="font-medium capitalize mb-2"
+              >
+                {t("Can")} {t(action)}
+              </Typography>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { key: "projects", label: t("Projects") },
+                  { key: "reports", label: t("Reports") },
+                  { key: "clients", label: t("Clients") },
+                  { key: "roles", label: t("Roles") },
+                  { key: "evaluation", label: t("Evaluation") },
+                  { key: "users", label: t("Users") },
+                  { key: "finance", label:  t("Finance") },
+                  { key: "document", label:  t("Document") },
+                  { key: "company", label:  t("Company") },
+                  ...(action === "view"
+                    ? [{ key: "history", label: t("History") }]
+                    : []),
+                ].map(({ key, label }) => (
+                  <div key={key} className="flex items-center">
+                    <Checkbox
+                      checked={access[action][key]}
+                      onChange={() => handleChange(action, key)}
+                      color="error"
+                    />
+                    <Typography variant="body2" className="capitalize">
+                      {label}
+                    </Typography>
+                  </div>
+                ))}
+              </div>
+              {action !== "view" && <hr className="my-2 border-gray-300" />}
             </div>
-            {action !== "view" && <hr className="my-2 border-gray-300" />}
-          </div>
-        ))}
+          ))}
+        </div>
 
+        {/* Buttons - Stays Fixed */}
         <div className="flex justify-end gap-4 mt-4">
           <Button
             variant="contained"
@@ -198,7 +250,10 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
           <Button
             variant="contained"
             sx={{ backgroundColor: "#E9E9E9", color: "black" }}
-            onClick={() => { resetAccess(); onClose(); }}
+            onClick={() => {
+              resetAccess();
+              onClose();
+            }}
           >
             {t("Close")}
           </Button>
