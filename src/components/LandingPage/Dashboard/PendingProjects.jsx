@@ -387,7 +387,6 @@ const PendingProjects = () => {
 </section>
 
 
-        {/* COmpleted Project */}
         <div className="w-full max-w-7xl mt-10">
           <div className="h-full slider-container">
             <header className="mb-6 flex justify-between">
