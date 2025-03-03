@@ -105,8 +105,8 @@ export default function EditProject() {
           status: data.status,
           projectBanner: data.projectBanner,
           deadline: data.deadline,
-          members: data.projectOwners,
-          projectOwners: data.members,
+          members: data.members,
+          projectOwners: data.projectOwners,
           logs: data.logs,
           financeDocuments: data.financeDocuments,
         });
@@ -133,15 +133,12 @@ export default function EditProject() {
     fetchProjects();
   }, [fetchProjects]);
 
-  const [clietMembers, setclietMembers] = useState([]);
-
   const fetchProjectsOwner = useCallback(async () => {
     try {
       const response = await apiRequest("get", "/clients", {}, token);
       if (response?.data?.statusCode === 200) {
-        setUsers(response?.data?.data);
-        // setclietMembers(response?.data?.data);
-        // setOwners(response?.data?.data);
+        // setUsers(response?.data?.data);
+        setOwners(response?.data?.data);
       } else {
         setError("Owners not found.");
       }
@@ -159,10 +156,9 @@ export default function EditProject() {
     try {
       const response = await apiRequest("get", "/rolesUser", {}, token);
       if (response?.data?.statusCode === 200) {
-        // setUsers(response?.data?.data);
+        setUsers(response?.data?.data);
 
-        setclietMembers(response?.data?.data);
-        setOwners(response?.data?.data);
+        // setOwners(response?.data?.data);
       } else {
         setError("Users not found.");
       }
@@ -176,8 +172,8 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
 
   const onSubmit = async (formData) => {
-    if (selectedFiles.length === 0)
-      return toast.error("Please upload a banner for the project.");
+    // if (selectedFiles.length === 0)
+    //   return toast.error("Please upload a banner for the project.");
 
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
@@ -218,13 +214,13 @@ export default function EditProject() {
       }
 
       const initialMemberIds =
-        initialValues.projectOwners?.map((member) => member._id) || [];
-      const initialClientMemberIds =
         initialValues.members?.map((member) => member._id) || [];
+      const initialClientMemberIds =
+        initialValues.projectOwners?.map((owner) => owner._id) || [];
       const modalMemberIds =
         modalTeamMembers?.map((member) => member._id) || [];
       const modalClientMemberIds =
-        modalClientMembers?.map((member) => member._id) || [];
+        modalClientMembers?.map((owner) => owner._id) || [];
 
       const areArraysEqual = (arr1, arr2) =>
         arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
@@ -239,10 +235,10 @@ export default function EditProject() {
       );
 
       if (isMembersChanged && modalMemberIds.length > 0) {
-        updatedFields.projectOwners = modalMemberIds;
+        updatedFields.members = modalMemberIds;
       }
       if (isClientMembersChanged && modalClientMemberIds.length > 0) {
-        updatedFields.members = modalClientMemberIds;
+        updatedFields.projectOwners = modalClientMemberIds;
       }
 
       const existingBannerUrls =
@@ -277,16 +273,15 @@ export default function EditProject() {
         }
       });
 
-      // 🔥 Fix: Append members and projectOwners as JSON strings
       if (updatedFields.projectOwners) {
-        updatedFields.projectOwners.forEach((member, index) => {
-          data.append(`members[${index}]`, member); // ✅ Correcting members
+        updatedFields.projectOwners.forEach((owner, index) => {
+          data.append(`members[${index}]`, owner);
         });
       }
 
       if (updatedFields.members) {
-        updatedFields.members.forEach((owner, index) => {
-          data.append(`projectOwners[${index}]`, owner); // ✅ Correcting projectOwners
+        updatedFields.members.forEach((member, index) => {
+          data.append(`projectOwners[${index}]`, member);
         });
       }
 
@@ -298,7 +293,7 @@ export default function EditProject() {
 
       requestData = data;
     }
-
+// return requestData;
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
       if (
@@ -332,8 +327,8 @@ export default function EditProject() {
               "put",
               `/projects/${responseid}`,
               {
-                members: selectedUsers,
-                projectOwners: selectedClientUsers,
+                members: selectedClientUsers,
+                projectOwners: selectedUsers,
               },
               token
             );
@@ -355,8 +350,8 @@ export default function EditProject() {
           toast.success(response?.data?.message);
         }
       }
-    } catch (error) {
-      toast.error("Error saving project.");
+    } catch (error) {      
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -387,12 +382,12 @@ export default function EditProject() {
     }));
 
     const mergedMembers = [...existingMembers, ...newMembers].filter(
-      (member, index, self) =>
-        index === self.findIndex((m) => m._id === member._id)
+      (owner, index, self) =>
+        index === self.findIndex((m) => m._id === owner._id)
     );
 
     setModalClientMembers(mergedMembers);
-    const selectedUserIds = mergedMembers.map((member) => member._id);
+    const selectedUserIds = mergedMembers.map((owner) => owner._id);
     setSelectedClientUsers(selectedUserIds);
   };
 
@@ -415,13 +410,13 @@ export default function EditProject() {
     );
   };
 
-  const handleClientDelete = (memberId) => {
+  const handleClientDelete = (ownerId) => {
     setModalClientMembers((prevMembers) =>
-      prevMembers.filter((member) => member._id !== memberId)
+      prevMembers.filter((owner) => owner._id !== ownerId)
     );
 
     setSelectedClientUsers((prevUsers) =>
-      prevUsers.filter((userId) => userId !== memberId)
+      prevUsers.filter((userId) => userId !== ownerId)
     );
   };
 
@@ -707,7 +702,7 @@ export default function EditProject() {
                 accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
                 onChange={(e) => {
                   const files = e.target.files;
-                  const maxSize = 1 * 1024 * 1024;
+                  const maxSize = 5 * 1024 * 1024;
 
                   if (files.length > 0) {
                     const isValid = Array.from(files).every(
@@ -716,7 +711,7 @@ export default function EditProject() {
 
                     if (!isValid) {
                       toast.error(
-                        "Selected file should not be greater than 1MB."
+                        "Selected file should not be greater than 5MB."
                       );
                       return;
                     }
@@ -878,7 +873,11 @@ export default function EditProject() {
                           .filter(
                             (user) =>
                               !modalTeamMembers.some(
-                                (member) => member._id === user._id
+                                (member) =>
+                                  (member.ownerId &&
+                                    member.ownerId === user._id) ||
+                                  (member.ownerName &&
+                                    member.ownerName === user.ownerName)
                               )
                           )
                           .map((user) => ({
@@ -1001,7 +1000,7 @@ export default function EditProject() {
               <label className="block text-2xl font-semibold mb-2 text-red-800">
                 <span className="text-gray-700 text-sm">
                   {" "}
-                  Add Client Members
+                  {t("Add_Client_Members")}
                 </span>
                 *
               </label>
@@ -1023,7 +1022,7 @@ export default function EditProject() {
                         .filter(
                           (user) =>
                             !clientMembers.some(
-                              (member) => member._id === user._id
+                              (owner) => owner._id === user._id
                             )
                         )
                         .map((user) => ({
@@ -1045,7 +1044,7 @@ export default function EditProject() {
                       className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     >
                       <option value="" disabled selected hidden>
-                        Add Client Members
+                      {t("Add_Client_Members")}
                       </option>
                     </select>
                   )
@@ -1109,11 +1108,11 @@ export default function EditProject() {
                         .filter(
                           (user) =>
                             !modalClientMembers.some(
-                              (member) =>
-                                (member.ownerId &&
-                                  member.ownerId === user._id) ||
-                                (member.ownerName &&
-                                  member.ownerName === user.ownerName)
+                              (owner) =>
+                                (owner.ownerId &&
+                                  owner.ownerId === user._id) ||
+                                (owner.ownerName &&
+                                  owner.ownerName === user.ownerName)
                             )
                         )
                         .map((user) => ({
@@ -1126,10 +1125,10 @@ export default function EditProject() {
                           {...field}
                           isMulti
                           options={filteredOptions}
-                          value={modalClientMembers.map((member) => ({
-                            value: member._id,
-                            label: member.ownerName || member.userName,
-                            avatar: member.avatar,
+                          value={modalClientMembers.map((owner) => ({
+                            value: owner._id,
+                            label: owner.ownerName || owner.userName,
+                            avatar: owner.avatar,
                           }))}
                           onChange={(selectedOptions) => {
                             handleClientUsersChange(selectedOptions);
@@ -1156,29 +1155,29 @@ export default function EditProject() {
                   Added Clients
                 </h3>
                 <ul className="space-y-2">
-                  {modalClientMembers.map((member) => (
+                  {modalClientMembers.map((owner) => (
                     <li
-                      key={member._id}
+                      key={owner._id}
                       className="flex items-center bg-gray-100 p-2 rounded-lg"
                     >
-                      {member.avatar ? (
+                      {owner.avatar ? (
                         <img
-                          src={member.avatar}
-                          alt={member.userName}
+                          src={owner.avatar}
+                          alt={owner.userName}
                           className="w-10 h-10 rounded-full mr-3"
                         />
                       ) : (
                         <User
-                          key={member._id}
+                          key={owner._id}
                           className="bg-slate-400 rounded-full p-2 text-white mr-2"
                           size={32}
                         />
                       )}
-                      <span>{member?.userName || member?.ownerName}</span>
+                      <span>{owner?.userName || owner?.ownerName}</span>
                       {!isViewMode && (
                         <button
                           className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
-                          onClick={() => handleClientDelete(member._id)}
+                          onClick={() => handleClientDelete(owner._id)}
                         >
                           <span className="text-lg">🗑️</span>
                         </button>
@@ -1213,22 +1212,22 @@ export default function EditProject() {
             </h2>
             <div>
               <ul>
-                {clientMembers?.map((member) => (
-                  <li key={member._id} className="flex items-center mb-2">
-                    {member.avatar ? (
+                {clientMembers?.map((owner) => (
+                  <li key={owner._id} className="flex items-center mb-2">
+                    {owner.avatar ? (
                       <img
-                        src={member.avatar}
-                        alt={member.userName}
+                        src={owner.avatar}
+                        alt={owner.userName}
                         className="w-10 h-10 rounded-full mr-3"
                       />
                     ) : (
                       <User
-                        key={member._id}
+                        key={owner._id}
                         className="bg-slate-400 rounded-full p-2 text-white mr-2"
                         size={32}
                       />
                     )}
-                    <span>{member.ownerName || member.userName}</span>
+                    <span>{owner.ownerName || owner.userName}</span>
                   </li>
                 ))}
               </ul>

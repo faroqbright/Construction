@@ -15,21 +15,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { Clock, Clock1 } from "lucide-react";
 import "../../../utils/i18n";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-
-import { CircularProgressbar } from "react-circular-progressbar";
 import { Button } from "@mui/material";
 import apiRequest from "../../../utils/apiRequest";
-import Footer from "../CommonUi/Footer";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +25,7 @@ import { FaRecordVinyl } from "react-icons/fa6";
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
   const [completed, setcompleted] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const navigate = useNavigate();
   const sliderRef = useRef(null);
   const { t } = useTranslation();
@@ -59,6 +47,23 @@ const PendingProjects = () => {
 
       if (response.data && response.data.data.projects) {
         setDatas(response.data.data.projects);
+      }
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  }, [token]);
+  
+  const fetchDocuments = useCallback(async () => {
+    try {
+      const response = await apiRequest(
+        "get",
+        `/documents`,
+        {},
+        token
+      );
+
+      if (response) {
+        setDocuments(response.data);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -92,26 +97,20 @@ const PendingProjects = () => {
   }, [fetchProjects]);
 
   useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
+  useEffect(() => {
     fetchCompletedProjects();
   }, [fetchCompletedProjects]);
 
-  const data = [
-    { name: "S", value: 1 },
-    { name: "M", value: 2 },
-    { name: "T", value: 1 },
-    { name: "W", value: 3 },
-    { name: "T", value: 2 },
-    { name: "F", value: 1 },
-    { name: "S", value: 2 },
-  ];
+
   const settings = {
     dots: true,
     infinite: false,
     speed: 500,
     slidesToShow: 2,
     slidesToScroll: 1,
-    prevArrow: <GrFormPrevious />,
-    nextArrow: <GrFormNext />,
     responsive: [
       {
         breakpoint: 1024,
@@ -141,34 +140,21 @@ const PendingProjects = () => {
       },
     ],
   };
+  const sliderRefProjects = useRef(null);
+  const sliderRefReports = useRef(null);
 
+  const handlePrevClickProjects = () => {
+    if (sliderRefProjects.current) {
+      sliderRefProjects.current.slickPrev();
+    }
+  };
 
-const sliderRefPending = useRef(null);
-const sliderRefCompleted = useRef(null);
+  const handleNextClickProjects = () => {
+    if (sliderRefProjects.current) {
+      sliderRefProjects.current.slickNext();
+    }
+  };
 
-const handlePrevClickPending = () => {
-  if (sliderRefPending.current) {
-    sliderRefPending.current.slickPrev();
-  }
-};
-
-const handleNextClickPending = () => {
-  if (sliderRefPending.current) {
-    sliderRefPending.current.slickNext();
-  }
-};
-
-const handlePrevClickCompleted = () => {
-  if (sliderRefCompleted.current) {
-    sliderRefCompleted.current.slickPrev();
-  }
-};
-
-const handleNextClickCompleted = () => {
-  if (sliderRefCompleted.current) {
-    sliderRefCompleted.current.slickNext();
-  }
-};
   const handleViewProjectClick = (id) => {
     navigate(`/details/${id}`);
   };
@@ -187,7 +173,7 @@ const handleNextClickCompleted = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickPending}
+                  onClick={handlePrevClickProjects}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -196,7 +182,7 @@ const handleNextClickCompleted = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickPending}
+                  onClick={handleNextClickProjects}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -206,7 +192,7 @@ const handleNextClickCompleted = () => {
 
             {/* Slider Section */}
             <div className="slider-container  ">
-              <Slider ref={sliderRefPending} {...settings}>
+              <Slider ref={sliderRefProjects} {...settings}>
                 {datas.length > 0 ? (
                   datas?.map((project, index) => (
                     <div
@@ -354,6 +340,53 @@ const handleNextClickCompleted = () => {
           </div>
         </div>
 
+        <section className="w-full flex justify-between gap-6 mt-14">
+  {documents.length > 0 ? (
+    <Slider ref={sliderRefProjects} {...settings} className="w-full">
+      {documents.map((doc) => (
+        <div key={doc._id} className="md:w-[500px] h-[200px] rounded-[10px] bg-white shadow-lg flex justify-center items-center mx-auto">
+          <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
+            <div className="flex items-center space-x-4 mb-4">
+              <img
+                src={doc.projectBanner?.[0]?.url || "default-image-url"}
+                alt="Project Banner"
+                className="w-14 h-14 rounded-full"
+              />
+              <div>
+                <h3 className="font-semibold text-base sm:block">
+                  {doc.projName}
+                </h3>
+                <p className="text-lightpurple-light text-sm whitespace-nowrap sm:block">
+                  {doc.fileName}
+                </p>
+              </div>
+            </div>
+            <Button
+              sx={{
+                mt: 2,
+                px: 3,
+                py: 1,
+                backgroundColor: "black",
+                color: "white",
+                borderRadius: "0.5rem",
+                "&:hover": {
+                  backgroundColor: "#333",
+                },
+              }}
+              onClick={() => window.open(doc.fileUrl, "_blank")}
+            >
+              {t("View_Report")}
+            </Button>
+          </div>
+        </div>
+      ))}
+    </Slider>
+  ) : (
+    <p className="text-gray-500 text-center w-full">No documents found.</p>
+  )}
+</section>
+
+
         {/* COmpleted Project */}
         <div className="w-full max-w-7xl mt-10">
           <div className="h-full slider-container">
@@ -363,7 +396,7 @@ const handleNextClickCompleted = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickCompleted}
+                  onClick={handlePrevClickProjects}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -372,7 +405,7 @@ const handleNextClickCompleted = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickCompleted}
+                  onClick={handleNextClickProjects}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -382,7 +415,7 @@ const handleNextClickCompleted = () => {
 
             {/* Slider Section */}
             <div className="slider-container ">
-              <Slider ref={sliderRefCompleted} {...settings}>
+              <Slider ref={sliderRefProjects} {...settings}>
                 {completed.length > 0 ? (
                   completed?.map((project, index) => (
                     <div
@@ -392,7 +425,7 @@ const handleNextClickCompleted = () => {
                       {/* Image */}
                       {project.projectBanner?.length > 0 ? (
                         <Swiper
-                          spaceBetween={30}
+                          spaceBetween={10}
                           slidesPerView={1}
                           grabCursor={true}
                         >

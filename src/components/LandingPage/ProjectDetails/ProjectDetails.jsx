@@ -331,7 +331,7 @@ const ProjectDetails = () => {
         {/* Client Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
-            {t("Client_Members")}
+            {t("Soapro Team")}
           </h3>
           <div className="flex flex-col gap-4 mt-4">
             {projectData?.members?.map((member, index) => (
@@ -351,7 +351,7 @@ const ProjectDetails = () => {
         {/* Team Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
-            {t("Team_Members")}
+            {t("Company Team")}
           </h3>
           <div className="flex flex-col gap-4 mt-4">
             {projectData?.projectOwners?.map((member, index) => (
