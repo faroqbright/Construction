@@ -52,18 +52,14 @@ const PendingProjects = () => {
       console.error("Error fetching projects:", error);
     }
   }, [token]);
-  
+
   const fetchDocuments = useCallback(async () => {
     try {
-      const response = await apiRequest(
-        "get",
-        `/documents`,
-        {},
-        token
-      );
+      const response = await apiRequest("get", `/documents`, {}, token);
 
       if (response) {
-        setDocuments(response.data);
+        const approvedDocuments = response.data.filter(doc => doc.status === "approved");
+        setDocuments(approvedDocuments);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -104,7 +100,6 @@ const PendingProjects = () => {
     fetchCompletedProjects();
   }, [fetchCompletedProjects]);
 
-
   const settings = {
     dots: true,
     infinite: false,
@@ -141,11 +136,24 @@ const PendingProjects = () => {
     ],
   };
   const sliderRefProjects = useRef(null);
-  const sliderRefReports = useRef(null);
+  const sliderRefReportsTwo = useRef(null);
+  const sliderRefReportsThree = useRef(null);
 
   const handlePrevClickProjects = () => {
     if (sliderRefProjects.current) {
       sliderRefProjects.current.slickPrev();
+    }
+  };
+
+  const handlePrevClickProjectsTwo = () => {
+    if (sliderRefReportsTwo.current) {
+      sliderRefReportsTwo.current.slickPrev();
+    }
+  };
+
+  const handlePrevClickProjectsThree = () => {
+    if (sliderRefReportsThree.current) {
+      sliderRefReportsThree.current.slickPrev();
     }
   };
 
@@ -154,6 +162,20 @@ const PendingProjects = () => {
       sliderRefProjects.current.slickNext();
     }
   };
+
+  const handleNextClickProjectsTwo = () => {
+    if (sliderRefReportsTwo.current) {
+      sliderRefReportsTwo.current.slickNext();
+    }
+  };
+
+  const handleNextClickProjectsThree = () => {
+    if (sliderRefReportsThree.current) {
+      sliderRefReportsThree.current.slickNext();
+    }
+  };
+
+
 
   const handleViewProjectClick = (id) => {
     navigate(`/details/${id}`);
@@ -244,11 +266,16 @@ const PendingProjects = () => {
                           </p>
                           <div className="flex flex-row items-center gap-2 mb-3">
                             <Clock1 className="w-4 h-4" />
-                            <p className="text-sm text-black">
-                              {project.daysLeft === "Awaiting Start"
-                                ? t("Awaiting_Start")
+                            <span className="text-sm text-black mb-1"> 
+                              {" "}
+                              {project.status === "Pending"
+                                ? t("Pending")
+                                : project.status === "Completed"
+                                ? t("Completed")
+                                : project.status === "Ongoing"
+                                ? t("Ongoing")
                                 : project.daysLeft}
-                            </p>
+                            </span>
                           </div>
 
                           {/* Progress Bars */}
@@ -340,52 +367,78 @@ const PendingProjects = () => {
           </div>
         </div>
 
-        <section className="w-full flex justify-between gap-6 mt-14">
-  {documents.length > 0 ? (
-    <Slider ref={sliderRefProjects} {...settings} className="w-full">
-      {documents.map((doc) => (
-        <div key={doc._id} className="md:w-[500px] h-[200px] rounded-[10px] bg-white shadow-lg flex justify-center items-center mx-auto">
-          <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
-            <div className="flex items-center space-x-4 mb-4">
-              <img
-                src={doc.projectBanner?.[0]?.url || "default-image-url"}
-                alt="Project Banner"
-                className="w-14 h-14 rounded-full"
-              />
-              <div>
-                <h3 className="font-semibold text-base sm:block">
-                  {doc.projName}
-                </h3>
-                <p className="text-lightpurple-light text-sm whitespace-nowrap sm:block">
-                  {doc.fileName}
-                </p>
-              </div>
+        <section className="w-full flex justify-between gap-6 mt-14 flex-col">
+          <header className="mb-6 flex justify-between">
+            <h2 className="text-2xl font-bold text-black">
+              {t("Latest_Reports")}
+            </h2>
+            <div className="flex">
+              <button
+                onClick={handlePrevClickProjectsTwo}
+                className="p-1 rounded-full"
+              >
+                <GrFormPrevious
+                  className="text-gray-600 slick-arrow"
+                  size={18}
+                />
+              </button>
+              <button
+                onClick={handleNextClickProjectsTwo}
+                className="p-1 rounded-full"
+              >
+                <GrFormNext className="slick-arrow" size={18} />
+              </button>
             </div>
-            <Button
-              sx={{
-                mt: 2,
-                px: 3,
-                py: 1,
-                backgroundColor: "black",
-                color: "white",
-                borderRadius: "0.5rem",
-                "&:hover": {
-                  backgroundColor: "#333",
-                },
-              }}
-              onClick={() => window.open(doc.fileUrl, "_blank")}
-            >
-              {t("View_Report")}
-            </Button>
-          </div>
-        </div>
-      ))}
-    </Slider>
-  ) : (
-    <p className="text-gray-500 text-center w-full">No documents found.</p>
-  )}
-</section>
-
+          </header>
+          {documents.length > 0 ? (
+            <Slider ref={sliderRefReportsTwo} {...settings} className="w-full">
+              {documents.map((doc) => (
+                <div
+                  key={doc._id}
+                  className="md:w-[500px] h-[200px] rounded-[10px] bg-white shadow-lg flex justify-center items-center mx-auto"
+                >
+                  <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
+                    <div className="flex items-center space-x-4 mb-4">
+                      <img
+                        src={doc.projectBanner?.[0]?.url || "default-image-url"}
+                        alt="Project Banner"
+                        className="w-14 h-14 rounded-full"
+                      />
+                      <div>
+                        <h3 className="font-semibold text-base sm:block">
+                          {doc.projName}
+                        </h3>
+                        <p className="text-lightpurple-light text-sm whitespace-nowrap sm:block">
+                          {doc.fileName}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      sx={{
+                        mt: 2,
+                        px: 3,
+                        py: 1,
+                        backgroundColor: "black",
+                        color: "white",
+                        borderRadius: "0.5rem",
+                        "&:hover": {
+                          backgroundColor: "#333",
+                        },
+                      }}
+                      onClick={() => window.open(doc.fileUrl, "_blank")}
+                    >
+                      {t("View_Report")}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          ) : (
+            <p className="text-gray-500 text-center w-full">
+              No documents found.
+            </p>
+          )}
+        </section>
 
         <div className="w-full max-w-7xl mt-10">
           <div className="h-full slider-container">
@@ -395,7 +448,7 @@ const PendingProjects = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickProjects}
+                  onClick={handlePrevClickProjectsThree}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -404,7 +457,7 @@ const PendingProjects = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickProjects}
+                  onClick={handleNextClickProjectsThree}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -414,7 +467,7 @@ const PendingProjects = () => {
 
             {/* Slider Section */}
             <div className="slider-container ">
-              <Slider ref={sliderRefProjects} {...settings}>
+              <Slider ref={sliderRefReportsThree} {...settings}>
                 {completed.length > 0 ? (
                   completed?.map((project, index) => (
                     <div
@@ -468,11 +521,16 @@ const PendingProjects = () => {
                           </p>
                           <div className="flex flex-row items-center gap-2 mb-3">
                             <Clock1 className="w-4 h-4" />
-                            <p className="text-sm text-black">
-                              {project.daysLeft === "Awaiting Start"
-                                ? t("Awaiting_Start")
+                            <span className="text-sm text-black mb-1"> 
+                              {" "}
+                              {project.status === "Pending"
+                                ? t("Pending")
+                                : project.status === "Completed"
+                                ? t("Completed")
+                                : project.status === "Ongoing"
+                                ? t("Ongoing")
                                 : project.daysLeft}
-                            </p>
+                            </span>
                           </div>
 
                           {/* Progress Bars */}

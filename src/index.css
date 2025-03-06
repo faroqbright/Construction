@@ -14,12 +14,14 @@
   align-items: center !important;
   justify-content: center !important;
   z-index: 1;
+  display: none;
 }
 
 .slick-prev:hover,
 .slick-next:hover {
   color: white;
-  background: #dc2626 !important; /* Red-600 for hover */
+  background: #dc2626 !important; 
+  display: none;
 }
 
 .slick-prev::before,
@@ -27,14 +29,17 @@
   color: white !important;
   font-size: 12px !important;
   opacity: 1 !important;
+  display: none;
 }
 
 .slick-prev {
   left: -40px !important;
+  display: none;
 }
 
 .slick-next {
   right: -40px !important;
+  display: none;
 }
 
 body {
@@ -200,4 +205,8 @@ body {
 .percentage {
   font-size: 1.2rem;
   font-weight: bold;
+}
+.slick-prev,
+.slick-next {
+  display: none !important; /* This should hide the arrows */
 }

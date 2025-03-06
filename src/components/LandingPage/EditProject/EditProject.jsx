@@ -756,7 +756,7 @@ export default function EditProject() {
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Company Team")}</h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Company_Team")}</h2>
         <div className="mb-4">
           {!isViewMode && (
             <>
@@ -993,7 +993,7 @@ export default function EditProject() {
           </>
         )}
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">Soapro Team</h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
         <div className="mb-4">
           {!isViewMode && (
             <>

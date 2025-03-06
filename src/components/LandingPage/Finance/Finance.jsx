@@ -220,7 +220,7 @@ export default function Finance() {
                 },
               }}
             >
-              + {t("Upload Invoice")}
+              + {t("Upload_Invoice")}
             </Button>
           )}
         </div>
@@ -232,14 +232,14 @@ export default function Finance() {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
-                <th className="p-4 border-b">{t("PROJECT NAME")}</th>
-                <th className="p-4 border-b">{t("INVOICE NAME")}</th>
-                <th className="p-4 border-b">{t("UPLOADED BY")}</th>
-                <th className="p-4 border-b">{t("Financial Execution")}</th>
-                <th className="p-4 border-b">{t("Physical Execution")}</th>
-                <th className="p-4 border-b">{t("DATE")}</th>
+                <th className="p-4 border-b">{t("Project_Name")}</th>
+                <th className="p-4 border-b">{t("Invoice_Name")}</th>
+                <th className="p-4 border-b">{t("Uploaded_By")}</th>
+                <th className="p-4 border-b">{t("Financial_Execution")}</th>
+                <th className="p-4 border-b">{t("Physical_Execution")}</th>
+                <th className="p-4 border-b">{t("Date")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
-                <th className="p-4 border-b">{t("ACTION")}</th>)}
+                <th className="p-4 border-b">{t("Actions")}</th>)}
               </tr>
             </thead>
             <tbody>

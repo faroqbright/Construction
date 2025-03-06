@@ -170,7 +170,7 @@ export default function SubmitFinance() {
   return (
     <>
       <h1 className="font-semibold text-2xl mx-4 mb-3">
-        {t("Project Finance Details")}
+        {t("Project_Finance_Details")}
       </h1>
 
       <div className="mx-4 mb-3">
@@ -197,7 +197,7 @@ export default function SubmitFinance() {
       </div>
 
       <div className="mx-4 mb-3">
-        <h1 className="font-semibold mb-3 text-2xl">{t("Upload Invoice")}</h1>
+        <h1 className="font-semibold mb-3 text-2xl">{t("Upload_Invoice")}</h1>
         <div className="border border-gray-200 p-4 items-center rounded-xl border-dashed">
           <div className="flex flex-col items-center justify-center">
             <img
@@ -230,21 +230,21 @@ export default function SubmitFinance() {
       </div>
 
       <h1 className="font-semibold text-2xl mx-4 mt-10">
-        {t("Finance Execution")}
+        {t("Finance_Execution")}
       </h1>
       <div className="flex flex-col items-center">
         <div className="flex justify-center p-5 flex-col lg:flex-row mt-3">
           <ProgressGauge
             percentage={financial}
             color="#222"
-            label="Financial Execution"
+            label={t("Financial_Execution")}
             onIncrease={() => handleChange("financial", 5)}
             onDecrease={() => handleChange("financial", -5)}
           />
           <ProgressGauge
             percentage={physical}
             color="#d32f2f"
-            label="Physical Execution"
+            label={t("Physical_Execution")}
             onIncrease={() => handleChange("physical", 5)}
             onDecrease={() => handleChange("physical", -5)}
           />

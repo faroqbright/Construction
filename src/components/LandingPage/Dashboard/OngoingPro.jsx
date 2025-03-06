@@ -80,7 +80,10 @@ const OngoingPro = () => {
               key={project._id}
               className="bg-white p-6 rounded-lg shadow-lg w-full mt-6 text-xs md:text-sm relative"
             >
-              <div onClick={() => handleViewProjectClick(project._id)} className="cursor-pointer">
+              <div
+                onClick={() => handleViewProjectClick(project._id)}
+                className="cursor-pointer"
+              >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold text-black-blacknew">
                     {t("Ongoing")} {t("Projects")}
@@ -191,11 +194,16 @@ const OngoingPro = () => {
                   <div className="flex justify-between mt-3 items-center">
                     <div className="flex flex-row items-center gap-2">
                       <Clock className="w-4 h-4" />
-                      <p className="text-sm text-black">
-                        {project.daysLeft === "Awaiting Start"
-                          ? t("Awaiting_Start")
+                      <span className="text-sm text-black mb-1">
+                        {" "}
+                        {project.status === "Pending"
+                          ? t("Pending")
+                          : project.status === "Completed"
+                          ? t("Completed")
+                          : project.status === "Ongoing"
+                          ? t("Ongoing")
                           : project.daysLeft}
-                      </p>
+                      </span>
                     </div>
 
                     <div className="flex absolute right-2">
