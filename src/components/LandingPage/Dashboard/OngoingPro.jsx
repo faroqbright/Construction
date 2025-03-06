@@ -261,22 +261,39 @@ const OngoingPro = () => {
                   </li>
                 </ul>
               </div>
-
-              <Button
-                sx={{
-                  mt: 4,
-                  px: 6,
-                  backgroundColor: "black",
-                  color: "white",
-                  borderRadius: "0.5rem",
-                  "&:hover": {
-                    backgroundColor: "#333",
-                  },
-                }}
-                className="w-full"
-              >
-                {t("View_Report")}
-              </Button>
+              {project.documents?.length > 0 ? (
+                project.documents.map((doc) => (
+                  <Button
+                    sx={{
+                      mt: 4,
+                      px: 6,
+                      backgroundColor: "black",
+                      color: "white",
+                      borderRadius: "0.5rem",
+                      "&:hover": {
+                        backgroundColor: "#333",
+                      },
+                    }}
+                    key={doc._id}
+                    onClick={() => {
+                      if (doc?.fileUrl) {
+                        window.open(
+                          doc.fileUrl,
+                          "_blank",
+                          "noopener,noreferrer"
+                        );
+                      } else {
+                        console.error("File URL is missing!");
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    {t("View_Report")}
+                  </Button>
+                ))
+              ) : (
+                <p className="text-gray-500">{t("No_reports_available")}</p>
+              )}
             </div>
           ))
         ) : (

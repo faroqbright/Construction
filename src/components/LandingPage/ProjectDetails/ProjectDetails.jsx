@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Avatar } from "@mui/material";
+import { Avatar, Checkbox, Pagination, PaginationItem } from "@mui/material";
 import pdf from "../../../assets/pdf.svg";
 import "react-circular-progressbar/dist/styles.css";
 import reviewIcon from "../../../assets/review.svg";
@@ -55,6 +55,20 @@ const ProjectDetails = () => {
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
+
+  const [page, setPage] = useState(1); // Current page
+  const itemsPerPage = 10; // Number of items per page
+
+  // Handle page change
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  // Calculate paginated data
+  const paginatedFinanceDocuments = projectData?.financeDocuments?.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
   return (
     <>
       <div className="mx-6 bg-white rounded-xl ">
@@ -289,42 +303,90 @@ const ProjectDetails = () => {
         </div>
 
         {/* Finance Status */}
-        <div className="mt-14 flex justify-between w-full p-6">
+        <div className="mt-14 justify-between w-full p-6">
           <h3 className="text-md font-semibold text-gray-800">
             {t("Additional_Invoice")}:
           </h3>
-          <div className="flex ">
-            {projectData?.financeDocuments?.map((doc, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
-                onClick={() => {
-                  const link = document.createElement("a");
-                  link.href = doc.fileUrl;
-                  link.setAttribute("download", doc.fileUrl.split("/").pop()); // Force download
-                  link.setAttribute("target", "_blank"); // Open in a new tab
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
-              >
-                <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
-                <div className="flex w-fit gap-3 items-center">
-                  <div className="mt-1">
-                    <span className="text-sm font-semibold">
-                      {doc.fileName}
-                    </span>
-                    <br />
-                  </div>
+          <div>
+            <table className="min-w-full text-sm text-left border border-gray-200 mt-10">
+              <thead>
+                <tr>
+                  <th className="p-4 border-b">
+                    <Checkbox />
+                  </th>
+                  <th className="p-4 border-b">{t("Invoice_Name")}</th>
+                  <th className="p-4 border-b">{t("Uploaded_By")}</th>
+                  <th className="p-4 border-b">{t("Financial_Execution")}</th>
+                  <th className="p-4 border-b">{t("Physical_Execution")}</th>
+                  <th className="p-4 border-b text-center">{t("Actions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedFinanceDocuments?.map((doc) => (
+                  <tr key={doc.id} className="hover:bg-gray-50">
+                    <td className="p-4">
+                      <Checkbox />
+                    </td>
+                    <td className="p-4">{doc.fileName}</td>
+                    <td className="p-4">{doc.user}</td>
+                    <td className="p-4">{doc.financialExecution}%</td>
+                    <td className="p-4">{doc.physicalExecution}%</td>
+                    <td className="p-4 relative">
+                      <button
+                        className="flex items-center justify-center px-10 py-2 bg-[#F5FFE8] border-2 border-[#0ECB0A]  text-[#0ECB0A] rounded-full transition-all duration-300"
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = doc.fileUrl;
+                          link.setAttribute(
+                            "download",
+                            doc.fileUrl.split("/").pop()
+                          );
+                          link.setAttribute("target", "_blank");
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-                  <div>
-                    <button className="mx-3 my-1 px-3 py-1 bg-gray-100">
-                      Download
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+            {/* Pagination */}
+            <div className="flex justify-end mt-4">
+              <Pagination
+                count={Math.ceil(
+                  projectData?.financeDocuments?.length / itemsPerPage
+                )} // Total number of pages
+                page={page}
+                onChange={handlePageChange}
+                sx={{
+                  "& .Mui-selected": {
+                    backgroundColor: "#FBBA06 !important",
+                    color: "white",
+                  },
+                }}
+                renderItem={(item) => (
+                  <PaginationItem
+                    {...item}
+                    components={{
+                      previous: () => <span>{t("Previous")}</span>,
+                      next: () => <span>{t("Next")}</span>,
+                    }}
+                    sx={{
+                      "&.MuiPaginationItem-previous, &.MuiPaginationItem-next":
+                        {
+                          color: "black",
+                          fontWeight: "bold",
+                        },
+                    }}
+                  />
+                )}
+              />
+            </div>
           </div>
         </div>
 
@@ -341,7 +403,7 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.userName} ({member?.role?.roleName ? member?.role?.roleName : member?.userType})
+                  {member?.userName} ({member?.role?.roleName})
                 </span>
               </div>
             ))}
@@ -361,7 +423,7 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.ownerName} ({member?.role ? member?.role : member?.userType})
+                  {member?.ownerName}
                 </span>
               </div>
             ))}

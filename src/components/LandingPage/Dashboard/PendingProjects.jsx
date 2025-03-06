@@ -7,6 +7,9 @@ import time from "../../../assets/Time Circle.svg";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-circular-progressbar/dist/styles.css";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import Modal from "@mui/material/Modal";
+import pdf from "../../../assets/pdf.svg";
+import Box from "@mui/material/Box";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
@@ -21,6 +24,7 @@ import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FaRecordVinyl } from "react-icons/fa6";
+import { MdOutlineFileDownload } from "react-icons/md";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
@@ -58,7 +62,9 @@ const PendingProjects = () => {
       const response = await apiRequest("get", `/documents`, {}, token);
 
       if (response) {
-        const approvedDocuments = response.data.filter(doc => doc.status === "approved");
+        const approvedDocuments = response.data.filter(
+          (doc) => doc.status === "approved"
+        );
         setDocuments(approvedDocuments);
       }
     } catch (error) {
@@ -175,10 +181,62 @@ const PendingProjects = () => {
     }
   };
 
-
-
   const handleViewProjectClick = (id) => {
     navigate(`/details/${id}`);
+  };
+
+  // State to manage modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [modalDocuments, setModalDocuments] = useState([]);
+
+  const openModal = (projectId) => {
+    setIsModalOpen(true);
+    setSelectedProjectId(projectId);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const fetchProjectByID = useCallback(
+    async (projectId) => {
+      try {
+        const response = await apiRequest(
+          "get",
+          `/projects/${projectId}`,
+          {},
+          token
+        );
+        if (response?.data?.statusCode === 200) {
+          const data = response?.data?.data;
+          setModalDocuments(data.documents);
+          console.log("Data is:", modalDocuments);
+        } else {
+          setError("Project not found.");
+        }
+      } catch (error) {
+        setError("Error fetching project data");
+      }
+    },
+    [token]
+  );
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      fetchProjectByID(selectedProjectId);
+    }
+  }, [selectedProjectId, fetchProjectByID]);
+
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 4,
   };
 
   return (
@@ -266,7 +324,7 @@ const PendingProjects = () => {
                           </p>
                           <div className="flex flex-row items-center gap-2 mb-3">
                             <Clock1 className="w-4 h-4" />
-                            <span className="text-sm text-black mb-1"> 
+                            <span className="text-sm text-black mb-1">
                               {" "}
                               {project.status === "Pending"
                                 ? t("Pending")
@@ -353,9 +411,110 @@ const PendingProjects = () => {
                             </div>
                           </div>
                         </div>
-                        <button className="text-[#54577A] underline">
-                          {t("deliverables_attached")}
-                        </button>
+                        <div>
+                          {/* Button to open the modal */}
+                          <button
+                            className="text-[#54577A] underline"
+                            onClick={() => openModal(project._id)}
+                          >
+                            {t("deliverables_attached")}
+                          </button>
+
+                          {/* Modal */}
+                          <Modal
+                            open={isModalOpen}
+                            onClose={closeModal}
+                            aria-labelledby="modal-modal-title"
+                            aria-describedby="modal-modal-description"
+                          >
+                            <Box
+                              sx={{
+                                ...modalStyle,
+                                borderRadius: "16px",
+                                height: "470px",
+                                display: "flex",
+                                flexDirection: "column",
+                                padding: "24px",
+                              }}
+                            >
+                              <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-semibold text-black-blacknew">
+                                  {t("Deliverables_Attached")}
+                                </h2>
+                                <button
+                                  onClick={closeModal}
+                                  className="text-black-blacknew font-bold hover:text-gray-700 focus:outline-none"
+                                  aria-label="Close"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                              <div className="mt-4 flex-grow scrollbar-custom">
+                                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
+                                  {t("Attached_Documents")}
+                                </h3>
+                                {modalDocuments && modalDocuments.length > 0 ? (
+                                  <ul className="space-y-4">
+                                    {modalDocuments.map((file, index) => (
+                                      <li
+                                        key={index}
+                                        className="flex items-start bg-gray-100 p-3 rounded-lg"
+                                      >
+                                        {/* PDF Icon */}
+                                        <div className="w-14 h-14 flex items-center justify-center bg-gray-200 rounded-lg">
+                                          <img
+                                            src={pdf}
+                                            alt="PDF Icon"
+                                            className="w-10 h-10"
+                                          />
+                                        </div>
+                                        {/* File Details */}
+                                        <div className="ml-3 flex-1">
+                                          <p className="text-sm font-semibold text-gray-700">
+                                            {file.fileName}
+                                          </p>
+                                          <p className="text-xs text-gray-500 mt-1">
+                                            Uploaded by: {file.user}
+                                          </p>
+                                        </div>
+                                        {/* Download Button (Optional) */}
+                                        <a
+                                          href={file.fileUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-sm text-blue-500 hover:text-blue-700"
+                                        >
+                                          <Button
+                                            startIcon={
+                                              <MdOutlineFileDownload size={40} />
+                                            }
+                                            sx={{
+                                              textTransform: "none",
+                                              color: "#121619",
+                                            }}
+                                          ></Button>
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="text-gray-500">
+                                    {t("No_files_attached")}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="flex justify-between mt-4 w-full">
+                                <button
+                                  onClick={closeModal}
+                                  className="px-4 py-3 w-full ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+                                >
+                                  {t("Cancel")}
+                                </button>
+                              </div>
+                            </Box>
+                          </Modal>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -521,7 +680,7 @@ const PendingProjects = () => {
                           </p>
                           <div className="flex flex-row items-center gap-2 mb-3">
                             <Clock1 className="w-4 h-4" />
-                            <span className="text-sm text-black mb-1"> 
+                            <span className="text-sm text-black mb-1">
                               {" "}
                               {project.status === "Pending"
                                 ? t("Pending")
@@ -610,7 +769,7 @@ const PendingProjects = () => {
                             </div>
                           </div>
                         </div>
-                        <button className="text-[#54577A] underline">
+                        <button className="text-[#54577A] underline"  onClick={() => openModal(project._id)}>
                           {t("deliverables_attached")}
                         </button>
                       </div>
