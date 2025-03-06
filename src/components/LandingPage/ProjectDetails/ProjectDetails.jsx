@@ -341,7 +341,7 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.userName} ({member?.role?.roleName})
+                  {member?.userName} ({member?.role?.roleName ? member?.role?.roleName : member?.userType})
                 </span>
               </div>
             ))}
@@ -361,7 +361,7 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.ownerName}
+                  {member?.ownerName} ({member?.role ? member?.role : member?.userType})
                 </span>
               </div>
             ))}

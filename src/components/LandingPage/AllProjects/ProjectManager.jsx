@@ -425,8 +425,12 @@ const ProjectManager = () => {
                         <img className="flex" src={time} alt="" />
                         <span className="ml-1">
                           {" "}
-                          {project.daysLeft === "Awaiting Start"
-                            ? t("Awaiting_Start")
+                          {project.status === "Pending"
+                            ? t("Pending")
+                            : project.status === "Completed"
+                            ? t("Completed")
+                            : project.status === "Ongoing"
+                            ? t("Ongoing")
                             : project.daysLeft}
                         </span>
                       </div>
