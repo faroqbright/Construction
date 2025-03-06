@@ -424,7 +424,6 @@ const ProjectManager = () => {
                       <div className="font-semibold flex items-center">
                         <img className="flex" src={time} alt="" />
                         <span className="ml-1">
-                          {" "}
                           {project.status === "Pending"
                             ? t("Pending")
                             : project.status === "Completed"
