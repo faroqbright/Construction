@@ -90,8 +90,19 @@ function Navbar({ toggleSidebar, isOpen }) {
         >
           <div className="ml-7 lg:ml-6">
             <h1 className="sm:text-2xl text-xl font-bold">
-              {t("Hi")}, {name ? name : "unknown"}
+              {t("Hi")
+                .split(" ")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ")}
+              ,{' '}
+              {name
+                ? name
+                    .split(" ")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")
+                : "Unknown"}
             </h1>
+
             <p className="text-gray-500 text-sm sm:text-base">
               {t("Lets_finish_your_projects_today!")}
             </p>
@@ -111,11 +122,15 @@ function Navbar({ toggleSidebar, isOpen }) {
                   ref={profileDropdownRef}
                 />
               ) : (
-                <div 
-                className="rounded-full"
-                onClick={() => toggleDropdown("profile")}
-                ref={profileDropdownRef}>
-                  <User className="bg-slate-400 rounded-full px-1 py-2 text-white " size={40}/>
+                <div
+                  className="rounded-full"
+                  onClick={() => toggleDropdown("profile")}
+                  ref={profileDropdownRef}
+                >
+                  <User
+                    className="bg-slate-400 rounded-full px-1 py-2 text-white "
+                    size={40}
+                  />
                 </div>
               )}
             </div>
