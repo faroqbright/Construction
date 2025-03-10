@@ -693,6 +693,9 @@ export default function EditProject() {
           </>
         )}
         <div className="mb-4">
+        <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">{t("Project_Banner")}</span>
+          </label>
           <Controller
             name="projectBanner"
             control={control}

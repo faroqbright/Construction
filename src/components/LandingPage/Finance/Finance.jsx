@@ -154,8 +154,14 @@ export default function Finance() {
 
       // Append other fields
       formDataPayload.append("projName", selectedProject);
-      formDataPayload.append("financialExecution", formData.financialExecution || ""); // Ensure it's not undefined
-      formDataPayload.append("physicalExecution", formData.physicalExecution || ""); // Ensure it's not undefined
+      formDataPayload.append(
+        "financialExecution",
+        formData.financialExecution || ""
+      ); // Ensure it's not undefined
+      formDataPayload.append(
+        "physicalExecution",
+        formData.physicalExecution || ""
+      ); // Ensure it's not undefined
 
       // Send the request with FormData
       await apiRequest(
@@ -239,7 +245,8 @@ export default function Finance() {
                 <th className="p-4 border-b">{t("Physical_Execution")}</th>
                 <th className="p-4 border-b">{t("Date")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
-                <th className="p-4 border-b">{t("Actions")}</th>)}
+                  <th className="p-4 border-b">{t("Actions")}</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -248,9 +255,30 @@ export default function Finance() {
                   <td className="p-4">
                     <Checkbox />
                   </td>
-                  <td className="p-4">{user.projName}</td>
-                  <td className="p-4">{user.fileName}</td>
-                  <td className="p-4">{user.user}</td>
+                  <td className="p-4">
+                    {user.projName
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </td>{" "}
+                  <td className="p-4">
+                    {user.fileName
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </td>
+                  <td className="p-4">
+                    {user.user
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </td>
                   <td className="p-4">{user.financialExecution}%</td>
                   <td className="p-4">{user.physicalExecution}%</td>
                   <td className="p-4">
@@ -443,12 +471,12 @@ export default function Finance() {
 }
 
 const modalStyles = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: 'background.paper',
+  bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
 };

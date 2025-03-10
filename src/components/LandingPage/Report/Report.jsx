@@ -135,7 +135,7 @@ export default function Report() {
   }, [selectedTab]);
 
   return (
-    <div className="bg-gray-100 min-h-screen p-8">
+    <div className="min-h-screen px-4 py-2">
       <div className="flex items-center space-x-3 mb-10">
         <button
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-200 transition"
@@ -299,10 +299,22 @@ export default function Report() {
                           : doc.fileName
                         : "No Report"}
                     </td>
-                    <td className="p-4 font-normal">
-                      {doc.status || "No status"}
+                    <td className="p-4">
+                      {doc.status
+                        .split(" ")
+                        .map(
+                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
                     </td>
-                    <td className="p-4 font-normal">{doc.user}</td>
+                    <td className="p-4">
+                      {doc.user
+                        .split(" ")
+                        .map(
+                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
+                    </td>{" "}
                     <td className="p-4 font-normal">
                       {new Date(doc.uploadedAt).toLocaleDateString()}
                     </td>

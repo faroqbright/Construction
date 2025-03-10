@@ -22,7 +22,8 @@ const ProjectDetails = () => {
   const token = useSelector((state) => state.auth.userToken);
   const { id } = useParams();
   const [projectData, setProjectData] = useState(null);
-
+  console.log(projectData);
+  
   const milestones = [
     { label: t("Project_Details"), icon: <FaUser />, completed: true },
     { label: t("Filing"), icon: <FaFileAlt />, completed: true },
@@ -327,8 +328,22 @@ const ProjectDetails = () => {
                     <td className="p-4">
                       <Checkbox />
                     </td>
-                    <td className="p-4">{doc.fileName}</td>
-                    <td className="p-4">{doc.user}</td>
+                    <td className="p-4">
+                      {doc.fileName
+                        .split(" ")
+                        .map(
+                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
+                    </td>
+                    <td className="p-4">
+                      {doc.user
+                        .split(" ")
+                        .map(
+                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
+                    </td>
                     <td className="p-4">{doc.financialExecution}%</td>
                     <td className="p-4">{doc.physicalExecution}%</td>
                     <td className="p-4 relative">

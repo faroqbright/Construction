@@ -20,7 +20,6 @@ import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
 import { useSideBar } from "../../../utils/RoleContext";
 
-
 export default function UsersTable() {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -68,11 +67,11 @@ export default function UsersTable() {
   }, [fetchRoles]);
 
   useEffect(() => {
-    if(clickedItem){
-    fetchRoles();
-    setClickedItem(null);
+    if (clickedItem) {
+      fetchRoles();
+      setClickedItem(null);
     }
-  }, [clickedItem,setClickedItem,fetchRoles]);
+  }, [clickedItem, setClickedItem, fetchRoles]);
   // Add a new user
   const addUser = async (user) => {
     try {
@@ -131,7 +130,7 @@ export default function UsersTable() {
         toast.success("User updated successfully.");
         fetchUsers();
         setOpenEdit(false);
-      setOpenStates(null);
+        setOpenStates(null);
       } else {
         toast.error("Failed to update user.");
       }
@@ -207,7 +206,7 @@ export default function UsersTable() {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <div className="px-4 py-2">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">{t("All_Users")}</h2>
         {hasCreatePermission ? (
@@ -359,7 +358,14 @@ export default function UsersTable() {
                   <td className="p-4">
                     <Checkbox />
                   </td>
-                  <td className="p-4">{user.userName}</td>
+                  <td className="p-4">
+                    {user.userName
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </td>
                   <td className="p-4">{user.email}</td>
                   <td className="p-4">{user.phoneNumber}</td>
                   <td className="p-4">{user?.role?.roleName || "null"}</td>

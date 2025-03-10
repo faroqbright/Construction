@@ -281,7 +281,15 @@ const ProductionClientList = () => {
                     <td className="p-4">
                       <Checkbox />
                     </td>
-                    <td className="p-4">{user.userName}</td>
+                    <td className="p-4">
+                      {user.userName
+                        .split(" ")
+                        .map(
+                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
+                    </td>
+
                     <td className="p-4">{user.email}</td>
                     <td className="p-4">{user.companyName}</td>
                     <td className="p-4">{user.phoneNumber}</td>

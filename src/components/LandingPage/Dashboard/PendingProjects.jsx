@@ -286,11 +286,12 @@ const PendingProjects = () => {
                           spaceBetween={10}
                           slidesPerView={1}
                           grabCursor={true}
+                          onClick={() => handleViewProjectClick(project._id)}
                         >
                           {project.projectBanner.map((banner, index) => (
                             <SwiperSlide key={banner._id || index}>
                               <img
-                                className="w-full h-32 object-cover rounded"
+                                className="w-full h-32 cursor-pointer object-cover rounded"
                                 src={banner.url}
                                 alt={`Project Banner ${index + 1}`}
                               />
@@ -307,10 +308,7 @@ const PendingProjects = () => {
                       )}
                       {/* Content */}
                       <div>
-                        <div
-                          className="cursor-pointer"
-                          onClick={() => handleViewProjectClick(project._id)}
-                        >
+                        <div className="cursor-pointer">
                           <div className="flex w-full justify-between space-x-2 items-center mb-2">
                             <h3 className="text-sm flex font-semibold text-black text-nowrap sm:w-auto w-full">
                               {project.projectName}
@@ -401,7 +399,7 @@ const PendingProjects = () => {
                               {/* Indicator Circle - Always Red */}
                               <div
                                 className="w-5 h-5 bg-red-500 rounded-full absolute top-1/2 -translate-y-1/2 
-      flex items-center justify-center shadow-md cursor-pointer transition-all"
+                                flex items-center justify-center shadow-md cursor-pointer transition-all"
                                 style={{
                                   left: `calc(${project?.financeDocuments?.[0]?.financialExecution}% - 10px)`,
                                 }}
@@ -486,7 +484,9 @@ const PendingProjects = () => {
                                         >
                                           <Button
                                             startIcon={
-                                              <MdOutlineFileDownload size={40} />
+                                              <MdOutlineFileDownload
+                                                size={40}
+                                              />
                                             }
                                             sx={{
                                               textTransform: "none",
@@ -631,7 +631,7 @@ const PendingProjects = () => {
                   completed?.map((project, index) => (
                     <div
                       key={project._id}
-                      className="bg-white rounded-lg shadow-lg p-4 flex flex-col "
+                      className="bg-white rounded-lg cursor-pointer shadow-lg p-4 flex flex-col "
                     >
                       {/* Image */}
                       {project.projectBanner?.length > 0 ? (
@@ -639,6 +639,7 @@ const PendingProjects = () => {
                           spaceBetween={10}
                           slidesPerView={1}
                           grabCursor={true}
+                          onClick={() => handleViewProjectClick(project._id)}
                         >
                           {project.projectBanner.map((banner, index) => (
                             <SwiperSlide
@@ -769,7 +770,10 @@ const PendingProjects = () => {
                             </div>
                           </div>
                         </div>
-                        <button className="text-[#54577A] underline"  onClick={() => openModal(project._id)}>
+                        <button
+                          className="text-[#54577A] underline"
+                          onClick={() => openModal(project._id)}
+                        >
                           {t("deliverables_attached")}
                         </button>
                       </div>

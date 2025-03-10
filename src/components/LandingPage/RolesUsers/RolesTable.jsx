@@ -224,7 +224,7 @@ export default function RolesTable() {
   const { t } = useTranslation();
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 px-4 py-2">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">{t("All_Roles")}</h2>
         {hasCreatePermission ? (

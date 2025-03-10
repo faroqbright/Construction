@@ -223,7 +223,7 @@ const ProjectManager = () => {
 
   return (
     <>
-      <div className="flex flex-col rounded-lg w-full p-8">
+      <div className="flex flex-col rounded-lg w-full px-8 py-2">
         <div className="flex flex-row justify-between">
           <div className="flex items-center space-x-3 mb-10">
             <button
@@ -385,12 +385,13 @@ const ProjectManager = () => {
                   key={project._id}
                   className="max-w-sm h-[22rem] md:h-[22rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
                 >
-                  <div onClick={() => handleProjectClick(project._id)}>
+                  <div className="cursor-pointer" onClick={() => handleProjectClick(project._id)}>
                     {project.projectBanner?.length > 0 ? (
                       <Swiper
                         spaceBetween={10}
                         slidesPerView={1}
                         grabCursor={true}
+                        onClick={() => handleViewProjectClick(project._id)}
                       >
                         {project.projectBanner.map((banner, index) => (
                           <SwiperSlide

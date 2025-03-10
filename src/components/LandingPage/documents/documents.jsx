@@ -310,8 +310,8 @@ const Documents = () => {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
-                <th className="p-4 border-b">{t("Document_Name")}</th>
                 <th className="p-4 border-b">{t("Project_Name")}</th>
+                <th className="p-4 border-b">{t("Document_Name")}</th>
                 <th className="p-4 border-b">{t("Uploaded_By")}</th>
                 <th className="p-4 border-b">{t("Uploaded_At")}</th>
                 <th className="p-4 border-b">{t("Actions")}</th>
@@ -323,9 +323,30 @@ const Documents = () => {
                   <td className="p-4">
                     <Checkbox />
                   </td>
-                  <td className="p-4">{user.fileName}</td>
-                  <td className="p-4">{user.projName}</td>
-                  <td className="p-4">{user.user}</td>
+                  <td className="p-4">
+                    {user.projName
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </td>{" "}
+                  <td className="p-4">
+                    {user.fileName
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </td>
+                  <td className="p-4">
+                    {user.user
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </td>
                   <td className="p-4">{user.uploadedAt}</td>
                   {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
                     <td className="p-4 relative">

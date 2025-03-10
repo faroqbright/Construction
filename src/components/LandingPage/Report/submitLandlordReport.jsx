@@ -10,8 +10,11 @@ const SubmitReport = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedProject, setSelectedProject] = useState("");
   const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to manage dropdown visibility
   const token = useSelector((state) => state?.auth?.userToken);
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
@@ -23,7 +26,9 @@ const SubmitReport = () => {
       try {
         const response = await apiRequest("get", "/projects", {}, token);
         if (response?.data?.statusCode === 200) {
-          setProjects(response?.data?.data?.projects || []);
+          const projectsData = response?.data?.data?.projects || [];
+          setProjects(projectsData);
+          setFilteredProjects(projectsData); // Initialize filtered projects
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -35,9 +40,16 @@ const SubmitReport = () => {
     fetchProjects();
   }, [token]);
 
+  useEffect(() => {
+    const filtered = projects.filter((project) =>
+      project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProjects(filtered);
+  }, [searchTerm, projects]);
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    const maxSize = 5 * 1024 * 1024; 
+    const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (file) {
       if (file.type !== "application/pdf") {
@@ -98,22 +110,45 @@ const SubmitReport = () => {
 
       <div className="mx-4 mb-3">
         <h3>{t("Project_Name")}</h3>
-        <select
-          className="mt-2 border border-gray-300 rounded-md p-2 w-full"
-          value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          <option value="">{t("Select_a_Project")}</option>
-          {loading ? (
-            <option>Loading...</option>
-          ) : (
-            projects.map((project) => (
-              <option key={project._id} value={project.projectName}>
-                {project.projectName}
-              </option>
-            ))
+        <div className="relative">
+          <div
+            className="mt-2 border border-gray-300 rounded-md p-2 w-full cursor-pointer"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            {selectedProject || t("Select_a_Project")}
+          </div>
+          {isDropdownOpen && (
+            <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+              <input
+                type="text"
+                placeholder="Search projects..."
+                className="p-2 border-b border-gray-300 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <div className="max-h-60 overflow-y-auto">
+                {loading ? (
+                  <div className="p-2">Loading...</div>
+                ) : filteredProjects.length > 0 ? (
+                  filteredProjects.map((project) => (
+                    <div
+                      key={project._id}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        setSelectedProject(project.projectName);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      {project.projectName}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-2">No projects found.</div>
+                )}
+              </div>
+            </div>
           )}
-        </select>
+        </div>
       </div>
 
       <div className="mx-4 mb-3">

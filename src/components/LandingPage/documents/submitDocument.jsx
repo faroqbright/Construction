@@ -10,8 +10,12 @@ const SubmitDocument = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedProject, setSelectedProject] = useState("");
   const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const token = useSelector((state) => state?.auth?.userToken);
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
@@ -23,7 +27,9 @@ const SubmitDocument = () => {
       try {
         const response = await apiRequest("get", "/projects", {}, token);
         if (response?.data?.statusCode === 200) {
-          setProjects(response?.data?.data?.projects || []);
+          const fetchedProjects = response?.data?.data?.projects || [];
+          setProjects(fetchedProjects);
+          setFilteredProjects(fetchedProjects.slice(0, 6)); // Show first 6 projects initially
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -35,65 +41,31 @@ const SubmitDocument = () => {
     fetchProjects();
   }, [token]);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+  // Handle search input change
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchTerm(query);
 
-    if (file) {
-      if (file.type !== "application/pdf") {
-        toast.error("Only PDF files are allowed!");
-        return;
-      }
+    if (!query.trim()) {
+      setFilteredProjects(projects.slice(0, 6)); // Show first 6 if empty
+    } else {
+      const filtered = projects
+        .filter((project) =>
+          project.projectName.toLowerCase().includes(query.toLowerCase())
+        )
+        .slice(0, 6); // Limit to 6 results
 
-      if (file.size > maxSize) {
-        toast.error("File size cannot be greater than 5MB!");
-        return;
-      }
-
-      setSelectedFile(file);
+      setFilteredProjects(filtered);
     }
+
+    setShowDropdown(true);
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile || !selectedProject) {
-      toast.info("Please select a project and upload a PDF file.");
-      return;
-    }
-
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("projName", selectedProject);
-    formData.append("user", user);
-
-    try {
-      const response = await apiRequest(
-        "post",
-        "/userdocuments",
-        formData,
-        token,
-        {
-          "Content-Type": "multipart/form-data",
-        }
-      );
-      console.log(response);
-
-      if (response?.status === 200 || response?.status === 201) {
-        toast.success("File uploaded successfully!");
-        setSelectedFile(null);
-        setSelectedProject("");
-
-        navigate("/documents");
-      } else {
-        toast.error("Upload failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("An error occurred while uploading.");
-    } finally {
-      setUploading(false);
-    }
+  // Handle selecting a project
+  const handleSelectProject = (projectName) => {
+    setSelectedProject(projectName);
+    setSearchTerm(projectName);
+    setShowDropdown(false);
   };
 
   return (
@@ -102,24 +74,35 @@ const SubmitDocument = () => {
         {t("Project_Details")} <span className="text-red-600 pr-1">*</span>
       </h1>
 
-      <div className="mx-4 mb-3">
+      <div className="mx-4 mb-3 relative">
         <h3>{t("Project_Name")}</h3>
-        <select
+        <input
+          type="text"
           className="mt-2 border border-gray-300 rounded-md p-2 w-full"
-          value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          <option value="">{t("Select_a_Project")}</option>
-          {loading ? (
-            <option>Loading...</option>
-          ) : (
-            projects.map((project) => (
-              <option key={project._id} value={project.projectName}>
+          placeholder={t("Search_Project")}
+          value={searchTerm}
+          onChange={handleSearch}
+          onFocus={() => {
+            setFilteredProjects(projects.slice(0, 6)); // Show first 6 projects on focus
+            setShowDropdown(true);
+          }}
+        />
+
+        {loading && <p className="mt-2 text-gray-500">{t("Loading...")}</p>}
+
+        {showDropdown && filteredProjects.length > 0 && (
+          <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded-md shadow-md max-h-60 overflow-auto">
+            {filteredProjects.map((project) => (
+              <li
+                key={project._id}
+                className="p-2 cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSelectProject(project.projectName)}
+              >
                 {project.projectName}
-              </option>
-            ))
-          )}
-        </select>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="mx-4 mb-3">
@@ -142,7 +125,7 @@ const SubmitDocument = () => {
               accept=".pdf"
               ref={fileInputRef}
               className="hidden"
-              onChange={handleFileChange}
+              onChange={(e) => setSelectedFile(e.target.files[0])}
             />
             <button
               className="bg-[#F9F9F9] text-[#1A1A18] text-[14px] font-[500] border mt-5 px-4 py-2 rounded-md"
@@ -157,10 +140,9 @@ const SubmitDocument = () => {
         <div className="items-center flex flex-col justify-center mt-5">
           <button
             className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-full"
-            onClick={handleUpload}
-            disabled={uploading}
+            onClick={() => {}}
           >
-            {uploading ? "Uploading..." : `${t("Upload_Changes")}`}
+            {t("Upload_Changes")}
           </button>
         </div>
       </div>
