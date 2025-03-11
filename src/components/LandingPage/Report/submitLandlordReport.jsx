@@ -44,7 +44,13 @@ const SubmitReport = () => {
     const filtered = projects.filter((project) =>
       project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredProjects(filtered);
+  
+    // Show only 6 projects initially, unless the user is searching
+    if (searchTerm === "") {
+      setFilteredProjects(filtered.slice(0, 6)); // Show only the first 6 projects
+    } else {
+      setFilteredProjects(filtered); // Show all filtered projects when searching
+    }
   }, [searchTerm, projects]);
 
   const handleFileChange = (event) => {

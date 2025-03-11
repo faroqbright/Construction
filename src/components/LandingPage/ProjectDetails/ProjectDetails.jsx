@@ -4,41 +4,24 @@ import pdf from "../../../assets/pdf.svg";
 import "react-circular-progressbar/dist/styles.css";
 import reviewIcon from "../../../assets/review.svg";
 import completedIcon from "../../../assets/completed.svg";
-import { FaUser, FaFileAlt, FaCreditCard } from "react-icons/fa";
+import { FaUser, FaFileAlt, FaCreditCard, FaCheck } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { useNavigate, useParams } from "react-router-dom";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
+import { FaFileCircleQuestion } from "react-icons/fa6";
 
 const totalTicks = 50;
 const ProjectDetails = () => {
   const value = 65;
-  const activeTicks = Math.round((value / 100) * totalTicks);
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const color = "#d6d6d6";
   const token = useSelector((state) => state.auth.userToken);
   const { id } = useParams();
   const [projectData, setProjectData] = useState(null);
   console.log(projectData);
-  
-  const milestones = [
-    { label: t("Project_Details"), icon: <FaUser />, completed: true },
-    { label: t("Filing"), icon: <FaFileAlt />, completed: true },
-    { label: t("Payment"), icon: <FaCreditCard />, completed: false },
-    {
-      label: t("Review"),
-      icon: <img src={reviewIcon} alt="Review" className="w-4 " />,
-      completed: false,
-    },
-    {
-      label: t("Completed"),
-      icon: <img src={completedIcon} alt="Completed" className="w-4 " />,
-      completed: false,
-    },
-  ];
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -256,7 +239,7 @@ const ProjectDetails = () => {
           </h3>
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center justify-between w-full">
-              {milestones.map((milestone, index) => (
+              {projectData?.milestones?.map((milestone, index) => (
                 <div
                   key={index}
                   className="flex flex-col items-center space-x-4 relative"
@@ -265,37 +248,39 @@ const ProjectDetails = () => {
                     className={`h-8 w-8 flex items-center justify-center rounded-full transition-all duration-300 ${
                       milestone.completed
                         ? "border border-red-redNew text-red-redNew"
-                        : milestone.label === "Payment"
-                        ? "border border-red-redNew text-red-redNew"
                         : "border-2 border-gray-300"
                     }`}
                   >
-                    {milestone.icon}
+                    {milestone.name === "Project Details" ? (
+                      <FaUser />
+                    ) : milestone.name === "Filling" ? (
+                      <FaFileAlt />
+                    ) : milestone.name === "Payment" ? (
+                      <FaCreditCard />
+                    ) : milestone.name === "Review" ? (
+                      <FaFileCircleQuestion />
+                    ) : milestone.name === "Completed" ? (
+                      <FaCheck />
+                    ) : null}
                   </div>
-                  {index < milestones.length - 1 && (
+
+                  {index < projectData.milestones.length - 1 && (
                     <div
-                      className={`absolute top-1/2 left-full w-[100px] h-0 border-t-2 border-dotted ${
+                      className={`absolute top-[28%] left-full w-[100px] lg:w-[150px] !-ml-1 h-0 border-t-2 border-dotted ${
                         milestone.completed
                           ? "border-red-redNew"
-                          : milestone.label === "Payment"
-                          ? "border-gray-300"
                           : "border-gray-300"
                       }`}
-                      style={{
-                        transform: "translateY(-50%)",
-                      }}
+                      style={{ transform: "translateY(-50%)" }}
                     />
                   )}
+
                   <span
-                    className={`text-sm font-bold transition-all duration-300 ${
-                      milestone.completed
-                        ? "text-red-redNew"
-                        : milestone.label === "Payment"
-                        ? "text-red-redNew"
-                        : "text-gray-400"
+                    className={`text-sm font-bold transition-all duration-300 mt-3 ${
+                      milestone.completed ? "text-red-redNew" : "text-gray-400"
                     }`}
                   >
-                    {milestone.label}
+                    {t(milestone.name.replace(" ", "_"))}
                   </span>
                 </div>
               ))}
@@ -316,7 +301,8 @@ const ProjectDetails = () => {
                     <Checkbox />
                   </th>
                   <th className="p-4 border-b">{t("Invoice_Name")}</th>
-                  <th className="p-4 border-b">{t("Uploaded_By")}</th>
+                  <th className="p-4 border-b">{t("Date")}</th>
+                  <th className="p-4 border-b">{t("Created_At")}</th>
                   <th className="p-4 border-b">{t("Financial_Execution")}</th>
                   <th className="p-4 border-b">{t("Physical_Execution")}</th>
                   <th className="p-4 border-b text-center">{t("Actions")}</th>
@@ -344,6 +330,7 @@ const ProjectDetails = () => {
                         )
                         .join(" ")}
                     </td>
+                    <td className="p-4">{doc.uploadedAt}</td>
                     <td className="p-4">{doc.financialExecution}%</td>
                     <td className="p-4">{doc.physicalExecution}%</td>
                     <td className="p-4 relative">
@@ -418,7 +405,10 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.userName} ({member?.role?.roleName})
+                  {member?.userName}{" "}
+                  {member?.role?.roleName
+                    ? `(${member.role.roleName})`
+                    : `(${member?.userType})`}
                 </span>
               </div>
             ))}
@@ -438,7 +428,8 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.ownerName}
+                  {member?.ownerName}{" "}
+                  {member?.role ? `(${member?.role})` : `(${member?.userType})`}
                 </span>
               </div>
             ))}

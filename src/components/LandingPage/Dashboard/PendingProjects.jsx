@@ -308,7 +308,10 @@ const PendingProjects = () => {
                       )}
                       {/* Content */}
                       <div>
-                        <div className="cursor-pointer">
+                        <div
+                          onClick={() => handleViewProjectClick(project._id)}
+                          className="cursor-pointer"
+                        >
                           <div className="flex w-full justify-between space-x-2 items-center mb-2">
                             <h3 className="text-sm flex font-semibold text-black text-nowrap sm:w-auto w-full">
                               {project.projectName}

@@ -37,7 +37,6 @@ const ProgressGauge = ({
         />
       </RadialBarChart>
 
-      {/* Ensure the percentage display doesn't block button clicks */}
       <div
         className="absolute top-[110px] left-[110px] flex items-center justify-center w-16 h-16 rounded-full text-white font-semibold text-lg z-10"
         style={{ backgroundColor: color }}
@@ -45,7 +44,6 @@ const ProgressGauge = ({
         {percentage}%
       </div>
 
-      {/* Buttons */}
       <div className="flex items-center -mt-10 z-20">
         <button
           onClick={() => {
@@ -70,19 +68,24 @@ const ProgressGauge = ({
     </div>
   );
 };
+
 export default function SubmitFinance() {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedProject, setSelectedProject] = useState("");
   const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const token = useSelector((state) => state?.auth?.userToken);
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [financial, setFinancial] = useState(90);
   const [physical, setPhysical] = useState(75);
+  const [fileName, setFileName] = useState("");
 
   const handleChange = (type, change) => {
     if (type === "financial") {
@@ -98,7 +101,9 @@ export default function SubmitFinance() {
       try {
         const response = await apiRequest("get", "/projects", {}, token);
         if (response?.data?.statusCode === 200) {
-          setProjects(response?.data?.data?.projects || []);
+          const projectsData = response?.data?.data?.projects || [];
+          setProjects(projectsData);
+          setFilteredProjects(projectsData.slice(0, 6)); // Initialize with first 6 projects
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -109,6 +114,19 @@ export default function SubmitFinance() {
 
     fetchProjects();
   }, [token]);
+
+  useEffect(() => {
+    const filtered = projects.filter((project) =>
+      project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Show only 6 projects initially, unless the user is searching
+    if (searchTerm === "") {
+      setFilteredProjects(filtered.slice(0, 6)); // Show only the first 6 projects
+    } else {
+      setFilteredProjects(filtered); // Show all filtered projects when searching
+    }
+  }, [searchTerm, projects]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -135,11 +153,17 @@ export default function SubmitFinance() {
       return;
     }
 
+    if (!fileName) {
+      toast.info("Please enter a filename.");
+      return;
+    }
+
     setUploading(true);
 
     const formData = new FormData();
     formData.append("file", selectedFile);
     formData.append("projName", selectedProject);
+    formData.append("fileName", fileName); // Include the filename in the FormData
     formData.append("user", user);
     formData.append("financialExecution", financial);
     formData.append("physicalExecution", physical);
@@ -154,6 +178,7 @@ export default function SubmitFinance() {
         toast.success("File uploaded successfully!");
         setSelectedFile(null);
         setSelectedProject("");
+        setFileName(""); // Reset filename input
 
         navigate("/finance");
       } else {
@@ -178,22 +203,59 @@ export default function SubmitFinance() {
           {t("Project_Name")}{" "}
           <span className="text-red-600 text-xl pr-1">*</span>
         </h3>
-        <select
-          className="mt-2 border border-gray-300 rounded-md p-2 w-full"
-          value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          <option value="">{t("Select_a_Project")}</option>
-          {loading ? (
-            <option>Loading...</option>
-          ) : (
-            projects.map((project) => (
-              <option key={project._id} value={project.projectName}>
-                {project.projectName}
-              </option>
-            ))
+        <div className="relative">
+          <div
+            className="mt-2 border border-gray-300 rounded-md p-2 w-full cursor-pointer"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            {selectedProject || t("Select_a_Project")}
+          </div>
+          {isDropdownOpen && (
+            <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+              <input
+                type="text"
+                placeholder="Search projects..."
+                className="p-2 border-b border-gray-300 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <div className="max-h-60 overflow-y-auto">
+                {loading ? (
+                  <div className="p-2">Loading...</div>
+                ) : filteredProjects.length > 0 ? (
+                  filteredProjects.map((project) => (
+                    <div
+                      key={project._id}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        setSelectedProject(project.projectName);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      {project.projectName}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-2">No projects found.</div>
+                )}
+              </div>
+            </div>
           )}
-        </select>
+        </div>
+      </div>
+
+      <div className="mx-4 mb-3">
+        <h3>
+          {t("Filename")}{" "}
+          <span className="text-red-600 text-xl pr-1">*</span>
+        </h3>
+        <input
+          type="text"
+          className="mt-2 border border-gray-300 rounded-md p-2 w-full"
+          placeholder="Enter filename"
+          value={fileName}
+          onChange={(e) => setFileName(e.target.value)}
+        />
       </div>
 
       <div className="mx-4 mb-3">

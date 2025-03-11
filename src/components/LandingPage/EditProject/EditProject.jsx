@@ -256,10 +256,10 @@ export default function EditProject() {
         updatedFields.projectBanner = true;
       }
 
-      if (Object.keys(updatedFields).length === 0) {
-        toast.info("No changes were made.");
-        return;
-      }
+      // if (Object.keys(updatedFields).length === 0) {
+      //   toast.info("No changes were made.");
+      //   return;
+      // }
 
       const data = new FormData();
 
@@ -301,7 +301,11 @@ export default function EditProject() {
         response?.data?.statusCode === 200
       ) {
         const { physicalExecution, financialExecution } = selectedExecution;
-        const id = FinancialExecution?.[0]?.id;
+        const selectedData = FinancialExecution?.find(
+          (file) => file.fileName === selectedInvoice
+        );
+        
+        const id = selectedData?.id;
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
           try {
