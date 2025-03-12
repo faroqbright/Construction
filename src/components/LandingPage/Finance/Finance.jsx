@@ -28,8 +28,8 @@ export default function Finance() {
   const [editData, setEditData] = useState(null);
   const [formData, setFormData] = useState({
     projName: "",
-    financialExecution: "",
-    physicalExecution: "",
+    // financialExecution: "",
+    // physicalExecution: "",
     reference: "",
     fileName: "",
     file: null,
@@ -79,8 +79,8 @@ export default function Finance() {
     if (user) {
       setFormData({
         projName: user.projName,
-        financialExecution: user.financialExecution,
-        physicalExecution: user.physicalExecution,
+        // financialExecution: user.financialExecution,
+        // physicalExecution: user.physicalExecution,
         reference: user.reference,
         fileName: user.fileName,
         file: user.file,
@@ -90,8 +90,8 @@ export default function Finance() {
     } else {
       setFormData({
         projName: "",
-        financialExecution: "",
-        physicalExecution: "",
+        // financialExecution: "",
+        // physicalExecution: "",
         reference: "",
         fileName: "",
         file: null,
@@ -160,14 +160,14 @@ export default function Finance() {
 
       // Append other fields
       formDataPayload.append("projName", selectedProject);
-      formDataPayload.append(
-        "financialExecution",
-        formData.financialExecution || ""
-      ); // Ensure it's not undefined
-      formDataPayload.append(
-        "physicalExecution",
-        formData.physicalExecution || ""
-      ); // Ensure it's not undefined
+      // formDataPayload.append(
+      //   "financialExecution",
+      //   formData.financialExecution || ""
+      // ); // Ensure it's not undefined
+      // formDataPayload.append(
+      //   "physicalExecution",
+      //   formData.physicalExecution || ""
+      // ); // Ensure it's not undefined
       formDataPayload.append(
         "reference",
         formData.reference || ""
@@ -256,11 +256,12 @@ export default function Finance() {
                 <th className="p-4 border-b">{t("Reference")}</th>
                 <th className="p-4 border-b">{t("Invoice_Name")}</th>
                 <th className="p-4 border-b">{t("Uploaded_By")}</th>
-                <th className="p-4 border-b">{t("Financial_Execution")}</th>
-                <th className="p-4 border-b">{t("Physical_Execution")}</th>
+                {/* <th className="p-4 border-b">{t("Financial_Execution")}</th>
+                <th className="p-4 border-b">{t("Physical_Execution")}</th> */}
                 <th className="p-4 border-b">{t("Date")}</th>
+                <th className="p-4 border-b">{t("Actions")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
-                  <th className="p-4 border-b">{t("Actions")}</th>
+                  <th className="p-4 border-b">{t("")}</th>
                 )}
               </tr>
             </thead>
@@ -295,11 +296,30 @@ export default function Finance() {
                       )
                       .join(" ")}
                   </td>
-                  <td className="p-4">{user.financialExecution ? `${user.financialExecution}%` : "-"}</td>
-                  <td className="p-4">{user.physicalExecution ? `${user.physicalExecution}%` : "-"}</td>
+                  {/* <td className="p-4">{user.financialExecution ? `${user.financialExecution}%` : "-"}</td>
+                  <td className="p-4">{user.physicalExecution ? `${user.physicalExecution}%` : "-"}</td> */}
                   <td className="p-4">
                     {new Date(user.uploadedAt).toLocaleDateString()}
                   </td>
+                  <td className="p-4 relative">
+                      <button
+                        className="flex items-center justify-center px-10 py-2 bg-[#F5FFE8] border-2 border-[#0ECB0A]  text-[#0ECB0A] rounded-full transition-all duration-300"
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = user.fileUrl;
+                          link.setAttribute(
+                            "download",
+                            user.fileUrl.split("/").pop()
+                          );
+                          link.setAttribute("target", "_blank");
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                      >
+                        View
+                      </button>
+                    </td>
                   {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
                     <td className="p-4 relative">
                       <button
@@ -435,7 +455,7 @@ export default function Finance() {
               />
             </div>
 
-            <TextField
+            {/* <TextField
               label="Financial Execution"
               value={formData.financialExecution}
               onChange={(e) =>
@@ -453,7 +473,7 @@ export default function Finance() {
               }
               fullWidth
               margin="normal"
-            />
+            /> */}
 
             <TextField
               label="Reference"

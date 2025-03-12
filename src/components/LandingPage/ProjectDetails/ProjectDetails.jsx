@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { FaFileCircleQuestion } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Slider from "react-slick";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const ProjectDetails = () => {
   const { id } = useParams();
   const [projectData, setProjectData] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [financialId, setFinancialId] = useState(null);
   console.log(projectData);
 
@@ -114,32 +116,40 @@ const ProjectDetails = () => {
   const initialFinancialExecution =
     projectData?.financeDocuments?.[0]?.financialExecution ?? "N/A";
   // Store the previous values
-  const [physicalExecution, setPhysicalExecution] = useState(initialPhysicalExecution);
-  const [financialExecution, setFinancialExecution] = useState(initialFinancialExecution);
+  const [physicalExecution, setPhysicalExecution] = useState(
+    initialPhysicalExecution
+  );
+  const [financialExecution, setFinancialExecution] = useState(
+    initialFinancialExecution
+  );
   const [dragging, setDragging] = useState(false);
   const dragTimeout = useRef(null);
-  
+
   // Use refs to store the latest values
   const physicalExecutionRef = useRef(physicalExecution);
   const financialExecutionRef = useRef(financialExecution);
-  
+
   useEffect(() => {
     if (projectData?.financeDocuments?.length) {
-      setPhysicalExecution(projectData.financeDocuments[0].physicalExecution ?? "N/A");
-      setFinancialExecution(projectData.financeDocuments[0].financialExecution ?? "N/A");
+      setPhysicalExecution(
+        projectData.financeDocuments[0].physicalExecution ?? "N/A"
+      );
+      setFinancialExecution(
+        projectData.financeDocuments[0].financialExecution ?? "N/A"
+      );
       setFinancialId(projectData.financeDocuments[0].id ?? null);
     }
   }, [projectData]);
-  
+
   const handleDrag = (e, type) => {
     if (physicalExecution === "N/A" || financialExecution === "N/A") return;
-  
+
     setDragging(true);
-  
+
     const rect = e.target.parentElement.getBoundingClientRect();
     let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
     newValue = Math.max(0, Math.min(100, newValue));
-  
+
     if (type === "physical") {
       setPhysicalExecution(newValue);
       physicalExecutionRef.current = newValue; // Store latest value
@@ -149,27 +159,33 @@ const ProjectDetails = () => {
       financialExecutionRef.current = newValue; // Store latest value
     }
   };
-  
+
   const handleDragEnd = () => {
     setDragging(false); // Stop dragging state
-  
+
     if (dragTimeout.current) clearTimeout(dragTimeout.current); // Clear previous timer
-  
+
     dragTimeout.current = setTimeout(async () => {
       if (financialId) {
         try {
           // Ensure we only send valid values, not "N/A"
           const updatedData = {};
-  
+
           if (physicalExecutionRef.current !== "N/A") {
             updatedData.physicalExecution = physicalExecutionRef.current;
           }
           if (financialExecutionRef.current !== "N/A") {
             updatedData.financialExecution = financialExecutionRef.current;
           }
-  
-          if (Object.keys(updatedData).length > 0) { // Only send request if there is valid data
-            await apiRequest("patch", `/finance/${financialId}`, updatedData, token);
+
+          if (Object.keys(updatedData).length > 0) {
+            // Only send request if there is valid data
+            await apiRequest(
+              "patch",
+              `/finance/${financialId}`,
+              updatedData,
+              token
+            );
             toast.success("Finance execution updated successfully.");
           }
         } catch (error) {
@@ -177,7 +193,7 @@ const ProjectDetails = () => {
         }
       }
     }, 500); // Wait 500ms before making API call
-  };   
+  };
 
   return (
     <>
@@ -371,7 +387,7 @@ const ProjectDetails = () => {
 
             {projectData?.projectBanner?.length > 0 ? (
               <Slider ref={sliderRefProjects} {...settings} className="gap-4">
-                {projectData.projectBanner.map((banner) => (
+                {projectData.projectBanner.map((banner, index) => (
                   <div
                     key={banner._id}
                     className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2"
@@ -380,7 +396,10 @@ const ProjectDetails = () => {
                       src={banner.url}
                       alt={projectData?.projectName || "Project Image"}
                       className="object-cover cursor-pointer rounded-xl w-full h-[284px]"
-                      onClick={() => setSelectedImage(banner.url)}
+                      onClick={() => {
+                        setSelectedImage(banner.url);
+                        setSelectedImageIndex(index); // Use the correct index here
+                      }}
                     />
                     <div className="flex justify-between w-full p-2">
                       <p>{t("Added_On")}</p>
@@ -405,18 +424,32 @@ const ProjectDetails = () => {
           </div>
         </div>
 
-        {selectedImage && (
+        {selectedImage !== null && (
           <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black-blacknew bg-opacity-75 z-50">
             <div className="relative bg-white rounded-2xl p-4 max-w-3xl w-[90%] h-[90%] flex flex-col items-center justify-center shadow-lg">
-              <div className="absolute top-4 left-4 text-xl font-semibold text-gray-700">
-                Zoomed Image
+              <div className="absolute top-7 left-6 text-xl font-semibold text-gray-700">
+                {t("Zoomed_Image")}
               </div>
 
               <button
-                className="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl"
+                className="absolute top-7 right-6 text-black-blacknew"
                 onClick={() => setSelectedImage(null)}
               >
-                ✖
+                <X size={24} />
+              </button>
+
+              <button
+                className="absolute left-4 text-white bg-red-500 rounded-full p-1.5 hover:bg-red-600"
+                onClick={() => {
+                  const newIndex =
+                    selectedImageIndex === 0
+                      ? projectData.projectBanner.length - 1
+                      : selectedImageIndex - 1;
+                  setSelectedImageIndex(newIndex);
+                  setSelectedImage(projectData.projectBanner[newIndex].url);
+                }}
+              >
+                <ChevronLeft size={28} />
               </button>
 
               <img
@@ -424,6 +457,20 @@ const ProjectDetails = () => {
                 alt="Zoomed"
                 className="w-full h-[80%] mt-10 object-contain"
               />
+
+              <button
+                className="absolute right-4 text-white bg-red-500 rounded-full p-1.5 hover:bg-red-600"
+                onClick={() => {
+                  const newIndex =
+                    selectedImageIndex === projectData.projectBanner.length - 1
+                      ? 0
+                      : selectedImageIndex + 1;
+                  setSelectedImageIndex(newIndex);
+                  setSelectedImage(projectData.projectBanner[newIndex].url);
+                }}
+              >
+                <ChevronRight size={28} />
+              </button>
             </div>
           </div>
         )}
@@ -530,7 +577,13 @@ const ProjectDetails = () => {
                         )
                         .join(" ")}
                     </td>
-                    <td className="p-4 text-center">{doc.uploadedAt}</td>
+                    <td className="p-4 text-center">
+                      {new Date(doc.uploadedAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </td>
                     <td className="p-4 relative">
                       <button
                         className="flex items-center justify-center px-10 py-2 bg-[#F5FFE8] border-2 border-[#0ECB0A]  text-[#0ECB0A] rounded-full transition-all duration-300"
