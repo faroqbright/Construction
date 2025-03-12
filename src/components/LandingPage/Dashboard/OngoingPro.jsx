@@ -88,7 +88,6 @@ const OngoingPro = () => {
                   <h2 className="text-xl font-bold text-black-blacknew">
                     {t("Ongoing")} {t("Projects")}
                   </h2>
-                  <h6>...</h6>
                 </div>
                 <div className="border-b pb-4 mb-4">
                   {project.projectBanner?.length > 0 ? (

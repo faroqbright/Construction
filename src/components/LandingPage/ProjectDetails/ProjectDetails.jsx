@@ -1,26 +1,25 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, Checkbox, Pagination, PaginationItem } from "@mui/material";
 import pdf from "../../../assets/pdf.svg";
 import "react-circular-progressbar/dist/styles.css";
-import reviewIcon from "../../../assets/review.svg";
-import completedIcon from "../../../assets/completed.svg";
 import { FaUser, FaFileAlt, FaCreditCard, FaCheck } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { useNavigate, useParams } from "react-router-dom";
-import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { FaFileCircleQuestion } from "react-icons/fa6";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import Slider from "react-slick";
 
-const totalTicks = 50;
 const ProjectDetails = () => {
-  const value = 65;
   const navigate = useNavigate();
   const { t } = useTranslation();
   const token = useSelector((state) => state.auth.userToken);
   const { id } = useParams();
   const [projectData, setProjectData] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [financialId, setFinancialId] = useState(null);
   console.log(projectData);
 
   const fetchProjects = useCallback(async () => {
@@ -53,6 +52,133 @@ const ProjectDetails = () => {
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
+
+  const capitalizeWords = (str) => {
+    return str
+      ?.split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const sliderRefProjects = useRef(null);
+  const handlePrevClickProjects = () => {
+    if (sliderRefProjects.current) {
+      sliderRefProjects.current.slickPrev();
+    }
+  };
+
+  const handleNextClickProjects = () => {
+    if (sliderRefProjects.current) {
+      sliderRefProjects.current.slickNext();
+    }
+  };
+
+  const settings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+          infinite: false,
+          dots: true,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+          initialSlide: 2,
+          infinite: false,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: false,
+        },
+      },
+    ],
+  };
+
+  const initialPhysicalExecution =
+    projectData?.financeDocuments?.[0]?.physicalExecution ?? "N/A";
+  const initialFinancialExecution =
+    projectData?.financeDocuments?.[0]?.financialExecution ?? "N/A";
+  // Store the previous values
+  const [physicalExecution, setPhysicalExecution] = useState(initialPhysicalExecution);
+  const [financialExecution, setFinancialExecution] = useState(initialFinancialExecution);
+  const [dragging, setDragging] = useState(false);
+  const dragTimeout = useRef(null);
+  
+  // Use refs to store the latest values
+  const physicalExecutionRef = useRef(physicalExecution);
+  const financialExecutionRef = useRef(financialExecution);
+  
+  useEffect(() => {
+    if (projectData?.financeDocuments?.length) {
+      setPhysicalExecution(projectData.financeDocuments[0].physicalExecution ?? "N/A");
+      setFinancialExecution(projectData.financeDocuments[0].financialExecution ?? "N/A");
+      setFinancialId(projectData.financeDocuments[0].id ?? null);
+    }
+  }, [projectData]);
+  
+  const handleDrag = (e, type) => {
+    if (physicalExecution === "N/A" || financialExecution === "N/A") return;
+  
+    setDragging(true);
+  
+    const rect = e.target.parentElement.getBoundingClientRect();
+    let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    newValue = Math.max(0, Math.min(100, newValue));
+  
+    if (type === "physical") {
+      setPhysicalExecution(newValue);
+      physicalExecutionRef.current = newValue; // Store latest value
+    }
+    if (type === "financial") {
+      setFinancialExecution(newValue);
+      financialExecutionRef.current = newValue; // Store latest value
+    }
+  };
+  
+  const handleDragEnd = () => {
+    setDragging(false); // Stop dragging state
+  
+    if (dragTimeout.current) clearTimeout(dragTimeout.current); // Clear previous timer
+  
+    dragTimeout.current = setTimeout(async () => {
+      if (financialId) {
+        try {
+          // Ensure we only send valid values, not "N/A"
+          const updatedData = {};
+  
+          if (physicalExecutionRef.current !== "N/A") {
+            updatedData.physicalExecution = physicalExecutionRef.current;
+          }
+          if (financialExecutionRef.current !== "N/A") {
+            updatedData.financialExecution = financialExecutionRef.current;
+          }
+  
+          if (Object.keys(updatedData).length > 0) { // Only send request if there is valid data
+            await apiRequest("patch", `/finance/${financialId}`, updatedData, token);
+            toast.success("Finance execution updated successfully.");
+          }
+        } catch (error) {
+          toast.error("Error updating finance execution.");
+        }
+      }
+    }, 500); // Wait 500ms before making API call
+  };   
+
   return (
     <>
       <div className="mx-6 bg-white rounded-xl ">
@@ -134,60 +260,83 @@ const ProjectDetails = () => {
 
         {/* Progress Bar */}
         <div className="mt-6 p-6">
+          {/* Physical Execution */}
           <div className="mt-3 space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-black font-medium text-sm">
-                {t("Physical_Execution")}
+                Physical Execution
               </p>
               <h6 className="text-gray-800 font-semibold">
-                {projectData?.financeDocuments?.[0]?.physicalExecution}%
+                {physicalExecution !== "N/A" ? `${physicalExecution}%` : "N/A"}
               </h6>
             </div>
 
             <div className="relative w-full h-2 bg-gray-200 rounded-full">
               <div
-                className={`absolute top-0 left-0 h-2 rounded-full bg-red-redNew ${
+                className={`absolute top-0 left-0 h-2 rounded-full ${
                   projectData?.status === "Completed"
                     ? "bg-green-500"
                     : "bg-red-500"
                 }`}
                 style={{
-                  width: `${projectData?.financeDocuments?.[0]?.physicalExecution}%`,
+                  width:
+                    physicalExecution !== "N/A"
+                      ? `${physicalExecution}%`
+                      : "0%",
                 }}
               ></div>
-              <div
-                className="absolute w-5 h-5 rounded-full bg-red-redNew border-2 border-red-redNew"
-                style={{
-                  left: `calc(${projectData?.financeDocuments?.[0]?.physicalExecution}% - 10px)`,
-                  top: "-6px",
-                }}
-              ></div>
+              {physicalExecution !== "N/A" && (
+                <div
+                  className="absolute w-5 h-5 rounded-full bg-red-500 border-2 border-red-500 cursor-pointer"
+                  style={{
+                    left: `calc(${physicalExecution}% - 10px)`,
+                    top: "-6px",
+                  }}
+                  onMouseDown={(e) => {
+                    document.onmousemove = (ev) => handleDrag(ev, "physical");
+                    document.onmouseup = () => {
+                      document.onmousemove = null;
+                      handleDragEnd();
+                    };
+                  }}
+                ></div>
+              )}
             </div>
           </div>
 
+          {/* Financial Execution */}
           <div className="mb-4 mt-2 relative">
             <div className="flex justify-between">
-              <p className="black text-sm mb-1">{t("Financial_Execution")}</p>
-              <h6 className="text-red-redNew">
-                {projectData?.financeDocuments?.[0]?.financialExecution}%
+              <p className="black text-sm mb-1">Financial Execution</p>
+              <h6 className="text-red-500">
+                {financialExecution !== "N/A"
+                  ? `${financialExecution}%`
+                  : "N/A"}
               </h6>
             </div>
             <div className="w-full bg-gray-200 h-2 rounded-full relative">
               <div
-                className="bg-red-redNew h-2 rounded-full"
+                className="bg-red-500 h-2 rounded-full"
                 style={{
-                  width: `${projectData?.financeDocuments?.[0]?.financialExecution}%`,
+                  width:
+                    financialExecution !== "N/A"
+                      ? `${financialExecution}%`
+                      : "0%",
                 }}
               ></div>
-              <div
-                className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
-                 flex items-center justify-center shadow-md cursor-pointer transition-all"
-                style={{
-                  left: `calc(${projectData?.financeDocuments?.[0]?.financialExecution}% - 10px)`,
-                }}
-              >
-                <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
-              </div>
+              {financialExecution !== "N/A" && (
+                <div
+                  className="w-5 h-5 bg-red-500 rounded-full absolute top-1/2 -translate-y-1/2 cursor-pointer"
+                  style={{ left: `calc(${financialExecution}% - 10px)` }}
+                  onMouseDown={(e) => {
+                    document.onmousemove = (ev) => handleDrag(ev, "financial");
+                    document.onmouseup = () => {
+                      document.onmousemove = null;
+                      handleDragEnd();
+                    };
+                  }}
+                ></div>
+              )}
             </div>
           </div>
         </div>
@@ -195,42 +344,89 @@ const ProjectDetails = () => {
         {/* Images Container */}
         <div className="">
           <div className="p-6">
-            <h3 className="text-md font-semibold text-gray-800">
-              {t("Project_Photo")}:
-            </h3>
-
-            <div className="flex flex-wrap gap-4 justify-center">
-              {projectData?.projectBanner?.map((banner) => (
-                <div
-                  key={banner._id}
-                  className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2"
-                >
-                  <img
-                    src={banner.url}
-                    alt={projectData?.projectName || "Project Image"}
-                    className="object-cover rounded-xl w-[310px] h-[284px]"
-                  />
-                  <div className="flex justify-between w-full p-2">
-                    <p>{t("Added_On")}</p>
-                    <p>{new Date(banner.uploadDate).toLocaleDateString()}</p>
-                  </div>
+            <div className="h-full slider-container">
+              <header className="mb-6 flex justify-between items-center">
+                <h3 className="text-md font-semibold text-gray-800">
+                  {t("Project_Photo")}:
+                </h3>
+                <div className="flex">
+                  <button
+                    onClick={handlePrevClickProjects}
+                    className="p-1 rounded-full"
+                  >
+                    <GrFormPrevious
+                      className="text-gray-600 slick-arrow"
+                      size={18}
+                    />
+                  </button>
+                  <button
+                    onClick={handleNextClickProjects}
+                    className="p-1 rounded-full"
+                  >
+                    <GrFormNext className="slick-arrow" size={18} />
+                  </button>
                 </div>
-              )) || (
-                <div className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2">
-                  <img
-                    src="https://via.placeholder.com/150"
-                    alt="Placeholder Image"
-                    className="object-cover rounded-xl w-[310px] h-[284px]"
-                  />
-                  <div className="flex justify-between w-full p-2">
-                    <p>{t("Added_On")}</p>
-                    <p>-</p>
-                  </div>
-                </div>
-              )}
+              </header>
             </div>
+
+            {projectData?.projectBanner?.length > 0 ? (
+              <Slider ref={sliderRefProjects} {...settings} className="gap-4">
+                {projectData.projectBanner.map((banner) => (
+                  <div
+                    key={banner._id}
+                    className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2"
+                  >
+                    <img
+                      src={banner.url}
+                      alt={projectData?.projectName || "Project Image"}
+                      className="object-cover cursor-pointer rounded-xl w-full h-[284px]"
+                      onClick={() => setSelectedImage(banner.url)}
+                    />
+                    <div className="flex justify-between w-full p-2">
+                      <p>{t("Added_On")}</p>
+                      <p>{new Date(banner.uploadDate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              <div className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2 mx-2">
+                <img
+                  src="https://via.placeholder.com/150"
+                  alt="Placeholder Image"
+                  className="object-cover rounded-xl w-full h-[284px]"
+                />
+                <div className="flex justify-between w-full p-2">
+                  <p>{t("Added_On")}</p>
+                  <p>-</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
+        {selectedImage && (
+          <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black-blacknew bg-opacity-75 z-50">
+            <div className="relative bg-white rounded-2xl p-4 max-w-3xl w-[90%] h-[90%] flex flex-col items-center justify-center shadow-lg">
+              <div className="absolute top-4 left-4 text-xl font-semibold text-gray-700">
+                Zoomed Image
+              </div>
+
+              <button
+                className="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl"
+                onClick={() => setSelectedImage(null)}
+              >
+                ✖
+              </button>
+
+              <img
+                src={selectedImage}
+                alt="Zoomed"
+                className="w-full h-[80%] mt-10 object-contain"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Project MileStone */}
         <div className="mt-6 p-6">
@@ -301,10 +497,11 @@ const ProjectDetails = () => {
                     <Checkbox />
                   </th>
                   <th className="p-4 border-b">{t("Invoice_Name")}</th>
-                  <th className="p-4 border-b">{t("Date")}</th>
-                  <th className="p-4 border-b">{t("Created_At")}</th>
-                  <th className="p-4 border-b">{t("Financial_Execution")}</th>
-                  <th className="p-4 border-b">{t("Physical_Execution")}</th>
+                  <th className="p-4 border-b">{t("Reference")}</th>
+                  <th className="p-4 border-b text-center">
+                    {t("Uploaded_By")}
+                  </th>
+                  <th className="p-4 border-b text-center">{t("Date")}</th>
                   <th className="p-4 border-b text-center">{t("Actions")}</th>
                 </tr>
               </thead>
@@ -322,7 +519,10 @@ const ProjectDetails = () => {
                         )
                         .join(" ")}
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 text-center">
+                      {doc.reference ? doc.reference : "-"}
+                    </td>
+                    <td className="p-4 text-center">
                       {doc.user
                         .split(" ")
                         .map(
@@ -330,9 +530,7 @@ const ProjectDetails = () => {
                         )
                         .join(" ")}
                     </td>
-                    <td className="p-4">{doc.uploadedAt}</td>
-                    <td className="p-4">{doc.financialExecution}%</td>
-                    <td className="p-4">{doc.physicalExecution}%</td>
+                    <td className="p-4 text-center">{doc.uploadedAt}</td>
                     <td className="p-4 relative">
                       <button
                         className="flex items-center justify-center px-10 py-2 bg-[#F5FFE8] border-2 border-[#0ECB0A]  text-[#0ECB0A] rounded-full transition-all duration-300"
@@ -395,7 +593,7 @@ const ProjectDetails = () => {
         {/* Client Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
-            {t("Soapro Team")}
+            {t("Company Team")}
           </h3>
           <div className="flex flex-col gap-4 mt-4">
             {projectData?.members?.map((member, index) => (
@@ -405,10 +603,10 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.userName}{" "}
+                  {capitalizeWords(member?.userName)}{" "}
                   {member?.role?.roleName
-                    ? `(${member.role.roleName})`
-                    : `(${member?.userType})`}
+                    ? `(${capitalizeWords(member.role.roleName)})`
+                    : `(${capitalizeWords(member?.userType)})`}
                 </span>
               </div>
             ))}
@@ -418,7 +616,7 @@ const ProjectDetails = () => {
         {/* Team Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
-            {t("Company Team")}
+            {t("Soapro Team")}
           </h3>
           <div className="flex flex-col gap-4 mt-4">
             {projectData?.projectOwners?.map((member, index) => (
@@ -428,8 +626,10 @@ const ProjectDetails = () => {
                   alt={member.name}
                 />
                 <span className="text-sm text-black-blacknew">
-                  {member?.ownerName}{" "}
-                  {member?.role ? `(${member?.role})` : `(${member?.userType})`}
+                  {capitalizeWords(member?.ownerName)}{" "}
+                  {member?.role
+                    ? `(${capitalizeWords(member?.role)})`
+                    : `(${capitalizeWords(member?.userType)})`}
                 </span>
               </div>
             ))}

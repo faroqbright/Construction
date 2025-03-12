@@ -30,8 +30,6 @@ export default function EditProject() {
   const [error, setError] = useState(null);
   const [owners, setOwners] = useState([]);
   const [users, setUsers] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedFil, setSelectedFil] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedClientUsers, setSelectedClientUsers] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
@@ -51,7 +49,7 @@ export default function EditProject() {
     if (initialValues?.projectBanner) {
       setSelectedFiles(
         initialValues.projectBanner.map((banner) => ({
-          url: banner.url, // Already uploaded files
+          url: banner.url,
         }))
       );
     }
@@ -137,7 +135,6 @@ export default function EditProject() {
     try {
       const response = await apiRequest("get", "/clients", {}, token);
       if (response?.data?.statusCode === 200) {
-        // setUsers(response?.data?.data);
         setOwners(response?.data?.data);
       } else {
         setError("Owners not found.");
@@ -157,8 +154,6 @@ export default function EditProject() {
       const response = await apiRequest("get", "/rolesUser", {}, token);
       if (response?.data?.statusCode === 200) {
         setUsers(response?.data?.data);
-
-        // setOwners(response?.data?.data);
       } else {
         setError("Users not found.");
       }
@@ -172,9 +167,8 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
 
   const onSubmit = async (formData) => {
-    // if (selectedFiles.length === 0)
-    //   return toast.error("Please upload a banner for the project.");
-
+    if (selectedFiles.length === 9)
+      return toast.error("You can only have up to 10 banners.");
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
 
@@ -255,12 +249,6 @@ export default function EditProject() {
       ) {
         updatedFields.projectBanner = true;
       }
-
-      // if (Object.keys(updatedFields).length === 0) {
-      //   toast.info("No changes were made.");
-      //   return;
-      // }
-
       const data = new FormData();
 
       Object.keys(formData).forEach((key) => {
@@ -293,7 +281,6 @@ export default function EditProject() {
 
       requestData = data;
     }
-// return requestData;
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
       if (
@@ -304,7 +291,7 @@ export default function EditProject() {
         const selectedData = FinancialExecution?.find(
           (file) => file.fileName === selectedInvoice
         );
-        
+
         const id = selectedData?.id;
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
@@ -354,7 +341,7 @@ export default function EditProject() {
           toast.success(response?.data?.message);
         }
       }
-    } catch (error) {      
+    } catch (error) {
       toast.error(error?.response?.data?.message);
     }
   };
@@ -697,7 +684,7 @@ export default function EditProject() {
           </>
         )}
         <div className="mb-4">
-        <label className="block text-2xl font-semibold mb-2">
+          <label className="block text-2xl font-semibold mb-2">
             <span className="text-gray-700 text-sm">{t("Project_Banner")}</span>
           </label>
           <Controller
@@ -763,7 +750,7 @@ export default function EditProject() {
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Company_Team")}</h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
         <div className="mb-4">
           {!isViewMode && (
             <>
@@ -1000,7 +987,7 @@ export default function EditProject() {
           </>
         )}
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6">{t("Company_Team")}</h2>
         <div className="mb-4">
           {!isViewMode && (
             <>
@@ -1051,7 +1038,7 @@ export default function EditProject() {
                       className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     >
                       <option value="" disabled selected hidden>
-                      {t("Add_Client_Members")}
+                        {t("Add_Client_Members")}
                       </option>
                     </select>
                   )
@@ -1116,8 +1103,7 @@ export default function EditProject() {
                           (user) =>
                             !modalClientMembers.some(
                               (owner) =>
-                                (owner.ownerId &&
-                                  owner.ownerId === user._id) ||
+                                (owner.ownerId && owner.ownerId === user._id) ||
                                 (owner.ownerName &&
                                   owner.ownerName === user.ownerName)
                             )

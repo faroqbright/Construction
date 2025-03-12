@@ -83,17 +83,8 @@ export default function SubmitFinance() {
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [financial, setFinancial] = useState(90);
-  const [physical, setPhysical] = useState(75);
   const [fileName, setFileName] = useState("");
-
-  const handleChange = (type, change) => {
-    if (type === "financial") {
-      setFinancial((prev) => Math.min(100, Math.max(0, prev + change)));
-    } else {
-      setPhysical((prev) => Math.min(100, Math.max(0, prev + change)));
-    }
-  };
+  const [reference, setreference] = useState("");
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -120,17 +111,16 @@ export default function SubmitFinance() {
       project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Show only 6 projects initially, unless the user is searching
     if (searchTerm === "") {
-      setFilteredProjects(filtered.slice(0, 6)); // Show only the first 6 projects
+      setFilteredProjects(filtered.slice(0, 6));
     } else {
-      setFilteredProjects(filtered); // Show all filtered projects when searching
+      setFilteredProjects(filtered);
     }
   }, [searchTerm, projects]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024;
 
     if (file) {
       if (file.type !== "application/pdf") {
@@ -157,16 +147,19 @@ export default function SubmitFinance() {
       toast.info("Please enter a filename.");
       return;
     }
+    if (!reference) {
+      toast.info("Please enter a Reference No.");
+      return;
+    }
 
     setUploading(true);
 
     const formData = new FormData();
     formData.append("file", selectedFile);
     formData.append("projName", selectedProject);
-    formData.append("fileName", fileName); // Include the filename in the FormData
+    formData.append("fileName", fileName);
     formData.append("user", user);
-    formData.append("financialExecution", financial);
-    formData.append("physicalExecution", physical);
+    formData.append("reference", reference);
 
     try {
       const response = await apiRequest("post", "/finance", formData, token, {
@@ -178,15 +171,15 @@ export default function SubmitFinance() {
         toast.success("File uploaded successfully!");
         setSelectedFile(null);
         setSelectedProject("");
-        setFileName(""); // Reset filename input
-
+        setFileName("");
+        setreference("");
         navigate("/finance");
       } else {
         toast.error("Upload failed. Please try again.");
       }
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("An error occurred while uploading.");
+      toast.error(error.response.data.error);
     } finally {
       setUploading(false);
     }
@@ -214,14 +207,14 @@ export default function SubmitFinance() {
             <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
               <input
                 type="text"
-                placeholder="Search projects..."
+                placeholder={t("Search_projects...")}
                 className="p-2 border-b border-gray-300 w-full"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <div className="max-h-60 overflow-y-auto">
                 {loading ? (
-                  <div className="p-2">Loading...</div>
+                  <div className="p-2">{t("Loading")}...</div>
                 ) : filteredProjects.length > 0 ? (
                   filteredProjects.map((project) => (
                     <div
@@ -236,7 +229,7 @@ export default function SubmitFinance() {
                     </div>
                   ))
                 ) : (
-                  <div className="p-2">No projects found.</div>
+                  <div className="p-2">{t("No_projects_found")}.</div>
                 )}
               </div>
             </div>
@@ -252,9 +245,23 @@ export default function SubmitFinance() {
         <input
           type="text"
           className="mt-2 border border-gray-300 rounded-md p-2 w-full"
-          placeholder="Enter filename"
+          placeholder={t("Enter_Filename")}
           value={fileName}
           onChange={(e) => setFileName(e.target.value)}
+        />
+      </div>
+
+      <div className="mx-4 mb-3">
+        <h3>
+          {t("Reference")}{" "}
+          <span className="text-red-600 text-xl pr-1">*</span>
+        </h3>
+        <input
+          type="text"
+          className="mt-2 border border-gray-300 rounded-md p-2 w-full"
+          placeholder={t("Enter_Reference")}
+          value={reference}
+          onChange={(e) => setreference(e.target.value)}
         />
       </div>
 
@@ -291,35 +298,13 @@ export default function SubmitFinance() {
         </div>
       </div>
 
-      <h1 className="font-semibold text-2xl mx-4 mt-10">
-        {t("Finance_Execution")}
-      </h1>
-      <div className="flex flex-col items-center">
-        <div className="flex justify-center p-5 flex-col lg:flex-row mt-3">
-          <ProgressGauge
-            percentage={financial}
-            color="#222"
-            label={t("Financial_Execution")}
-            onIncrease={() => handleChange("financial", 5)}
-            onDecrease={() => handleChange("financial", -5)}
-          />
-          <ProgressGauge
-            percentage={physical}
-            color="#d32f2f"
-            label={t("Physical_Execution")}
-            onIncrease={() => handleChange("physical", 5)}
-            onDecrease={() => handleChange("physical", -5)}
-          />
-        </div>
-      </div>
-
       <div className="items-center flex flex-col justify-center mt-5">
         <button
-          className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-full"
+          className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-72 lg:w-1/2"
           onClick={handleUpload}
           disabled={uploading}
         >
-          {uploading ? "Uploading..." : `${t("Upload_Changes")}`}
+          {uploading ? `${t("Uploading...")}` : `${t("Upload_Invoice")}`}
         </button>
       </div>
     </>

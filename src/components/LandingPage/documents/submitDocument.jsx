@@ -142,7 +142,7 @@ const SubmitDocument = () => {
             className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-full"
             onClick={() => {}}
           >
-            {t("Upload_Changes")}
+            {t("Upload_Document")}
           </button>
         </div>
       </div>

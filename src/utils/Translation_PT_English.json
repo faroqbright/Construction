@@ -1,6 +1,13 @@
 {
     "Dashboard": "Dashboard",
+    "Reference": "Reference",
+    "Search_projects...": "Search projects...",
+    "Loading": "Loading",
+    "Enter_Filename": "Enter Filename",
+    "Enter_Reference": "Enter Reference",
+    "No_projects_found": "No projects found",
     "Hi": "Hi",
+    "Uploading": "Uploading",
     "Lets_finish_your_projects_today!": "Lets finish your projects today!",
     "Pending_Projects": "Pending Projects",
     "No_projects_available": "No projects available",

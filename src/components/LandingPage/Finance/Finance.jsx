@@ -30,6 +30,8 @@ export default function Finance() {
     projName: "",
     financialExecution: "",
     physicalExecution: "",
+    reference: "",
+    fileName: "",
     file: null,
   });
   const [page, setPage] = useState(1);
@@ -79,6 +81,8 @@ export default function Finance() {
         projName: user.projName,
         financialExecution: user.financialExecution,
         physicalExecution: user.physicalExecution,
+        reference: user.reference,
+        fileName: user.fileName,
         file: user.file,
       });
       setSelectedProject(user.projName);
@@ -88,6 +92,8 @@ export default function Finance() {
         projName: "",
         financialExecution: "",
         physicalExecution: "",
+        reference: "",
+        fileName: "",
         file: null,
       });
       setSelectedProject("");
@@ -161,6 +167,14 @@ export default function Finance() {
       formDataPayload.append(
         "physicalExecution",
         formData.physicalExecution || ""
+      ); // Ensure it's not undefined
+      formDataPayload.append(
+        "reference",
+        formData.reference || ""
+      ); // Ensure it's not undefined
+      formDataPayload.append(
+        "fileName",
+        formData.fileName || ""
       ); // Ensure it's not undefined
 
       // Send the request with FormData
@@ -239,6 +253,7 @@ export default function Finance() {
                   <Checkbox />
                 </th>
                 <th className="p-4 border-b">{t("Project_Name")}</th>
+                <th className="p-4 border-b">{t("Reference")}</th>
                 <th className="p-4 border-b">{t("Invoice_Name")}</th>
                 <th className="p-4 border-b">{t("Uploaded_By")}</th>
                 <th className="p-4 border-b">{t("Financial_Execution")}</th>
@@ -263,6 +278,7 @@ export default function Finance() {
                       )
                       .join(" ")}
                   </td>{" "}
+                  <td className="p-4 text-center">{user.reference ? user.reference : "-"}</td>
                   <td className="p-4">
                     {user.fileName
                       .split(" ")
@@ -279,8 +295,8 @@ export default function Finance() {
                       )
                       .join(" ")}
                   </td>
-                  <td className="p-4">{user.financialExecution}%</td>
-                  <td className="p-4">{user.physicalExecution}%</td>
+                  <td className="p-4">{user.financialExecution ? `${user.financialExecution}%` : "-"}</td>
+                  <td className="p-4">{user.physicalExecution ? `${user.physicalExecution}%` : "-"}</td>
                   <td className="p-4">
                     {new Date(user.uploadedAt).toLocaleDateString()}
                   </td>
@@ -434,6 +450,26 @@ export default function Finance() {
               value={formData.physicalExecution}
               onChange={(e) =>
                 setFormData({ ...formData, physicalExecution: e.target.value })
+              }
+              fullWidth
+              margin="normal"
+            />
+
+            <TextField
+              label="Reference"
+              value={formData.reference}
+              onChange={(e) =>
+                setFormData({ ...formData, reference: e.target.value })
+              }
+              fullWidth
+              margin="normal"
+            />
+
+            <TextField
+              label="fileName"
+              value={formData.fileName}
+              onChange={(e) =>
+                setFormData({ ...formData, fileName: e.target.value })
               }
               fullWidth
               margin="normal"

@@ -1,6 +1,13 @@
 {
     "Dashboard": "Painel de Controle",
+    "Reference": "Referência",
+    "Enter_Filename": "Introduza o nome do ficheiro",
+    "Enter_Reference": "Insira a referência",
+    "No_projects_found": "Nenhum projeto encontrado",
+    "Loading": "Carregando",
+    "Search_projects...": "Pesquisar projetos...",
     "Hi": "Olá",
+    "Uploading": "Enviando",
     "Lets_finish_your_projects_today!": "Vamos terminar os seus Projectos hoje!",
     "Pending_Projects": "Projectos Pendentes",
     "No_projects_available": "Nenhum Projecto disponível",

@@ -391,7 +391,7 @@ const ProjectManager = () => {
                         spaceBetween={10}
                         slidesPerView={1}
                         grabCursor={true}
-                        onClick={() => handleViewProjectClick(project._id)}
+                        onClick={() => handleProjectClick(project._id)}
                       >
                         {project.projectBanner.map((banner, index) => (
                           <SwiperSlide

@@ -191,11 +191,11 @@ const SubmitReport = () => {
 
         <div className="items-center flex flex-col justify-center mt-5">
           <button
-            className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-full"
+            className="bg-black-blacknew text-white font-bold py-3 rounded-lg w-72 lg:w-1/2"
             onClick={handleUpload}
             disabled={uploading}
           >
-            {uploading ? "Uploading..." : `${t("Upload_Changes")}`}
+            {uploading ? `${t("Uploading...")}` : `${t("Upload_Report")}`}
           </button>
         </div>
       </div>
