@@ -167,7 +167,7 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
 
   const onSubmit = async (formData) => {
-    if (selectedFiles.length === 9)
+    if (selectedFiles.length > 10)
       return toast.error("You can only have up to 10 banners.");
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
@@ -177,7 +177,7 @@ export default function EditProject() {
     if (isCreateMode) {
       const data = new FormData();
       for (const key in formData) {
-        if (key !== "teamMembers" && key !== "clientMembers") {
+        if (key !== "teamMembers" && key !== "clientMembers" && key !== "projectBanner") {
           data.append(key, formData[key]);
         }
       }
@@ -365,22 +365,27 @@ export default function EditProject() {
   };
 
   const handleClientUsersChange = (selectedOptions) => {
-    const existingMembers = modalClientMembers || [];
-    const newMembers = selectedOptions.map((option) => ({
+    const existingMember = modalClientMembers || [];
+  
+    // Map new selections to the expected structure
+    const newMember = selectedOptions.map((option) => ({
       _id: option.value,
       userName: option.label,
       avatar: option.avatar,
     }));
-
-    const mergedMembers = [...existingMembers, ...newMembers].filter(
-      (owner, index, self) =>
-        index === self.findIndex((m) => m._id === owner._id)
-    );
-
-    setModalClientMembers(mergedMembers);
-    const selectedUserIds = mergedMembers.map((owner) => owner._id);
-    setSelectedClientUsers(selectedUserIds);
-  };
+  
+    // Merge new and existing members, ensuring uniqueness
+    const mergedMember = [
+      ...existingMember.filter((member) =>
+        newMember.every((newM) => newM._id !== member._id)
+      ),
+      ...newMember,
+    ];
+  
+    setModalClientMembers(mergedMember);
+    const selectedUserId = mergedMember.map((owner) => owner._id);
+    setSelectedClientUsers(selectedUserId);
+  };  
 
   const saveChanges = () => {
     setTeamMembers(modalTeamMembers);
@@ -439,8 +444,23 @@ export default function EditProject() {
     const newFiles = Array.from(e.target.files).map((file) => ({
       file,
       name: file.name,
+      url: URL.createObjectURL(file),
     }));
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  
+    setSelectedFiles((prevFiles) => {
+      // Check for duplicates by name or file reference
+      const existingFileNames = new Set(prevFiles.map((f) => f.name));
+  
+      const uniqueNewFiles = newFiles.filter((file) => {
+        if (existingFileNames.has(file.name)) {
+          toast.error("This file is already selected.");
+          return false; // Exclude duplicate
+        }
+        return true;
+      });
+  
+      return [...prevFiles, ...uniqueNewFiles];
+    });
   };
 
   const removeFile = (index) => {
@@ -1086,7 +1106,7 @@ export default function EditProject() {
               {!isViewMode && (
                 <>
                   <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Add Client Members
+                    {t("Add_Client_Members")}
                   </label>
                   <Controller
                     name="clientMembers"
@@ -1105,7 +1125,8 @@ export default function EditProject() {
                               (owner) =>
                                 (owner.ownerId && owner.ownerId === user._id) ||
                                 (owner.ownerName &&
-                                  owner.ownerName === user.ownerName)
+                                  owner.ownerName === user.ownerName) ||
+                                (owner.userName && owner.userName === user.userName)
                             )
                         )
                         .map((user) => ({
@@ -1145,7 +1166,7 @@ export default function EditProject() {
             {!isCreateMode && (
               <div className="mt-4 flex-grow scrollbar-custom">
                 <h3 className="block text-sm font-semibold mb-4 text-gray-700">
-                  Added Clients
+                  {t("Added_Clients")}
                 </h3>
                 <ul className="space-y-2">
                   {modalClientMembers.map((owner) => (

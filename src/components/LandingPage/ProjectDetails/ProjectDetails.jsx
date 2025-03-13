@@ -12,6 +12,7 @@ import { FaFileCircleQuestion } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Slider from "react-slick";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { toast } from "react-toastify";
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
@@ -186,7 +187,7 @@ const ProjectDetails = () => {
               updatedData,
               token
             );
-            toast.success("Finance execution updated successfully.");
+            toast.success("Execution updated successfully.");
           }
         } catch (error) {
           toast.error("Error updating finance execution.");
@@ -271,6 +272,42 @@ const ProjectDetails = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+        <div className="p-6">
+          <h3 className="text-md font-semibold text-gray-800">
+            {t("Project_Reports")}:
+          </h3>
+          <div className="flex gap-3 flex-wrap">
+            {projectData?.projectReports
+              ?.filter((doc) => doc.status === "approved") // Only show approved reports
+              .map((doc, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
+                  onClick={() => {
+                    const link = document.createElement("a");
+                    link.href = doc.fileUrl;
+                    link.setAttribute("download", doc.fileUrl.split("/").pop()); // Force download
+                    link.setAttribute("target", "_blank"); // Open in a new tab
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                >
+                  <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
+                  <div className="mt-1">
+                    <span className="text-sm font-semibold">
+                      {doc.fileName}
+                    </span>
+                    <br />
+                    <span className="text-xs text-lightpurple-light text-nowrap mt-1">
+                      {t("Submitted_By")}:{" "}
+                      <span className="text-lightpurple-light">{doc.user}</span>
+                    </span>
+                  </div>
+                </div>
+              ))}
           </div>
         </div>
 
