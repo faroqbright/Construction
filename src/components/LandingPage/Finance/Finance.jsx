@@ -168,14 +168,8 @@ export default function Finance() {
       //   "physicalExecution",
       //   formData.physicalExecution || ""
       // ); // Ensure it's not undefined
-      formDataPayload.append(
-        "reference",
-        formData.reference || ""
-      ); // Ensure it's not undefined
-      formDataPayload.append(
-        "fileName",
-        formData.fileName || ""
-      ); // Ensure it's not undefined
+      formDataPayload.append("reference", formData.reference || ""); // Ensure it's not undefined
+      formDataPayload.append("fileName", formData.fileName || ""); // Ensure it's not undefined
 
       // Send the request with FormData
       await apiRequest(
@@ -266,103 +260,111 @@ export default function Finance() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user, idx) => (
-                <tr key={user._id} className="hover:bg-gray-50">
-                  <td className="p-4">
-                    <Checkbox />
-                  </td>
-                  <td className="p-4">
-                    {user.projName
-                      .split(" ")
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                      )
-                      .join(" ")}
-                  </td>{" "}
-                  <td className="p-4 text-center">{user.reference ? user.reference : "-"}</td>
-                  <td className="p-4">
-                    {user.fileName
-                      .split(" ")
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                      )
-                      .join(" ")}
-                  </td>
-                  <td className="p-4">
-                    {user.user
-                      .split(" ")
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                      )
-                      .join(" ")}
-                  </td>
-                  {/* <td className="p-4">{user.financialExecution ? `${user.financialExecution}%` : "-"}</td>
+              {Array.isArray(users)
+                ? users.map((user, idx) => (
+                    <tr key={user._id} className="hover:bg-gray-50">
+                      <td className="p-4">
+                        <Checkbox />
+                      </td>
+                      <td className="p-4">
+                        {user.projName
+                          .split(" ")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
+                      </td>{" "}
+                      <td className="p-4 text-center">
+                        {user.reference ? user.reference : "-"}
+                      </td>
+                      <td className="p-4">
+                        {user.fileName
+                          .split(" ")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
+                      </td>
+                      <td className="p-4">
+                        {user.user
+                          .split(" ")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
+                      </td>
+                      {/* <td className="p-4">{user.financialExecution ? `${user.financialExecution}%` : "-"}</td>
                   <td className="p-4">{user.physicalExecution ? `${user.physicalExecution}%` : "-"}</td> */}
-                  <td className="p-4">
-                    {new Date(user.uploadedAt).toLocaleDateString()}
-                  </td>
-                  <td className="p-4 relative">
-                      <button
-                        className="flex items-center justify-center px-10 py-2 bg-[#F5FFE8] border-2 border-[#0ECB0A]  text-[#0ECB0A] rounded-full transition-all duration-300"
-                        onClick={() => {
-                          const link = document.createElement("a");
-                          link.href = user.fileUrl;
-                          link.setAttribute(
-                            "download",
-                            user.fileUrl.split("/").pop()
-                          );
-                          link.setAttribute("target", "_blank");
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        }}
-                      >
-                        View
-                      </button>
-                    </td>
-                  {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
-                    <td className="p-4 relative">
-                      <button
-                        className="text-3xl"
-                        onClick={() => toggleRow(idx)}
-                      >
-                        ...
-                      </button>
-                      {openStates[idx] && (
-                        <div
-                          ref={modalRef}
-                          className="absolute p-2 -left-10 w-[130px] mt-2 bg-white shadow-lg z-20 rounded-md"
-                          style={{ top: "70%" }}
+                      <td className="p-4">
+                        {new Date(user.uploadedAt).toLocaleDateString()}
+                      </td>
+                      <td className="p-4 relative">
+                        <button
+                          className="flex items-center justify-center px-10 py-2 bg-[#F5FFE8] border-2 border-[#0ECB0A]  text-[#0ECB0A] rounded-full transition-all duration-300"
+                          onClick={() => {
+                            const link = document.createElement("a");
+                            link.href = user.fileUrl;
+                            link.setAttribute(
+                              "download",
+                              user.fileUrl.split("/").pop()
+                            );
+                            link.setAttribute("target", "_blank");
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
                         >
-                          {hasCLientUpdatePermission && (
-                            <Button
-                              onClick={() => handleOpen(user)}
-                              size="small"
+                          View
+                        </button>
+                      </td>
+                      {(hasCLientUpdatePermission ||
+                        hasCLientDeletePermission) && (
+                        <td className="p-4 relative">
+                          <button
+                            className="text-3xl"
+                            onClick={() => toggleRow(idx)}
+                          >
+                            ...
+                          </button>
+                          {openStates[idx] && (
+                            <div
+                              ref={modalRef}
+                              className="absolute p-2 -left-10 w-[130px] mt-2 bg-white shadow-lg z-20 rounded-md"
+                              style={{ top: "70%" }}
                             >
-                              <FaEdit className="text-black-blacknew" />
-                              <span className="mx-3 items-center flex text-black-blacknew">
-                                {t("Edit")}
-                              </span>
-                            </Button>
+                              {hasCLientUpdatePermission && (
+                                <Button
+                                  onClick={() => handleOpen(user)}
+                                  size="small"
+                                >
+                                  <FaEdit className="text-black-blacknew" />
+                                  <span className="mx-3 items-center flex text-black-blacknew">
+                                    {t("Edit")}
+                                  </span>
+                                </Button>
+                              )}
+                              {hasCLientDeletePermission && (
+                                <Button
+                                  onClick={() => handleDelete(user._id)}
+                                  className="text-red-500"
+                                  size="small"
+                                >
+                                  <FaTrash className="text-black-blacknew" />
+                                  <span className="mx-2 items-center flex text-black-blacknew">
+                                    {t("Delete")}
+                                  </span>
+                                </Button>
+                              )}
+                            </div>
                           )}
-                          {hasCLientDeletePermission && (
-                            <Button
-                              onClick={() => handleDelete(user._id)}
-                              className="text-red-500"
-                              size="small"
-                            >
-                              <FaTrash className="text-black-blacknew" />
-                              <span className="mx-2 items-center flex text-black-blacknew">
-                                {t("Delete")}
-                              </span>
-                            </Button>
-                          )}
-                        </div>
+                        </td>
                       )}
-                    </td>
-                  )}
-                </tr>
-              ))}
+                    </tr>
+                  ))
+                : null}
             </tbody>
           </table>
         </div>

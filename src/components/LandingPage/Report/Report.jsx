@@ -92,13 +92,13 @@ export default function Report() {
     navigate(`/report?tab=${tab}`);
   };
 
-  const filteredDocuments = documents.filter((doc) => {
+  const filteredDocuments = Array.isArray(documents) ? documents.filter((doc) => {
     if (selectedTab === "All Projects") return true;
     return doc.status.toLowerCase() === selectedTab.toLowerCase();
-  });
+  }) : [];  
 
   const startIndex = (page - 1) * recordsPerPage;
-  const paginatedDocuments = filteredDocuments.slice(
+  const paginatedDocuments = filteredDocuments?.slice(
     startIndex,
     startIndex + recordsPerPage
   );
