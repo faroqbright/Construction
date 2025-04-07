@@ -82,7 +82,7 @@ const App = () => {
               }
             />
              <Route
-              path="/Settings"
+              path="/settings"
               element={
                 <RouteMiddleware isAuthRequired={true}>
                   <Settings />
