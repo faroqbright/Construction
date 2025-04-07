@@ -145,7 +145,7 @@ const ClientsTable = () => {
   const handleDelete = async (userId) => {
     try {
       await apiRequest("delete", `/companies/${userId}`, {}, token);
-      toast.success("User deleted successfully.");
+      toast.success("Company deleted successfully.");
       fetchUsers();
     } catch (error) {
       toast.error("Failed to delete user.");
@@ -162,7 +162,7 @@ const ClientsTable = () => {
       };
       await apiRequest("patch", `/companies/${editData._id}`, updatedData, token);
 
-      toast.success("User updated successfully.");
+      toast.success("Comapny updated successfully.");
       fetchUsers();
       handleClose();
     } catch (error) {
@@ -238,7 +238,7 @@ const ClientsTable = () => {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
-                <th className="p-4 border-b">{t("User_Name")}</th>
+                <th className="p-4 border-b">{t("Company_Name")}</th>
                 <th className="p-4 border-b">{t("Email")}</th>
               <th className="p-4 border-b">{t("Phone_Number")}</th>
                 <th className="p-4 border-b">{t("Join_Date")}</th>
