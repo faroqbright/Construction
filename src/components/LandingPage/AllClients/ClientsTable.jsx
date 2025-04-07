@@ -238,6 +238,7 @@ const ClientsTable = () => {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
+                
                 <th className="p-4 border-b">{t("Company_Name")}</th>
                 <th className="p-4 border-b">{t("Email")}</th>
               <th className="p-4 border-b">{t("Phone_Number")}</th>
