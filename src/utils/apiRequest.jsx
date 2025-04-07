@@ -3,7 +3,7 @@ import axios from "axios";
 const BASE_URL =
   window.location.hostname === "localhost"
     ? "https://constructionbe-production.up.railway.app/api/v1"
-    : `https://appsoapro.techbytech.tech/api/api/v1`;
+    : `http://13.51.197.33:8080/api/v1`;
 
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
