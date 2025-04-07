@@ -12,6 +12,7 @@ import {
   Button,
 } from "@mui/material";
 import time from "../../../assets/Time Circle.svg";
+import logo from "../../../assets/logo1.png";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";
@@ -45,7 +46,7 @@ const ProjectManager = () => {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [modalTeamMembers, setModalTeamMembers] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState(null);  
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
   const openModal = (projectId) => {
     setIsModalOpen(true);
@@ -449,10 +450,7 @@ const ProjectManager = () => {
                       </Swiper>
                     ) : (
                       <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
-                        <FaRecordVinyl className="w-8 h-8 text-gray-500" />
-                        <p className="text-gray-500 text-sm mt-1">
-                          No image yet
-                        </p>
+                        <img src={logo} alt="" />
                       </div>
                     )}
 
@@ -590,7 +588,7 @@ const ProjectManager = () => {
                       >
                         {project.status !== t("Completed")
                           ? hasProjUpdatePermission
-                            ? t("Edit_Project")
+                            ? t("Add_Information")
                             : t("View_Project")
                           : t("View_Project")}
                       </h6>
@@ -683,7 +681,6 @@ const ProjectManager = () => {
                 </div>
               </Box>
             </Modal>
-
             <Modal
               open={deleteModalOpen}
               onClose={() => setDeleteModalOpen(false)}
@@ -718,7 +715,7 @@ const ProjectManager = () => {
                 </p>
 
                 <div className="flex justify-end space-x-4">
-                <Button
+                  <Button
                     variant="contained"
                     onClick={handleDeleteProject}
                     sx={{

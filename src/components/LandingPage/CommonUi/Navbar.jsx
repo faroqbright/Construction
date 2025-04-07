@@ -103,9 +103,9 @@ function Navbar({ toggleSidebar, isOpen }) {
                 : "Unknown"}
             </h1>
 
-            <p className="text-gray-500 text-sm sm:text-base">
+            {/* <p className="text-gray-500 text-sm sm:text-base">
               {t("Lets_finish_your_projects_today!")}
-            </p>
+            </p> */}
           </div>
           <div className="flex items-center sm:space-x-4 space-x-2.5">
             <LanguageSwitcher />
