@@ -15,6 +15,7 @@ const LanguageSwitcher = () => {
   const handleClose = (language) => {
     if (language) {
       i18n.changeLanguage(language);
+      localStorage.setItem("i18nextLng", language); // persist language
     }
     setAnchorEl(null);
   };
@@ -24,10 +25,14 @@ const LanguageSwitcher = () => {
       <IconButton onClick={handleClick} aria-label="language">
         <MdLanguage size={24} />
         <span className="text-lg ml-2 ">
-        {i18n.language === "en" ? "English " : "Português"}
+          {i18n.language === "en" ? "English " : "Português"}
         </span>
       </IconButton>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => handleClose()}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleClose()}
+      >
         <MenuItem onClick={() => handleClose("en")}>
           {i18n.language === "en" ? "✔ " : ""}English
         </MenuItem>

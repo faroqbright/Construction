@@ -7,6 +7,7 @@ import time from "../../../assets/Time Circle.svg";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-circular-progressbar/dist/styles.css";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import logo from "../../../assets/logo1.png";
 import Modal from "@mui/material/Modal";
 import pdf from "../../../assets/pdf.svg";
 import Box from "@mui/material/Box";
@@ -302,7 +303,7 @@ const PendingProjects = () => {
                         <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
                           <FaRecordVinyl className="w-8 h-8 text-gray-500" />
                           <p className="text-gray-500 text-sm mt-1">
-                            No image yet
+                            <img src={logo} alt="" />
                           </p>
                         </div>
                       )}
@@ -661,7 +662,7 @@ const PendingProjects = () => {
                         <div className=" w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
                           <FaRecordVinyl className="w-8 h-8 text-gray-500" />
                           <p className="text-gray-500 text-sm mt-1">
-                            No image yet
+                            <img src={logo} alt="" />
                           </p>
                         </div>
                       )}

@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         to: "/project-management",
         module: "ProjectsManagement",
       },
-      { icon: user, label: t("Finance"), to: "/finance", module: "FinanceManagement" },
+      { icon: user, label: t("Billing"), to: "/finance", module: "FinanceManagement" },
       {
         icon: group,
         label: t("History"),

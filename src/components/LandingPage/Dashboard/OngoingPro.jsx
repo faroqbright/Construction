@@ -4,6 +4,7 @@ import student from "../../../assets/Student.svg";
 import Notification from "../../../assets/Photo 4.svg";
 import student2 from "../../../assets/Photo 2.svg";
 import student3 from "../../../assets/Photo 3.svg";
+import logo from "../../../assets/logo1.png";
 import ongoing from "../../../assets/Image (2).svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -111,8 +112,7 @@ const OngoingPro = () => {
                     </Swiper>
                   ) : (
                     <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
-                      <FaRecordVinyl className="w-8 h-8 text-gray-500" />
-                      <p className="text-gray-500 text-sm mt-1">No image yet</p>
+                      <img src={logo} alt="" />
                     </div>
                   )}
                   <h3 className="text-lg font-semibold mt-4 text-black-blacknew">

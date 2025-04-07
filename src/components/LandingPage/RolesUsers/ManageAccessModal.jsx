@@ -214,7 +214,7 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
                   { key: "roles", label: t("Roles") },
                   { key: "evaluation", label: t("Evaluation") },
                   { key: "users", label: t("Users") },
-                  { key: "finance", label:  t("Finance") },
+                  { key: "finance", label:  t("Billing") },
                   { key: "document", label:  t("Document") },
                   { key: "company", label:  t("Company") },
                   ...(action === "view"

@@ -13,7 +13,6 @@ import { FiFilter } from "react-icons/fi";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineFileDownload } from "react-icons/md";
-
 import {
   InputAdornment,
   Stack,
@@ -42,8 +41,25 @@ export default function Report() {
   const { t } = useTranslation();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sortOption, setSortOption] = useState("Chronological");
   const token = useSelector((state) => state.auth.userToken);
-  console.log(documents);
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const currentYear = new Date().getFullYear();
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   useEffect(() => {
     setSelectedTab(activeTab);
@@ -92,10 +108,36 @@ export default function Report() {
     navigate(`/report?tab=${tab}`);
   };
 
-  const filteredDocuments = Array.isArray(documents) ? documents.filter((doc) => {
-    if (selectedTab === "All Projects") return true;
-    return doc.status.toLowerCase() === selectedTab.toLowerCase();
-  }) : [];  
+  // Sort documents based on selected option
+  const sortDocuments = (docs) => {
+    if (sortOption === "Alphabetical") {
+      return [...docs].sort((a, b) => a.projName.localeCompare(b.projName));
+    } else {
+      // Default chronological (newest first)
+      return [...docs].sort(
+        (a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)
+      );
+    }
+  };
+
+  const filteredDocuments = Array.isArray(documents)
+    ? sortDocuments(
+        documents.filter((doc) => {
+          const docDate = new Date(doc.uploadedAt);
+          const monthYear = `${docDate.toLocaleString("default", {
+            month: "long",
+          })}, ${docDate.getFullYear()}`;
+
+          // Check if the document matches the selected tab and month
+          const matchesTab =
+            selectedTab === "All Projects" ||
+            doc.status.toLowerCase() === selectedTab.toLowerCase();
+          const matchesMonth = !selectedMonth || monthYear === selectedMonth; // Filter by selected month
+
+          return matchesTab && matchesMonth;
+        })
+      )
+    : [];
 
   const startIndex = (page - 1) * recordsPerPage;
   const paginatedDocuments = filteredDocuments?.slice(
@@ -107,15 +149,13 @@ export default function Report() {
     try {
       const response = await apiRequest(
         "patch",
-        `/documents/${docId}`, // Dynamic ID
-        { status: newStatus }, // Sending updated status
+        `/documents/${docId}`,
+        { status: newStatus },
         token
       );
 
       if (response?.status === 200 || response?.status === 201) {
         toast.success(`Status changed to ${newStatus} successfully!`);
-
-        // Update local state to reflect the change instantly
         setDocuments((prevDocs) =>
           prevDocs.map((doc) =>
             doc._id === docId ? { ...doc, status: newStatus } : doc
@@ -130,9 +170,28 @@ export default function Report() {
     }
   };
 
-  useEffect(() => {
-    console.log("Active Tab:", selectedTab);
-  }, [selectedTab]);
+  const handleSortChange = (event) => {
+    setSortOption(event.target.value);
+    setPage(1); // Reset to first page when sorting changes
+  };
+
+  const filterDocumentsByMonth = (documents, selectedMonth) => {
+    if (!selectedMonth) return documents;
+
+    const [month, year] = selectedMonth.split(", ");
+    const targetDate = new Date(`${month} 1, ${year}`);
+
+    return documents.filter((document) => {
+      const docDate = new Date(document.uploadedAt);
+      return (
+        docDate.getMonth() === targetDate.getMonth() &&
+        docDate.getFullYear() === targetDate.getFullYear()
+      );
+    });
+  };
+
+  // Usage
+  const filteredDocumentsTwo = filterDocumentsByMonth(documents, selectedMonth);
 
   return (
     <div className="min-h-screen px-4 py-2">
@@ -148,17 +207,18 @@ export default function Report() {
       <div className="flex justify-between items-center mb-10">
         <div className="flex items-center space-x-4">
           {/* Filter Icon with Outline */}
-          <div className="bg-white rounded-lg border border-gray-300">
+          {/* <div className="bg-white rounded-lg border border-gray-300">
             <IconButton className="rounded-lg">
               <FiFilter />
             </IconButton>
-          </div>
+          </div> */}
 
           {/* Sort Select */}
           <div className="bg-white rounded-lg border border-gray-300">
             <FormControl className="min-w-[150px]" size="small">
               <Select
-                defaultValue="Chronological"
+                value={sortOption}
+                onChange={handleSortChange}
                 className="rounded-lg border-none focus:ring-0"
               >
                 <MenuItem value="Chronological">
@@ -173,7 +233,9 @@ export default function Report() {
           <div className="bg-white rounded-lg border border-gray-300">
             <FormControl className="min-w-[150px]" size="small">
               <Select
-                defaultValue="August, 2021"
+                value={selectedMonth}
+                onChange={(event) => setSelectedMonth(event.target.value)}
+                displayEmpty
                 className="rounded-lg border-none focus:ring-0"
                 startAdornment={
                   <InputAdornment position="start">
@@ -186,8 +248,21 @@ export default function Report() {
                   </InputAdornment>
                 }
               >
-                <MenuItem value="August, 2021">August, 2021</MenuItem>
-                <MenuItem value="July, 2021">July, 2021</MenuItem>
+                <MenuItem value="">
+                  <em>All Months</em>
+                </MenuItem>
+                {months.map((month) => {
+                  const current = `${month}, ${currentYear}`;
+                  const next = `${month}, ${currentYear + 1}`;
+                  return [
+                    <MenuItem key={current} value={current}>
+                      {current}
+                    </MenuItem>,
+                    <MenuItem key={next} value={next}>
+                      {next}
+                    </MenuItem>,
+                  ];
+                })}
               </Select>
             </FormControl>
           </div>

@@ -177,7 +177,11 @@ export default function EditProject() {
     if (isCreateMode) {
       const data = new FormData();
       for (const key in formData) {
-        if (key !== "teamMembers" && key !== "clientMembers" && key !== "projectBanner") {
+        if (
+          key !== "teamMembers" &&
+          key !== "clientMembers" &&
+          key !== "projectBanner"
+        ) {
           data.append(key, formData[key]);
         }
       }
@@ -366,14 +370,14 @@ export default function EditProject() {
 
   const handleClientUsersChange = (selectedOptions) => {
     const existingMember = modalClientMembers || [];
-  
+
     // Map new selections to the expected structure
     const newMember = selectedOptions.map((option) => ({
       _id: option.value,
       userName: option.label,
       avatar: option.avatar,
     }));
-  
+
     // Merge new and existing members, ensuring uniqueness
     const mergedMember = [
       ...existingMember.filter((member) =>
@@ -381,11 +385,11 @@ export default function EditProject() {
       ),
       ...newMember,
     ];
-  
+
     setModalClientMembers(mergedMember);
     const selectedUserId = mergedMember.map((owner) => owner._id);
     setSelectedClientUsers(selectedUserId);
-  };  
+  };
 
   const saveChanges = () => {
     setTeamMembers(modalTeamMembers);
@@ -446,11 +450,11 @@ export default function EditProject() {
       name: file.name,
       url: URL.createObjectURL(file),
     }));
-  
+
     setSelectedFiles((prevFiles) => {
       // Check for duplicates by name or file reference
       const existingFileNames = new Set(prevFiles.map((f) => f.name));
-  
+
       const uniqueNewFiles = newFiles.filter((file) => {
         if (existingFileNames.has(file.name)) {
           toast.error("This file is already selected.");
@@ -458,7 +462,7 @@ export default function EditProject() {
         }
         return true;
       });
-  
+
       return [...prevFiles, ...uniqueNewFiles];
     });
   };
@@ -576,31 +580,33 @@ export default function EditProject() {
             <span className="text-red-600">{errors.location.message}</span>
           )}
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-semibold mb-2 text-gray-700">
-            {t("Status")}
-          </label>
-          <Controller
-            name="status"
-            control={control}
-            rules={{ required: "Status is required" }}
-            defaultValue="Pending"
-            render={({ field }) => (
-              <select
-                {...field}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                disabled={isViewMode}
-              >
-                <option value="Pending">{t("Pending")}</option>
-                <option value="Completed">{t("Completed")}</option>
-                <option value="Ongoing">{t("Ongoing")}</option>
-              </select>
+        {!isCreateMode && (
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-2 text-gray-700">
+              {t("Status")}
+            </label>
+            <Controller
+              name="status"
+              control={control}
+              rules={{ required: "Status is required" }}
+              defaultValue="Pending"
+              render={({ field }) => (
+                <select
+                  {...field}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                  disabled={isViewMode}
+                >
+                  <option value="Pending">{t("Pending")}</option>
+                  <option value="Completed">{t("Completed")}</option>
+                  <option value="Ongoing">{t("Ongoing")}</option>
+                </select>
+              )}
+            />
+            {errors.status && (
+              <span className="text-red-600">{errors.status.message}</span>
             )}
-          />
-          {errors.status && (
-            <span className="text-red-600">{errors.status.message}</span>
-          )}
-        </div>
+          </div>
+        )}
         <div className="mb-4 w-full">
           <label className="block text-2xl font-semibold mb-2 text-red-800">
             <span className="text-gray-700 text-sm">{t("Deadline")}</span>*
@@ -633,7 +639,7 @@ export default function EditProject() {
                     dateFormat="MM/dd/yyyy"
                     placeholderText="Select start and end date"
                     wrapperClassName="w-full"
-                    minDate={new Date()}
+                    // minDate={new Date()}
                   />
                 </div>
               );
@@ -1126,7 +1132,8 @@ export default function EditProject() {
                                 (owner.ownerId && owner.ownerId === user._id) ||
                                 (owner.ownerName &&
                                   owner.ownerName === user.ownerName) ||
-                                (owner.userName && owner.userName === user.userName)
+                                (owner.userName &&
+                                  owner.userName === user.userName)
                             )
                         )
                         .map((user) => ({

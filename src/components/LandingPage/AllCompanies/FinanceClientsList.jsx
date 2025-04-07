@@ -234,7 +234,7 @@ const FinanceClientsList = () => {
     <>
       <div className="mx-5">
         <div className="flex justify-between items-center mb-4 mx-5">
-          <h2 className="text-xl font-semibold">{t("Finance_Client_List")}</h2>
+          <h2 className="text-xl font-semibold">{t("Billing_Client_List")}</h2>
           {hasCLientCreatePermission && (
             <Button
               variant="contained"
@@ -434,7 +434,7 @@ const FinanceClientsList = () => {
                 }
                 label={t("Choose_User_Type")}
               >
-                <MenuItem value="Finance">{t("Finance")}</MenuItem>
+                <MenuItem value="Finance">{t("Billing")}</MenuItem>
               </Select>
             </FormControl>
 

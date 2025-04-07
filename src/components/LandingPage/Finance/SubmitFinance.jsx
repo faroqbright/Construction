@@ -188,7 +188,7 @@ export default function SubmitFinance() {
   return (
     <>
       <h1 className="font-semibold text-2xl mx-4 mb-3">
-        {t("Project_Finance_Details")}
+        {t("Project_Billing_Details")}
       </h1>
 
       <div className="mx-4 mb-3">
