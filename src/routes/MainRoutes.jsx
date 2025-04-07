@@ -31,6 +31,7 @@ import SubmitDocumentPage from "../pages/MainPages/documents/submitDocument";
 import AllComapnies from "../pages/MainPages/AllCompanies/AllCompanies";
 import Finance from "../components/LandingPage/Finance/Finance";
 import SubmitFinance from "../components/LandingPage/Finance/SubmitFinance";
+import Settings from "../pages/Settings/settings";
 
 const App = () => {
   return (
@@ -77,6 +78,14 @@ const App = () => {
               element={
                 <RouteMiddleware isAuthRequired={true}>
                   <Dashboard />
+                </RouteMiddleware>
+              }
+            />
+             <Route
+              path="/Settings"
+              element={
+                <RouteMiddleware isAuthRequired={true}>
+                  <Settings />
                 </RouteMiddleware>
               }
             />

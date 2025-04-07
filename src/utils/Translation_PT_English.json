@@ -228,5 +228,10 @@
     "Enter_Company_Email": "Enter Company Email",
     "Enter_Company_Phone_Number": "Enter Company Phone Number",
     
-    "More": "More"
+    "More": "More",
+    "Delete_Project": "Delete Project",
+    "Are_you_sure_you_want_to_delete_this_project?": "Are you sure you want to delete this project?",
+    "Delete_Project_Confirmation": "Delete Project Confirmation",
+    "Yes": "Yes",
+    "No": "No"
   }

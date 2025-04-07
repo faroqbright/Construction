@@ -94,7 +94,7 @@ function Navbar({ toggleSidebar, isOpen }) {
                 .split(" ")
                 .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(" ")}
-              ,{' '}
+              ,{" "}
               {name
                 ? name
                     .split(" ")
@@ -147,12 +147,16 @@ function Navbar({ toggleSidebar, isOpen }) {
         >
           <ul className="py-2">
             <li
-              onClick={() => console.log("Settings clicked")}
-              className="flex items-center px-4 py-2 cursor-pointer"
+              onClick={() => {
+                navigate("/settings");
+                setActiveDropdown(null); // Close the dropdown after navigation
+              }}
+              className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
             >
               <FiSettings size={20} className="mr-3" />
               <span className="text-sm font-medium">{t("Settings")}</span>
             </li>
+
             <li
               onClick={handleLogout}
               className="flex items-center px-4 py-2 cursor-pointer"

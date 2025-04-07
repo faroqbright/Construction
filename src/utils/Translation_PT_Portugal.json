@@ -167,7 +167,6 @@
     "Add": "Adicionar",
     "add": "Adicionar",
     "View": "Visualizar",
-    "view": "Visualizar",
     "Save": "Salvar",
     "Close": "Fechar",
     "Add_New_User": "Adicionar Novo Utilizador",
@@ -213,7 +212,6 @@
     "Construction_Project": "Projecto de Construção",
     "Download": "Download",
     "Project_Deliverables": "entregas do Projecto",
-    "View": "Visualizar",
     "Upload_Document": "Carregar Documento",
     "Date": "Data",
     "Select_One_or_more": "selecione um ou mais",
@@ -230,5 +228,10 @@
     "Browse_Files": "Procurar Arquivos",
     "Upload_Changes":"Carregar Alterações",
     "Upload_Report": "Carregar Relatório",
-    "More": "Mais"
+    "More": "Mais",
+    "Delete_Project": "Apagar projeto",
+    "Are_you_sure_you_want_to_delete_this_project?": "Tem a certeza de que pretende eliminar este projeto?",
+    "Delete_Project_Confirmation":"Apagar confirmação do projeto",
+    "Yes": "Sim",
+    "No": "Não"   
 }

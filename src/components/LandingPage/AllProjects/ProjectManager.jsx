@@ -27,7 +27,7 @@ import RouteMiddleware from "../../../routes/RouteMIddleware";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import { User } from "lucide-react";
+import { User, X } from "lucide-react";
 
 const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
@@ -44,12 +44,46 @@ const ProjectManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [modalTeamMembers, setModalTeamMembers] = useState([]);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);  
 
   const openModal = (projectId) => {
     setIsModalOpen(true);
     setSelectedProjectId(projectId);
   };
   const closeModal = () => setIsModalOpen(false);
+
+  const handleDeleteProjectClick = (projectId) => {
+    setProjectToDelete(projectId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteProject = async () => {
+    try {
+      const response = await apiRequest(
+        "delete",
+        `/projects/${projectToDelete}`,
+        {},
+        token
+      );
+
+      if (response?.data?.statusCode === 200) {
+        toast.success(t("Project_Successfully_Deleted"));
+        const updatedProjects = projects.filter(
+          (project) => project._id !== projectToDelete
+        );
+        setProjects(updatedProjects);
+      } else {
+        toast.error(t("Failed_to_delete_project"));
+      }
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      toast.error(t("Error_deleting_project"));
+    } finally {
+      setDeleteModalOpen(false);
+      setProjectToDelete(null);
+    }
+  };
 
   const handleMoreClick = () => {
     if (visibleIndex + 3 < projects.members.length) {
@@ -152,6 +186,10 @@ const ProjectManager = () => {
   const hasProjCreatePermission = RolePermissions(
     "ProjectsManagement",
     "create"
+  );
+  const hasProjDeletePermission = RolePermissions(
+    "ProjectsManagement",
+    "delete"
   );
 
   const modalStyle = {
@@ -385,7 +423,10 @@ const ProjectManager = () => {
                   key={project._id}
                   className="max-w-sm h-[22rem] md:h-[22rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
                 >
-                  <div className="cursor-pointer" onClick={() => handleProjectClick(project._id)}>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => handleProjectClick(project._id)}
+                  >
                     {project.projectBanner?.length > 0 ? (
                       <Swiper
                         spaceBetween={10}
@@ -471,7 +512,6 @@ const ProjectManager = () => {
                       </div>
                     </div>
 
-                    
                     <div className="mb-4 mt-2 relative">
                       <div className="flex justify-between">
                         <p className="black text-sm mb-1">
@@ -482,7 +522,7 @@ const ProjectManager = () => {
                         </h6>
                       </div>
                       <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                      <div
+                        <div
                           className={`h-2 rounded-full transition-all ${
                             project?.financeDocuments?.[0]?.financialExecution >
                             0
@@ -554,6 +594,14 @@ const ProjectManager = () => {
                             : t("View_Project")
                           : t("View_Project")}
                       </h6>
+                      {hasProjDeletePermission && (
+                        <h6
+                          onClick={() => handleDeleteProjectClick(project._id)}
+                          className="text-blue-500 cursor-pointer underline ml-3 text-nowrap"
+                        >
+                          {t("Delete_Project")}
+                        </h6>
+                      )}
                     </>
                   </div>
                 </div>
@@ -632,6 +680,70 @@ const ProjectManager = () => {
                   >
                     {t("Cancel")}
                   </button>
+                </div>
+              </Box>
+            </Modal>
+
+            <Modal
+              open={deleteModalOpen}
+              onClose={() => setDeleteModalOpen(false)}
+              aria-labelledby="delete-confirmation-modal"
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 600, // Increased width
+                  height: 200, // Increased height
+                  bgcolor: "background.paper",
+                  boxShadow: 24,
+                  p: 4,
+                  borderRadius: "8px",
+                }}
+              >
+                {/* Header with Title + Close Icon */}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold">
+                    {t("Delete_Project_Confirmation")}
+                  </h2>
+                  <button onClick={() => setDeleteModalOpen(false)}>
+                    <X className="text-gray-500 hover:text-black" size={20} />
+                  </button>
+                </div>
+
+                <p className="mb-6 text-sm text-gray-700">
+                  {t("Are_you_sure_you_want_to_delete_this_project?")}
+                </p>
+
+                <div className="flex justify-end space-x-4">
+                <Button
+                    variant="contained"
+                    onClick={handleDeleteProject}
+                    sx={{
+                      backgroundColor: "#B91724",
+                      "&:hover": {
+                        backgroundColor: "#9a1420",
+                      },
+                    }}
+                  >
+                    {t("Yes")}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setDeleteModalOpen(false)}
+                    sx={{
+                      color: "black",
+                      borderColor: "gray",
+                      "&:hover": {
+                        borderColor: "gray",
+                      },
+                    }}
+                  >
+                    {t("No")}
+                  </Button>
+                  
                 </div>
               </Box>
             </Modal>
