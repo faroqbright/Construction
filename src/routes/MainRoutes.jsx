@@ -33,6 +33,7 @@ import Finance from "../components/LandingPage/Finance/Finance";
 import SubmitFinance from "../components/LandingPage/Finance/SubmitFinance";
 import Settings from "../pages/Settings/settings";
 
+
 const App = () => {
   return (
     <>
