@@ -28,7 +28,7 @@ import RouteMiddleware from "../../../routes/RouteMIddleware";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import { User, X } from "lucide-react";
+import { Trash2, User, X } from "lucide-react";
 
 const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
@@ -597,7 +597,7 @@ const ProjectManager = () => {
                           onClick={() => handleDeleteProjectClick(project._id)}
                           className="text-blue-500 cursor-pointer underline ml-3 text-nowrap"
                         >
-                          {t("Delete_Project")}
+                          <Trash2 className="text-red-redNew" size={16} />{" "}
                         </h6>
                       )}
                     </>
