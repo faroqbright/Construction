@@ -28,7 +28,7 @@ import RouteMiddleware from "../../../routes/RouteMIddleware";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import { Trash2, User, UserRound, UserRoundCheck, X } from "lucide-react";
+import { Trash2, User, X } from "lucide-react";
 
 const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
@@ -544,29 +544,27 @@ const ProjectManager = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between">
-                    {project.members.length > 0 ? (
-                      project.members[0].avatar ? (
-                        <img
-                          className="w-8 h-8 rounded-full"
-                          src={project.members[0].avatar}
-                          onClick={() => openModal(project._id)}
-                          alt="Member"
-                        />
-                      ) : (
-                        <User
-                          className="bg-slate-400 rounded-full p-2 text-white"
-                          size={32}
-                          onClick={() => openModal(project._id)}
-                        />
-                      )
-                    ) : (
-                      <User
-                        className="bg-slate-400 rounded-full p-2 text-white"
-                        size={32}
-                        onClick={() => openModal(project._id)}
-                      />
-                    )}
+                  <div className="mt-4 flex items-center">
+                    {project.members
+                      .slice(visibleIndex, visibleIndex + 3)
+                      .map((member) =>
+                        member.avatar ? (
+                          <img
+                            key={member._id}
+                            className="w-8 h-8 rounded-full"
+                            src={member.avatar}
+                            onClick={() => openModal(project._id)}
+                            alt="Member"
+                          />
+                        ) : (
+                          <User
+                            key={member._id}
+                            className="bg-slate-400 rounded-full p-2 text-white"
+                            size={32}
+                            onClick={() => openModal(project._id)}
+                          />
+                        )
+                      )}
 
                     <>
                       {project.members.length > 3 && (
@@ -634,7 +632,7 @@ const ProjectManager = () => {
                     ✕
                   </button>
                 </div>
-                <div>
+                {/* <div>
                   <label className="block text-sm font-semibold mb-2 text-gray-700">
                     {t("Team_Members")}
                   </label>
@@ -643,7 +641,7 @@ const ProjectManager = () => {
                       {t("Select_One_or_more")}...
                     </option>
                   </select>
-                </div>
+                </div> */}
 
                 <div className="mt-4 flex-grow scrollbar-custom">
                   <h3 className="block text-sm font-semibold mb-4 text-gray-700">
@@ -654,13 +652,22 @@ const ProjectManager = () => {
                       {modalTeamMembers.map((member) => (
                         <li
                           key={member._id}
-                          className="flex items-center bg-gray-100 p-2 rounded-lg"
+                          className="flex items-center bg-gray-100 p-2 rounded-lg gap-3"
                         >
-                          <img
-                            src={member.avatar}
-                            alt={member.userName}
-                            className="w-10 h-10 rounded-full mr-3"
-                          />
+                          {member.avatar ? (
+                            <img
+                              src={member.avatar}
+                              alt={member.userName}
+                              className="w-10 h-10 rounded-full mr-3"
+                            />
+                          ) : (
+                            <User
+                              key={member._id}
+                              className="bg-slate-400 rounded-full p-2 text-white"
+                              size={32}
+                            />
+                          )}
+
                           <span>{member.userName}</span>
                         </li>
                       ))}
@@ -671,12 +678,9 @@ const ProjectManager = () => {
                 </div>
 
                 <div className="flex justify-between mt-4 w-full">
-                  <button className="px-4 py-3 w-1/2 mr-2 cursor-not-allowed text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none">
-                    {t("Save_Changes")}
-                  </button>
                   <button
                     onClick={closeModal}
-                    className="px-4 py-3 w-1/2 ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+                    className="px-4 py-3 w-full ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
                   >
                     {t("Cancel")}
                   </button>
