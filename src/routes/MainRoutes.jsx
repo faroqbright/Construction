@@ -131,6 +131,7 @@ const App = () => {
                 </RouteMiddleware>
               }
             />
+            
             <Route
               path="/report"
               element={
