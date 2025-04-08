@@ -149,7 +149,7 @@ function Navbar({ toggleSidebar, isOpen }) {
             <li
               onClick={() => {
                 navigate("/settings");
-                setActiveDropdown(null); // Close the dropdown after navigation
+                setActiveDropdown(null);
               }}
               className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
             >
@@ -159,7 +159,7 @@ function Navbar({ toggleSidebar, isOpen }) {
 
             <li
               onClick={handleLogout}
-              className="flex items-center px-4 py-2 cursor-pointer"
+              className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
             >
               <FiLogOut size={20} className="mr-3" />
               <span className="text-sm font-medium">{t("Logout")}</span>
