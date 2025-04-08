@@ -19,7 +19,8 @@ import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "react-toastify";
-import { set } from "react-hook-form";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Report() {
   const location = useLocation();
@@ -33,8 +34,8 @@ export default function Report() {
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState("Chronological");
   const token = useSelector((state) => state.auth.userToken);
-  const [selectedMonth, setSelectedMonth] = useState("");
   const currentYear = new Date().getFullYear();
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   const months = [
     "January",
@@ -88,24 +89,26 @@ export default function Report() {
 
   const recordsPerPage = 10;
 
-  const handleTabChange = (tab) => {
-    let tabQuery = tab;
+  const TAB_KEYS = {
+    ALL: "All Projects",
+    PENDING: "Pending",
+    APPROVED: "Approved",
+    REJECTED: "Rejected",
+  };
 
-    // Map Portuguese tab names to their query values
-    if (tab === "Todos os Projectos") {
-      tabQuery = "All Projects";
-    } else if (tab === "Pendente") {
-      tabQuery = "Pending";
-    } else if (tab === "Aprovado") {
-      tabQuery = "Approved";
-    } else if (tab === "Rejeitado") {
-      tabQuery = "Rejected";
-    }
+  const TAB_TRANSLATION_KEYS = {
+    [TAB_KEYS.ALL]: "All_Projects",
+    [TAB_KEYS.PENDING]: "Pending",
+    [TAB_KEYS.APPROVED]: "Approved",
+    [TAB_KEYS.REJECTED]: "Rejected",
+  };
 
-    setSelectedTab(tabQuery); // Set the selected tab to the query value
+  const [selectedTabTwo, setSelectedTabTwo] = useState(TAB_KEYS.ALL);
+
+  const handleTabChange = (tabKey) => {
     setPage(1);
-
-    navigate(`/report?tab=${tabQuery}`);
+    setSelectedTabTwo(tabKey);
+    navigate(`/report?tab=${tabKey}`);
   };
 
   const sortDocuments = (docs) => {
@@ -172,14 +175,35 @@ export default function Report() {
     setPage(1); // Reset to first page when sorting changes
   };
 
-  const filterDocumentsByMonth = (documents, selectedMonth) => {
-    if (!selectedMonth) return documents;
+  // State to hold selected month and year
+  const [documentsTwo, setDocumentsTwo] = useState([
+    { uploadedAt: "2023-03-10T10:00:00Z" },
+    { uploadedAt: "2023-04-15T14:30:00Z" },
+    { uploadedAt: "2024-03-21T16:00:00Z" },
+    { uploadedAt: "2025-04-08T10:00:00Z" }, // Added a document for testing
+    // Add more document objects with uploadedAt field
+  ]);
 
-    const [month, year] = selectedMonth.split(", ");
-    const targetDate = new Date(`${month} 1, ${year}`);
+  const handleExpirationChange = (date) => {
+    if (date) {
+      const formattedDate = date.toLocaleDateString("en-GB", {
+        month: "2-digit",
+        year: "2-digit",
+      });
+      setSelectedMonth(formattedDate);
+    } else {
+      setSelectedMonth(""); // Clear the selected date if the user clears it
+    }
+  };
+  const filterDocumentsByMonth = (documents, selectedMonth) => {
+    if (!selectedMonth) return documents; // If no month selected, return all documents
+
+    const [month, year] = selectedMonth.split("/"); // Split month and year
+    const targetDate = new Date(`20${year}`, month - 1); // Create target date object
 
     return documents.filter((document) => {
-      const docDate = new Date(document.uploadedAt);
+      const docDate = new Date(document.uploadedAt); // Parse the document date
+      // Compare only the month and year (not the full date)
       return (
         docDate.getMonth() === targetDate.getMonth() &&
         docDate.getFullYear() === targetDate.getFullYear()
@@ -187,7 +211,10 @@ export default function Report() {
     });
   };
 
-  const filteredDocumentsTwo = filterDocumentsByMonth(documents, selectedMonth);
+  const filteredDocumentsTwo = filterDocumentsByMonth(
+    documentsTwo,
+    selectedMonth
+  );
 
   return (
     <div className="min-h-screen px-4 py-2">
@@ -228,38 +255,42 @@ export default function Report() {
           {/* Date Select */}
           <div className="bg-white rounded-lg border border-gray-300">
             <FormControl className="min-w-[150px]" size="small">
-              <Select
-                value={selectedMonth}
-                onChange={(event) => setSelectedMonth(event.target.value)}
-                displayEmpty
-                className="rounded-lg border-none focus:ring-0"
-                startAdornment={
-                  <InputAdornment position="start">
-                    <GrFormPrevious className="w-5 h-5" />
-                  </InputAdornment>
-                }
-                endAdornment={
-                  <InputAdornment position="end">
-                    <GrFormNext className="w-5 h-5" />
-                  </InputAdornment>
-                }
-              >
-                <MenuItem value="">
-                  <em>All Months</em>
-                </MenuItem>
-                {months.map((month) => {
-                  const current = `${month}, ${currentYear}`;
-                  const next = `${month}, ${currentYear + 1}`;
-                  return [
-                    <MenuItem key={current} value={current}>
-                      {current}
-                    </MenuItem>,
-                    <MenuItem key={next} value={next}>
-                      {next}
-                    </MenuItem>,
-                  ];
-                })}
-              </Select>
+              <div>
+                <div className="flex items-center border-2 border-gray-300 rounded-lg p-3 w-full">
+                  <DatePicker
+                    selected={
+                      selectedMonth
+                        ? new Date(
+                            `20${selectedMonth.split("/")[1]}`,
+                            selectedMonth.split("/")[0] - 1
+                          )
+                        : null
+                    }
+                    onChange={handleExpirationChange}
+                    dateFormat="MM/yy"
+                    placeholderText="MM/YY"
+                    showMonthYearPicker
+                    className="w-full outline-none bg-white text-gray-700"
+                    calendarClassName="custom-calendar-size"
+                  />
+                </div>
+
+                {/* Display filtered documents */}
+                <div>
+                  <h3>Filtered Documents:</h3>
+                  {filteredDocumentsTwo.length === 0 ? (
+                    <p>No documents found for the selected month/year.</p>
+                  ) : (
+                    <ul>
+                      {filteredDocumentsTwo.map((document, index) => (
+                        <li key={index}>
+                          Document {index + 1}: {document.uploadedAt}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
             </FormControl>
           </div>
         </div>
@@ -291,28 +322,26 @@ export default function Report() {
         spacing={2}
         className="mt-4 w-full"
       >
-        {[t("All_Projects"), t("Pending"), t("Approved"), t("Rejected")].map(
-          (tab) => (
-            <Chip
-              key={tab}
-              label={tab}
-              onClick={() => handleTabChange(tab)} // ✅ Add this to update selectedTab
-              sx={{
-                py: 3,
-                px: 3,
-                borderRadius: "9999px", // 🔹 Fully rounded buttons
-                backgroundColor: selectedTab === tab ? "#B91724" : "white",
-                color: selectedTab === tab ? "white" : "black",
-                fontWeight: selectedTab === tab ? "bold" : "normal",
-                cursor: "pointer", // ✅ Add cursor pointer for better UX
-                "&:hover": {
-                  backgroundColor:
-                    selectedTab === tab ? "#B91724" : "lightgray",
-                },
-              }}
-            />
-          )
-        )}
+        {Object.values(TAB_KEYS).map((tabKey) => (
+          <Chip
+            key={tabKey}
+            label={t(TAB_TRANSLATION_KEYS[tabKey])}
+            onClick={() => handleTabChange(tabKey)}
+            sx={{
+              py: 3,
+              px: 3,
+              borderRadius: "9999px",
+              backgroundColor: selectedTabTwo === tabKey ? "#B91724" : "white",
+              color: selectedTabTwo === tabKey ? "white" : "black",
+              fontWeight: selectedTabTwo === tabKey ? "bold" : "normal",
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor:
+                  selectedTabTwo === tabKey ? "#B91724" : "lightgray",
+              },
+            }}
+          />
+        ))}
       </Stack>
 
       <div className="flex justify-between items-center w-full h-auto md:h-14 px-4 my-4">

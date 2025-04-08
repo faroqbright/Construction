@@ -301,7 +301,7 @@ const PendingProjects = () => {
                         </Swiper>
                       ) : (
                         <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
-                          <FaRecordVinyl className="w-8 h-8 text-gray-500" />
+                          {/* <FaRecordVinyl className="w-8 h-8 text-gray-500" /> */}
                           <p className="text-gray-500 text-sm mt-1">
                             <img src={logo} alt="" />
                           </p>
@@ -563,15 +563,15 @@ const PendingProjects = () => {
                   <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
                     <div className="flex items-center space-x-4 mb-4">
                       <img
-                        src={doc.projectBanner?.[0]?.url || "default-image-url"}
+                        src={doc.projectBanner?.[0]?.url ||  logo}
                         alt="Project Banner"
-                        className="w-14 h-14 rounded-full"
+                        className="w-14 h-14 rounded-full object-contain"
                       />
                       <div>
                         <h3 className="font-semibold text-base sm:block">
                           {doc.projName}
                         </h3>
-                        <p className="text-lightpurple-light text-sm whitespace-nowrap sm:block">
+                        <p className="text-lightpurple-light text-sm sm:block">
                           {doc.fileName}
                         </p>
                       </div>
