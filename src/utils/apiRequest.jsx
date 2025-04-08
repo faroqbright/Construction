@@ -5,14 +5,14 @@ const BASE_URL =
   window.location.hostname.includes("vercel.app") ||
   window.location.hostname.includes("netlify.app")
     ? "https://constructionbe-production.up.railway.app/api/v1"
-    : "http://appsoapro.techbytech.tech:8080/api/v1";
+    : "https://appsoapro.techbytech.tech/backend/api/v1";
 
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
     method: method.toLowerCase(), // Normalize method to lowercase
     url: `${BASE_URL}${url}`, // Dynamically set base URL
     headers: {
-      Authorization: `Bearer ${token}`, // Fixed template literal syntax
+      Authorization: `Bearer ${token}`,
       ...headers,
     },
   };
