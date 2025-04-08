@@ -485,7 +485,7 @@ const ProjectManager = () => {
                           {t("Physical_Execution")}
                         </p>
                         <h6 className="text-gray-800 font-semibold">
-                          {project?.financeDocuments?.[0]?.physicalExecution}%
+                          {project?.financeDocuments?.[0]?.physicalExecution || 0}{' '}%
                         </h6>
                       </div>
 
@@ -516,7 +516,7 @@ const ProjectManager = () => {
                           {t("Financial_Execution")}
                         </p>
                         <h6 className="text-red-redNew">
-                          {project?.financeDocuments?.[0]?.financialExecution}%
+                          {project?.financeDocuments?.[0]?.financialExecution || 0}{' '}%
                         </h6>
                       </div>
                       <div className="w-full bg-gray-200 h-2 rounded-full relative">

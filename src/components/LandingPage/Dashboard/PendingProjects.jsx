@@ -347,8 +347,8 @@ const PendingProjects = () => {
                               <h6 className="text-gray-800 font-semibold">
                                 {
                                   project?.financeDocuments?.[0]
-                                    ?.physicalExecution
-                                }
+                                    ?.physicalExecution || 0
+                                }{' '}
                                 %
                               </h6>
                             </div>
@@ -381,8 +381,8 @@ const PendingProjects = () => {
                               <h6 className="text-red-redNew">
                                 {
                                   project?.financeDocuments?.[0]
-                                    ?.financialExecution
-                                }
+                                    ?.financialExecution || 0
+                                }{' '}
                                 %
                               </h6>
                             </div>
@@ -706,8 +706,8 @@ const PendingProjects = () => {
                               <h6 className="text-gray-800 font-semibold">
                                 {
                                   project?.financeDocuments?.[0]
-                                    ?.physicalExecution
-                                }
+                                    ?.physicalExecution || 0
+                                }{' '}
                                 %
                               </h6>
                             </div>
@@ -741,8 +741,8 @@ const PendingProjects = () => {
                                 <h6 className="text-red-redNew">
                                   {
                                     project?.financeDocuments?.[0]
-                                      ?.financialExecution
-                                  }
+                                      ?.financialExecution || 0
+                                  }{' '}
                                   %
                                 </h6>
                               </div>

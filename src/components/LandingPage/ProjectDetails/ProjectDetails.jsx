@@ -23,7 +23,6 @@ const ProjectDetails = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [financialId, setFinancialId] = useState(null);
-  console.log(projectData);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -42,15 +41,13 @@ const ProjectDetails = () => {
     fetchProjects();
   }, [fetchProjects]);
 
-  const [page, setPage] = useState(1); // Current page
-  const itemsPerPage = 10; // Number of items per page
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Handle page change
   const handlePageChange = (event, value) => {
     setPage(value);
   };
 
-  // Calculate paginated data
   const paginatedFinanceDocuments = projectData?.financeDocuments?.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
@@ -112,94 +109,80 @@ const ProjectDetails = () => {
     ],
   };
 
-  const initialPhysicalExecution =
-    projectData?.financeDocuments?.[0]?.physicalExecution ?? "N/A";
-  const initialFinancialExecution =
-    projectData?.financeDocuments?.[0]?.financialExecution ?? "N/A";
-  // Store the previous values
-  const [physicalExecution, setPhysicalExecution] = useState(
-    initialPhysicalExecution
-  );
-  const [financialExecution, setFinancialExecution] = useState(
-    initialFinancialExecution
-  );
+  // Initialize as numbers (0 instead of "0%")
+  const [physicalExecution, setPhysicalExecution] = useState(0);
+  const [financialExecution, setFinancialExecution] = useState(0);
   const [dragging, setDragging] = useState(false);
   const dragTimeout = useRef(null);
 
-  // Use refs to store the latest values
   const physicalExecutionRef = useRef(physicalExecution);
   const financialExecutionRef = useRef(financialExecution);
 
   useEffect(() => {
     if (projectData?.financeDocuments?.length) {
-      setPhysicalExecution(
-        projectData.financeDocuments[0].physicalExecution ?? "N/A"
-      );
-      setFinancialExecution(
-        projectData.financeDocuments[0].financialExecution ?? "N/A"
-      );
-      setFinancialId(projectData.financeDocuments[0].id ?? null);
+      const firstDoc = projectData.financeDocuments[0];
+      setPhysicalExecution(parseFloat(firstDoc?.physicalExecution) || 0);
+      setFinancialExecution(parseFloat(firstDoc?.financialExecution) || 0);
+      setFinancialId(firstDoc?.id || null);
+    } else {
+      // If no finance documents, reset values and disable dragging
+      setPhysicalExecution(0);
+      setFinancialExecution(0);
+      setFinancialId(null);
     }
   }, [projectData]);
 
+  // Check if dragging should be enabled
+  const canDrag = projectData?.financeDocuments?.length > 0;
+
   const handleDrag = (e, type) => {
-    if (physicalExecution === "N/A" || financialExecution === "N/A") return;
-
+    if (!canDrag) return;
+    
     setDragging(true);
-
     const rect = e.target.parentElement.getBoundingClientRect();
     let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
     newValue = Math.max(0, Math.min(100, newValue));
 
     if (type === "physical") {
       setPhysicalExecution(newValue);
-      physicalExecutionRef.current = newValue; // Store latest value
+      physicalExecutionRef.current = newValue;
     }
     if (type === "financial") {
       setFinancialExecution(newValue);
-      financialExecutionRef.current = newValue; // Store latest value
+      financialExecutionRef.current = newValue;
     }
   };
 
   const handleDragEnd = () => {
-    setDragging(false); // Stop dragging state
-
-    if (dragTimeout.current) clearTimeout(dragTimeout.current); // Clear previous timer
+    if (!canDrag) return;
+    
+    setDragging(false);
+    if (dragTimeout.current) clearTimeout(dragTimeout.current);
 
     dragTimeout.current = setTimeout(async () => {
       if (financialId) {
         try {
-          // Ensure we only send valid values, not "N/A"
-          const updatedData = {};
-
-          if (physicalExecutionRef.current !== "N/A") {
-            updatedData.physicalExecution = physicalExecutionRef.current;
-          }
-          if (financialExecutionRef.current !== "N/A") {
-            updatedData.financialExecution = financialExecutionRef.current;
-          }
-
-          if (Object.keys(updatedData).length > 0) {
-            // Only send request if there is valid data
-            await apiRequest(
-              "patch",
-              `/finance/${financialId}`,
-              updatedData,
-              token
-            );
-            toast.success("Execution updated successfully.");
-          }
+          await apiRequest(
+            "patch",
+            `/finance/${financialId}`,
+            {
+              physicalExecution: physicalExecutionRef.current,
+              financialExecution: financialExecutionRef.current,
+            },
+            token
+          );
+          toast.success("Execution updated successfully.");
         } catch (error) {
           toast.error("Error updating finance execution.");
         }
       }
-    }, 500); // Wait 500ms before making API call
+    }, 500);
   };
 
   return (
     <>
       <div className="mx-6 bg-white rounded-xl ">
-        <div className="mt-6  p-6 ">
+      <div className="mt-6  p-6 ">
           <h2 className="font-bold text-gray-800 text-2xl">
             {projectData?.projectName}
           </h2>
@@ -310,7 +293,7 @@ const ProjectDetails = () => {
               ))}
           </div>
         </div>
-
+        
         {/* Progress Bar */}
         <div className="mt-6 p-6">
           {/* Physical Execution */}
@@ -320,7 +303,7 @@ const ProjectDetails = () => {
                 Physical Execution
               </p>
               <h6 className="text-gray-800 font-semibold">
-                {physicalExecution !== "N/A" ? `${physicalExecution}%` : "N/A"}
+                {physicalExecution}%
               </h6>
             </div>
 
@@ -328,32 +311,31 @@ const ProjectDetails = () => {
               <div
                 className={`absolute top-0 left-0 h-2 rounded-full ${
                   projectData?.status === "Completed"
-                    ? "bg-green-500"
+                    ? "bg-red-500"
                     : "bg-red-500"
                 }`}
                 style={{
-                  width:
-                    physicalExecution !== "N/A"
-                      ? `${physicalExecution}%`
-                      : "0%",
+                  width: `${physicalExecution}%`,
                 }}
               ></div>
-              {physicalExecution !== "N/A" && (
-                <div
-                  className="absolute w-5 h-5 rounded-full bg-red-500 border-2 border-red-500 cursor-pointer"
-                  style={{
-                    left: `calc(${physicalExecution}% - 10px)`,
-                    top: "-6px",
-                  }}
-                  onMouseDown={(e) => {
-                    document.onmousemove = (ev) => handleDrag(ev, "physical");
-                    document.onmouseup = () => {
-                      document.onmousemove = null;
-                      handleDragEnd();
-                    };
-                  }}
-                ></div>
-              )}
+              <div
+                className={`absolute w-5 h-5 rounded-full border-2 ${
+                  canDrag
+                    ? "bg-red-500 border-red-500 cursor-pointer"
+                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                }`}
+                style={{
+                  left: `calc(${physicalExecution}% - 10px)`,
+                  top: "-6px",
+                }}
+                onMouseDown={canDrag ? (e) => {
+                  document.onmousemove = (ev) => handleDrag(ev, "physical");
+                  document.onmouseup = () => {
+                    document.onmousemove = null;
+                    handleDragEnd();
+                  };
+                } : undefined}
+              ></div>
             </div>
           </div>
 
@@ -362,34 +344,31 @@ const ProjectDetails = () => {
             <div className="flex justify-between">
               <p className="black text-sm mb-1">Financial Execution</p>
               <h6 className="text-red-500">
-                {financialExecution !== "N/A"
-                  ? `${financialExecution}%`
-                  : "N/A"}
+                {financialExecution}%
               </h6>
             </div>
             <div className="w-full bg-gray-200 h-2 rounded-full relative">
               <div
                 className="bg-red-500 h-2 rounded-full"
                 style={{
-                  width:
-                    financialExecution !== "N/A"
-                      ? `${financialExecution}%`
-                      : "0%",
+                  width: `${financialExecution}%`,
                 }}
               ></div>
-              {financialExecution !== "N/A" && (
-                <div
-                  className="w-5 h-5 bg-red-500 rounded-full absolute top-1/2 -translate-y-1/2 cursor-pointer"
-                  style={{ left: `calc(${financialExecution}% - 10px)` }}
-                  onMouseDown={(e) => {
-                    document.onmousemove = (ev) => handleDrag(ev, "financial");
-                    document.onmouseup = () => {
-                      document.onmousemove = null;
-                      handleDragEnd();
-                    };
-                  }}
-                ></div>
-              )}
+              <div
+                className={`w-5 h-5 rounded-full absolute top-1/2 -translate-y-1/2 ${
+                  canDrag
+                    ? "bg-red-500 cursor-pointer"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+                style={{ left: `calc(${financialExecution}% - 10px)` }}
+                onMouseDown={canDrag ? (e) => {
+                  document.onmousemove = (ev) => handleDrag(ev, "financial");
+                  document.onmouseup = () => {
+                    document.onmousemove = null;
+                    handleDragEnd();
+                  };
+                } : undefined}
+              ></div>
             </div>
           </div>
         </div>
