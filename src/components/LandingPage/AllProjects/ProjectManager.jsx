@@ -592,6 +592,7 @@ const ProjectManager = () => {
                             : t("View_Project")
                           : t("View_Project")}
                       </h6>
+                      
                       {hasProjDeletePermission && (
                         <h6
                           onClick={() => handleDeleteProjectClick(project._id)}
