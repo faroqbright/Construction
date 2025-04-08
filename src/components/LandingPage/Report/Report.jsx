@@ -19,8 +19,7 @@ import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "react-toastify";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 
 export default function Report() {
   const location = useLocation();
@@ -34,8 +33,8 @@ export default function Report() {
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState("Chronological");
   const token = useSelector((state) => state.auth.userToken);
-  const currentYear = new Date().getFullYear();
   const [selectedMonth, setSelectedMonth] = useState("");
+  const currentYear = new Date().getFullYear();
 
   const months = [
     "January",
@@ -175,35 +174,14 @@ export default function Report() {
     setPage(1); // Reset to first page when sorting changes
   };
 
-  // State to hold selected month and year
-  const [documentsTwo, setDocumentsTwo] = useState([
-    { uploadedAt: "2023-03-10T10:00:00Z" },
-    { uploadedAt: "2023-04-15T14:30:00Z" },
-    { uploadedAt: "2024-03-21T16:00:00Z" },
-    { uploadedAt: "2025-04-08T10:00:00Z" }, // Added a document for testing
-    // Add more document objects with uploadedAt field
-  ]);
-
-  const handleExpirationChange = (date) => {
-    if (date) {
-      const formattedDate = date.toLocaleDateString("en-GB", {
-        month: "2-digit",
-        year: "2-digit",
-      });
-      setSelectedMonth(formattedDate);
-    } else {
-      setSelectedMonth(""); // Clear the selected date if the user clears it
-    }
-  };
   const filterDocumentsByMonth = (documents, selectedMonth) => {
-    if (!selectedMonth) return documents; // If no month selected, return all documents
+    if (!selectedMonth) return documents;
 
-    const [month, year] = selectedMonth.split("/"); // Split month and year
-    const targetDate = new Date(`20${year}`, month - 1); // Create target date object
+    const [month, year] = selectedMonth.split(", ");
+    const targetDate = new Date(`${month} 1, ${year}`);
 
     return documents.filter((document) => {
-      const docDate = new Date(document.uploadedAt); // Parse the document date
-      // Compare only the month and year (not the full date)
+      const docDate = new Date(document.uploadedAt);
       return (
         docDate.getMonth() === targetDate.getMonth() &&
         docDate.getFullYear() === targetDate.getFullYear()
@@ -211,10 +189,7 @@ export default function Report() {
     });
   };
 
-  const filteredDocumentsTwo = filterDocumentsByMonth(
-    documentsTwo,
-    selectedMonth
-  );
+  const filteredDocumentsTwo = filterDocumentsByMonth(documents, selectedMonth);
 
   return (
     <div className="min-h-screen px-4 py-2">
@@ -255,42 +230,38 @@ export default function Report() {
           {/* Date Select */}
           <div className="bg-white rounded-lg border border-gray-300">
             <FormControl className="min-w-[150px]" size="small">
-              <div>
-                <div className="flex items-center border-2 border-gray-300 rounded-lg p-3 w-full">
-                  <DatePicker
-                    selected={
-                      selectedMonth
-                        ? new Date(
-                            `20${selectedMonth.split("/")[1]}`,
-                            selectedMonth.split("/")[0] - 1
-                          )
-                        : null
-                    }
-                    onChange={handleExpirationChange}
-                    dateFormat="MM/yy"
-                    placeholderText="MM/YY"
-                    showMonthYearPicker
-                    className="w-full outline-none bg-white text-gray-700"
-                    calendarClassName="custom-calendar-size"
-                  />
-                </div>
-
-                {/* Display filtered documents */}
-                <div>
-                  <h3>Filtered Documents:</h3>
-                  {filteredDocumentsTwo.length === 0 ? (
-                    <p>No documents found for the selected month/year.</p>
-                  ) : (
-                    <ul>
-                      {filteredDocumentsTwo.map((document, index) => (
-                        <li key={index}>
-                          Document {index + 1}: {document.uploadedAt}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
+              <Select
+                value={selectedMonth}
+                onChange={(event) => setSelectedMonth(event.target.value)}
+                displayEmpty
+                className="rounded-lg border-none focus:ring-0"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <GrFormPrevious className="w-5 h-5" />
+                  </InputAdornment>
+                }
+                endAdornment={
+                  <InputAdornment position="end">
+                    <GrFormNext className="w-5 h-5" />
+                  </InputAdornment>
+                }
+              >
+                <MenuItem value="">
+                  <em>All Months</em>
+                </MenuItem>
+                {months.map((month) => {
+                  const current = `${month}, ${currentYear}`;
+                  const next = `${month}, ${currentYear + 1}`;
+                  return [
+                    <MenuItem key={current} value={current}>
+                      {current}
+                    </MenuItem>,
+                    <MenuItem key={next} value={next}>
+                      {next}
+                    </MenuItem>,
+                  ];
+                })}
+              </Select>
             </FormControl>
           </div>
         </div>
