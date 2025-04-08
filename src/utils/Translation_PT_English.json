@@ -234,7 +234,9 @@
   "More": "More",
   "Delete_Project": "Delete Project",
   "Are_you_sure_you_want_to_delete_this_project?": "Are you sure you want to delete this project?",
-  "Delete_Project_Confirmation": "Delete Project Confirmation",
+  "Delete_Project_Confirmation": "Confirm Project Deletion",
   "Yes": "Yes",
+  "Rejected_Projects": "Rejected Projects",
+  "Approved_Projects": "Approved Projects",
   "No": "No"
 }

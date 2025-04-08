@@ -1,28 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
-  IconButton,
   Select,
   MenuItem,
   TextField,
   Pagination,
   PaginationItem,
-  InputBase,
 } from "@mui/material";
-import { FiFilter } from "react-icons/fi";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineFileDownload } from "react-icons/md";
-import {
-  InputAdornment,
-  Stack,
-  Chip,
-  FormControl,
-  OutlinedInput,
-} from "@mui/material";
+import { InputAdornment, Stack, Chip, FormControl } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import DropdownIcon from "../../../../src/assets/dropdown.svg";
-import Footer from "../CommonUi/Footer";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa6";
@@ -30,6 +19,7 @@ import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "react-toastify";
+import { set } from "react-hook-form";
 
 export default function Report() {
   const location = useLocation();
@@ -92,28 +82,36 @@ export default function Report() {
     window.open(fileUrl, "_blank");
   };
 
-  const handleChange = (event, value) => {
-    setPage(value);
-  };
-
-  const handleViewDashboard = (id) => {
+  const handleViewDashboard = () => {
     navigate("/");
   };
 
   const recordsPerPage = 10;
 
   const handleTabChange = (tab) => {
-    setSelectedTab(tab);
+    let tabQuery = tab;
+
+    // Map Portuguese tab names to their query values
+    if (tab === "Todos os Projectos") {
+      tabQuery = "All Projects";
+    } else if (tab === "Pendente") {
+      tabQuery = "Pending";
+    } else if (tab === "Aprovado") {
+      tabQuery = "Approved";
+    } else if (tab === "Rejeitado") {
+      tabQuery = "Rejected";
+    }
+
+    setSelectedTab(tabQuery); // Set the selected tab to the query value
     setPage(1);
-    navigate(`/report?tab=${tab}`);
+
+    navigate(`/report?tab=${tabQuery}`);
   };
 
-  // Sort documents based on selected option
   const sortDocuments = (docs) => {
     if (sortOption === "Alphabetical") {
       return [...docs].sort((a, b) => a.projName.localeCompare(b.projName));
     } else {
-      // Default chronological (newest first)
       return [...docs].sort(
         (a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)
       );
@@ -128,7 +126,6 @@ export default function Report() {
             month: "long",
           })}, ${docDate.getFullYear()}`;
 
-          // Check if the document matches the selected tab and month
           const matchesTab =
             selectedTab === "All Projects" ||
             doc.status.toLowerCase() === selectedTab.toLowerCase();
@@ -190,7 +187,6 @@ export default function Report() {
     });
   };
 
-  // Usage
   const filteredDocumentsTwo = filterDocumentsByMonth(documents, selectedMonth);
 
   return (
