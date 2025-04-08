@@ -1,9 +1,10 @@
 import axios from "axios";
 
 const BASE_URL =
-  window.location.hostname === "localhost"
+  window.location.hostname === "localhost" ||
+  window.location.hostname.includes("vercel.app")
     ? "https://constructionbe-production.up.railway.app/api/v1"
-    : `http://appsoapro.techbytech.tech:8080/api/v1`;
+    : "http://appsoapro.techbytech.tech:8080/api/v1";
 
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
