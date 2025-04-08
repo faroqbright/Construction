@@ -167,6 +167,17 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
 
   const onSubmit = async (formData) => {
+     if (!formData.deadline || !formData.deadline.includes(" - ") || 
+      formData.deadline.endsWith(" - ") || formData.deadline.startsWith(" - ")) {
+    toast.error("Please select both the Start Date and End Date.");
+    return; // Prevent form submission
+  }
+
+  if (selectedFiles.length > 10) {
+    toast.error("You can only have up to 10 banners.");
+    return;
+  }
+    
     if (selectedFiles.length > 10)
       return toast.error("You can only have up to 10 banners.");
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;

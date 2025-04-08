@@ -28,7 +28,7 @@ import RouteMiddleware from "../../../routes/RouteMIddleware";
 import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import { Trash2, User, X } from "lucide-react";
+import { Trash2, User, UserRound, UserRoundCheck, X } from "lucide-react";
 
 const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
@@ -544,27 +544,29 @@ const ProjectManager = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center">
-                    {project.members
-                      .slice(visibleIndex, visibleIndex + 3)
-                      .map((member) =>
-                        member.avatar ? (
-                          <img
-                            key={member._id}
-                            className="w-8 h-8 rounded-full"
-                            src={member.avatar}
-                            onClick={() => openModal(project._id)}
-                            alt="Member"
-                          />
-                        ) : (
-                          <User
-                            key={member._id}
-                            className="bg-slate-400 rounded-full p-2 text-white"
-                            size={32}
-                            onClick={() => openModal(project._id)}
-                          />
-                        )
-                      )}
+                  <div className="mt-4 flex items-center justify-between">
+                    {project.members.length > 0 ? (
+                      project.members[0].avatar ? (
+                        <img
+                          className="w-8 h-8 rounded-full"
+                          src={project.members[0].avatar}
+                          onClick={() => openModal(project._id)}
+                          alt="Member"
+                        />
+                      ) : (
+                        <User
+                          className="bg-slate-400 rounded-full p-2 text-white"
+                          size={32}
+                          onClick={() => openModal(project._id)}
+                        />
+                      )
+                    ) : (
+                      <User
+                        className="bg-slate-400 rounded-full p-2 text-white"
+                        size={32}
+                        onClick={() => openModal(project._id)}
+                      />
+                    )}
 
                     <>
                       {project.members.length > 3 && (
@@ -740,7 +742,6 @@ const ProjectManager = () => {
                   >
                     {t("No")}
                   </Button>
-                  
                 </div>
               </Box>
             </Modal>
