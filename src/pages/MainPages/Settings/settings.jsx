@@ -56,10 +56,8 @@ export default function Settings() {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Create an object with only the changed and non-empty fields
       const updatedFields = {};
   
-      // Helper function to check if a field has changed and is not empty
       const hasChanged = (fieldName) => {
         const currentValue = formData[fieldName];
         const originalValue = userInfo?.[fieldName] || "";
@@ -71,7 +69,6 @@ export default function Settings() {
       if (hasChanged("phoneNumber")) updatedFields.phoneNumber = formData.phoneNumber;
       if (hasChanged("address")) updatedFields.address = formData.address;
   
-      // Only proceed if there are actual changes
       if (Object.keys(updatedFields).length === 0) {
         toast.info("No changes detected");
         setIsEditing(false);
@@ -79,13 +76,13 @@ export default function Settings() {
       }
   
       const response = await apiRequest(
-        "PATCH", // Use PATCH for updating specific fields
+        "PUT",
         `/users/update-profile/${userInfo._id}`,
-        updatedFields, // Send plain JSON object (no string conversion)
+        updatedFields,
         token,
         {
           headers: {
-            "Content-Type": "application/json", // Explicitly set JSON type
+            "Content-Type": "application/json",
           },
         }
       );
@@ -93,10 +90,9 @@ export default function Settings() {
       if (response.status === 200) {        
         toast.success("Profile updated successfully");
   
-        // Merge only the updated fields with existing userInfo
         const updatedUser = {
           ...userInfo,
-          ...response.data.data, // Assuming the server returns only updated fields
+          ...response.data.data,
         };
   
         dispatch(setUserInfo({ 
@@ -120,7 +116,6 @@ export default function Settings() {
   const toggleEdit = () => {
     setIsEditing(!isEditing);
     if (!isEditing) {
-      // Reset form data when entering edit mode
       setFormData({
         userName: userInfo?.userName || "",
         email: userInfo?.email || "",
@@ -139,35 +134,6 @@ export default function Settings() {
 
       <form onSubmit={onSubmit}>
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <div className="flex justify-between items-center mb-4">
-            <button
-              type="button"
-              onClick={toggleEdit}
-              className="flex items-center gap-2 px-4 py-2 bg-rose-950 text-white rounded-md hover:bg-rose-900 transition"
-            >
-              {isEditing ? (
-                <>
-                  <Pencil className="w-4 h-4" />
-                  <span>Cancel</span>
-                </>
-              ) : (
-                <>
-                  <Pencil className="w-4 h-4" />
-                  <span>Edit Profile</span>
-                </>
-              )}
-            </button>
-
-            {isEditing && (
-              <button
-                type="submit"
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-              >
-                <Save className="w-4 h-4" />
-                <span>Save Changes</span>
-              </button>
-            )}
-          </div>
 
           {/* Avatar section commented out */}
           {/* <div className="flex justify-center">
@@ -264,7 +230,7 @@ export default function Settings() {
               } rounded-md`}
             />
           </div>
-
+{/* 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
               {t("Account Created")}
@@ -275,9 +241,9 @@ export default function Settings() {
               readOnly
               className="w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-md"
             />
-          </div>
+          </div> */}
 
-          {isEditing && (
+          {/* {isEditing && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
                 New Password (leave blank to keep current)
@@ -291,7 +257,7 @@ export default function Settings() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
-          )}
+          )} */}
 
           {!isEditing && (
             <div className="space-y-2">
@@ -306,6 +272,35 @@ export default function Settings() {
               />
             </div>
           )}
+           <div className="flex justify-between items-center my-4">
+            <button
+              type="button"
+              onClick={toggleEdit}
+              className="flex items-center gap-2 px-4 py-2 bg-black-blacknew text-white rounded-md transition"
+            >
+              {isEditing ? (
+                <>
+                  <Pencil className="w-4 h-4" />
+                  <span>Cancel</span>
+                </>
+              ) : (
+                <>
+                  <Pencil className="w-4 h-4" />
+                  <span>Edit Profile</span>
+                </>
+              )}
+            </button>
+
+            {isEditing && (
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+              >
+                <Save className="w-4 h-4" />
+                <span>Save Changes</span>
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>
