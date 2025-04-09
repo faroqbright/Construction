@@ -16,10 +16,10 @@ const RouteMiddleware = ({
   const [tokenReady, setTokenReady] = useState(false);
 
   const getLocalStorageToken = () => {
-    const persistAuth = localStorage.getItem("persist:auth");
+    const persistAuth = localStorage?.getItem("persist:auth");
     if (persistAuth) {
       try {
-        const parsedPersistAuth = JSON.parse(persistAuth);
+        const parsedPersistAuth = JSON?.parse(persistAuth);
         const userToken = JSON.parse(parsedPersistAuth.userToken || "{}");
         return userToken;
       } catch (error) {

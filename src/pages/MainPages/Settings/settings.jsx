@@ -4,11 +4,14 @@ import { useTranslation } from "react-i18next";
 import { Pencil, UserRound, Save } from "lucide-react";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
+import { setUserInfo } from "../../../features/auth/authSlice";
 
 export default function Settings() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state?.auth?.userInfo);
+  console.log(userInfo);
+  
   const token = useSelector((state) => state?.auth?.userToken);
   
   const [isEditing, setIsEditing] = useState(false);
@@ -18,9 +21,9 @@ export default function Settings() {
     phoneNumber: userInfo?.phoneNumber || "",
     address: userInfo?.address || "",
     newPassword: "",
-    avatar: null,
+    // avatar: null,
   });
-  const [avatarPreview, setAvatarPreview] = useState(userInfo?.avatar || null);
+  // const [avatarPreview, setAvatarPreview] = useState(userInfo?.avatar || null);
 
   const formattedDate = userInfo?.createdAt
     ? new Date(userInfo.createdAt).toLocaleDateString()
@@ -34,86 +37,85 @@ export default function Settings() {
     });
   };
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        avatar: file,
-      });
+  // const handleAvatarChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setFormData({
+  //       ...formData,
+  //       avatar: file,
+  //     });
 
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setAvatarPreview(reader.result);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("userName", formData.userName);
-      formDataToSend.append("email", formData.email);
-      formDataToSend.append("phoneNumber", formData.phoneNumber);
-      formDataToSend.append("address", formData.address);
-
-      if (formData.newPassword) {
-        formDataToSend.append("newPassword", formData.newPassword);
+      // Create an object with only the changed and non-empty fields
+      const updatedFields = {};
+  
+      // Helper function to check if a field has changed and is not empty
+      const hasChanged = (fieldName) => {
+        const currentValue = formData[fieldName];
+        const originalValue = userInfo?.[fieldName] || "";
+        return currentValue !== originalValue && currentValue !== "";
+      };
+  
+      if (hasChanged("userName")) updatedFields.userName = formData.userName;
+      if (hasChanged("email")) updatedFields.email = formData.email;
+      if (hasChanged("phoneNumber")) updatedFields.phoneNumber = formData.phoneNumber;
+      if (hasChanged("address")) updatedFields.address = formData.address;
+  
+      // Only proceed if there are actual changes
+      if (Object.keys(updatedFields).length === 0) {
+        toast.info("No changes detected");
+        setIsEditing(false);
+        return;
       }
-
-      if (formData.avatar) {
-        formDataToSend.append("avatar", formData.avatar);
-      }
-
+  
       const response = await apiRequest(
-        "patch",
-        "/users/update-profile",
-        formDataToSend,
-        token
+        "PATCH", // Use PATCH for updating specific fields
+        `/users/update-profile/${userInfo._id}`,
+        updatedFields, // Send plain JSON object (no string conversion)
+        token,
+        {
+          headers: {
+            "Content-Type": "application/json", // Explicitly set JSON type
+          },
+        }
       );
-
-      if (response.status === 200) {
+  
+      if (response.status === 200) {        
         toast.success("Profile updated successfully");
-        
-        // Update Redux store with new user data
+  
+        // Merge only the updated fields with existing userInfo
         const updatedUser = {
           ...userInfo,
-          ...response.data.user,
-          avatar: response.data.user.avatar || userInfo.avatar
+          ...response.data.data, // Assuming the server returns only updated fields
         };
-        
-        dispatch(setCredentials({ 
-          userInfo: updatedUser,
-          userToken: token 
+  
+        dispatch(setUserInfo({ 
+          user: updatedUser,
+          accessToken: token,
         }));
-
-        // Update local state
-        setFormData(prev => ({
-          ...prev,
-          newPassword: "", // Clear password field
-          avatar: null // Clear avatar file
-        }));
-
-        // Keep the avatar preview
-        if (response.data.user.avatar) {
-          setAvatarPreview(response.data.user.avatar);
-        }
-
+  
         setIsEditing(false);
       } else {
         toast.error(response.data.message || "Failed to update profile");
       }
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
+        error.response?.data?.message || "Something went wrong. Please try again."
       );
       console.error("Error:", error);
     }
-  };
+  };  
+  
 
   const toggleEdit = () => {
     setIsEditing(!isEditing);
@@ -125,9 +127,9 @@ export default function Settings() {
         phoneNumber: userInfo?.phoneNumber || "",
         address: userInfo?.address || "",
         newPassword: "",
-        avatar: null,
+        // avatar: null,
       });
-      setAvatarPreview(userInfo?.avatar || null);
+      // setAvatarPreview(userInfo?.avatar || null);
     }
   };
 
@@ -167,7 +169,8 @@ export default function Settings() {
             )}
           </div>
 
-          <div className="flex justify-center">
+          {/* Avatar section commented out */}
+          {/* <div className="flex justify-center">
             <div className="relative">
               {avatarPreview ? (
                 <img
@@ -196,7 +199,7 @@ export default function Settings() {
                 </>
               )}
             </div>
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">

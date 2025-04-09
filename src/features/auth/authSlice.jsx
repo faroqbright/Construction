@@ -1,13 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    loading: false,
-    userInfo: {}, //  user object
-    userToken: null,
-    role:null, //
-    error: null,
-    isAuthenticated: false,
-    };
+  loading: false,
+  userInfo: {}, //  user object
+  userToken: null,
+  role: null, //
+  error: null,
+  isAuthenticated: false,
+};
 export const authSlice = createSlice({
   //name is default property of rtk ,auth is shown in my rtk devtools
   //we can add initial state directly here as well
@@ -22,22 +22,21 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     setUserInfo: (state, action) => {
-      console.log("🚀 ~ action:", action.payload.user)
-      
-      state.loading = action?.payload?.user?true:false;
-      state.isAuthenticated = action.payload?.user?true:false;
-      state.userInfo = action.payload.user;
-      state.userToken = action.payload.accessToken;
-    //   state.role = action.payload.data.role;
-    },
+      if (action.payload?.user) {
+        state.userInfo = { ...action.payload.user }; // Overwrite with new data
+        state.userToken = action.payload.accessToken || state.userToken;
+        state.isAuthenticated = true;
+      }
+      state.loading = false;
+    },    
     removeUserInfo: (state) => {
-        state.userInfo = {};
-        state.userToken = null;
-        state.loading = null;
-        state.role = null;
-        state.isAuthenticated = null;
-      },
+      state.userInfo = {};
+      state.userToken = null;
+      state.loading = null;
+      state.role = null;
+      state.isAuthenticated = null;
+    },
   },
 });
-export const { setUserInfo,removeUserInfo } = authSlice.actions;
-export default authSlice.reducer
+export const { setUserInfo, removeUserInfo } = authSlice.actions;
+export default authSlice.reducer;
