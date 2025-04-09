@@ -13,6 +13,9 @@
   "Uploading": "Uploading",
   "Lets_finish_your_projects_today!": "Lets finish your projects today!",
   "Pending_Projects": "Pending Projects",
+  "Pending_Reports": "Pending Reports",
+  "Approved_Reports": "Approved Reports",
+  "Rejected_Reports": "Rejected Reports",
   "No_projects_available": "No projects available",
   "Billing": "Billing",
   "Members": "Members",
@@ -238,5 +241,13 @@
   "Yes": "Yes",
   "Rejected_Projects": "Rejected Projects",
   "Approved_Projects": "Approved Projects",
+  "Additional_Milestones": "Additional Milestones",
+  "Add_Additional_Milestone": "Add Additional Milestone",
+  "Create_New_Milestone": "Create New Milestone",
+  "Title": "Title",
+  "Completed_At": "Completed At",
+  "Project_Id": "Project ID",
+  "Updated_At": "Updated At",
+  "Edit_Milestone": "Edit Milestone",
   "No": "No"
 }

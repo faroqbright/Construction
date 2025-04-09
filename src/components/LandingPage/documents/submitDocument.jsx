@@ -12,10 +12,14 @@ const SubmitDocument = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const token = useSelector((state) => state?.auth?.userToken);  
+  const token = useSelector((state) => state?.auth?.userToken);
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchTerm, setSearchTerm] = useState(""); // Initialize the searchTerm states
+  const filteredProjects = projects.filter((project) =>
+    project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -49,7 +53,7 @@ const SubmitDocument = () => {
 
   const handleUpload = async () => {
     if (!selectedFile || !selectedProject) {
-        toast.info("Please select a project and upload a PDF file.");
+      toast.info("Please select a project and upload a PDF file.");
       return;
     }
 
@@ -61,11 +65,16 @@ const SubmitDocument = () => {
     formData.append("user", user);
 
     try {
-      const response = await apiRequest("post", "/userdocuments", formData, token, {
-        "Content-Type": "multipart/form-data",
-      });
+      const response = await apiRequest(
+        "post",
+        "/userdocuments",
+        formData,
+        token,
+        {
+          "Content-Type": "multipart/form-data",
+        }
+      );
       console.log(response);
-      
 
       if (response?.status === 200 || response?.status === 201) {
         toast.success("File uploaded successfully!");
@@ -92,22 +101,40 @@ const SubmitDocument = () => {
 
       <div className="mx-4 mb-3">
         <h3>{t("Project_Name")}</h3>
-        <select
-          className="mt-2 border border-gray-300 rounded-md p-2 w-full"
-          value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          <option value="">{t("Select_a_Project")}</option>
-          {loading ? (
-            <option>Loading...</option>
-          ) : (
-            projects.map((project) => (
-              <option key={project._id} value={project.projectName}>
-                {project.projectName}
-              </option>
-            ))
-          )}
-        </select>
+        <div className="relative">
+          <div className="mt-2 border border-gray-300 rounded-md p-2 w-full cursor-pointer">
+            {selectedProject || t("Select_a_Project")}
+          </div>
+          <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+            <input
+              type="text"
+              placeholder="Search projects..."
+              className="p-2 border-b border-gray-300 w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm on change
+            />
+            <div className="max-h-60 overflow-y-auto">
+              {loading ? (
+                <div className="p-2">Loading...</div>
+              ) : filteredProjects.length > 0 ? (
+                filteredProjects.map((project) => (
+                  <div
+                    key={project._id}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setSelectedProject(project.projectName);
+                      setSearchTerm(""); // Clear the search term after selection
+                    }}
+                  >
+                    {project.projectName}
+                  </div>
+                ))
+              ) : (
+                <div className="p-2">No projects found.</div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mx-4 mb-3">

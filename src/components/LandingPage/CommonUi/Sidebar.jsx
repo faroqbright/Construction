@@ -17,7 +17,7 @@ import building from "../../../assets/building-2.png";
 import { useSelector } from "react-redux";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-
+import milestone from "../../../assets/milestone.png";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [reportDropdown, setReportDropdown] = useState(false);
@@ -61,9 +61,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               module: "ReportsManagement",  
               isDropdown: true,
               dropdownItems: [
-                { label: t("Pending_Projects"), to: "/report?tab=Pending"},
-                { label: t("Approved_Projects"), to: "/report?tab=Approved"},
-                { label: t("Rejected_Projects"), to: "/report?tab=Rejected"},
+                { label: t("Pending_Reports"), to: "/report?tab=Pending"},
+                { label: t("Approved_Reports"), to: "/report?tab=Approved"},
+                { label: t("Rejected_Reports"), to: "/report?tab=Rejected"},
               ],  
             },
           ]
@@ -109,6 +109,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           label: t("All_Companies"),
           to: "/all-clients",
           module: "CompanyManagement",
+        },
+        {
+          icon: milestone,
+          label: t("Additional_Milestones"),
+          to: "/additional-milestones",
+          module: "MilestoneManagement",
         },
     ];    
 
