@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { FaFileCircleQuestion } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Slider from "react-slick";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { toast } from "react-toastify";
 
 const ProjectDetails = () => {
@@ -23,6 +23,20 @@ const ProjectDetails = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [financialId, setFinancialId] = useState(null);
+
+  const [milestones, setMilestones] = useState([
+    { id: 1, title: "Project Kickoff", description: "Initial meeting and requirements gathering", checked: false },
+    { id: 2, title: "Design Approval", description: "Review and finalize UI/UX designs", checked: false },
+    { id: 3, title: "Final Delivery", description: "Project completion and handover", checked: false }
+  ]);
+
+  const toggleCheck = (id) => {
+    setMilestones(milestones.map(milestone => 
+      milestone.id === id 
+        ? { ...milestone, checked: !milestone.checked } 
+        : milestone
+    ));
+  };
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -137,7 +151,7 @@ const ProjectDetails = () => {
 
   const handleDrag = (e, type) => {
     if (!canDrag) return;
-    
+
     setDragging(true);
     const rect = e.target.parentElement.getBoundingClientRect();
     let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
@@ -155,7 +169,7 @@ const ProjectDetails = () => {
 
   const handleDragEnd = () => {
     if (!canDrag) return;
-    
+
     setDragging(false);
     if (dragTimeout.current) clearTimeout(dragTimeout.current);
 
@@ -182,17 +196,33 @@ const ProjectDetails = () => {
   return (
     <>
       <div className="mx-6 bg-white rounded-xl ">
-      <div className="mt-6  p-6 ">
+        <div className="mt-6  p-6 ">
           <h2 className="font-bold text-gray-800 text-2xl">
             {projectData?.projectName}
           </h2>
           <p className="mt-2 text-lightpurple-light text-md">
             {projectData?.description}
           </p>
-          <div className="flex text-sm text-nowrap w-[20%] gap-4 mt-6 ">
+          <div className="flex text-sm gap-4 mt-6 ">
             <div>
               <strong className="text-black-blacknew text-base">
-                {t("Project_Owner")}:
+                Business Area:{" "}
+              </strong>
+              <span className="text-[#54577A] font-bold text-base">
+                {projectData?.projectOwners?.length
+                  ? projectData.projectOwners
+                      .map(
+                        (owner) =>
+                          owner.ownerName.charAt(0).toUpperCase() +
+                          owner.ownerName.slice(1)
+                      )
+                      .join(", ")
+                  : ""}
+              </span>
+            </div>
+            <div>
+              <strong className="text-black-blacknew text-base">
+                Client Company:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
                 {projectData?.projectOwners?.length
@@ -293,7 +323,7 @@ const ProjectDetails = () => {
               ))}
           </div>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="mt-6 p-6">
           {/* Physical Execution */}
@@ -328,13 +358,18 @@ const ProjectDetails = () => {
                   left: `calc(${physicalExecution}% - 10px)`,
                   top: "-6px",
                 }}
-                onMouseDown={canDrag ? (e) => {
-                  document.onmousemove = (ev) => handleDrag(ev, "physical");
-                  document.onmouseup = () => {
-                    document.onmousemove = null;
-                    handleDragEnd();
-                  };
-                } : undefined}
+                onMouseDown={
+                  canDrag
+                    ? (e) => {
+                        document.onmousemove = (ev) =>
+                          handleDrag(ev, "physical");
+                        document.onmouseup = () => {
+                          document.onmousemove = null;
+                          handleDragEnd();
+                        };
+                      }
+                    : undefined
+                }
               ></div>
             </div>
           </div>
@@ -343,9 +378,7 @@ const ProjectDetails = () => {
           <div className="mb-4 mt-2 relative">
             <div className="flex justify-between">
               <p className="black text-sm mb-1">Financial Execution</p>
-              <h6 className="text-red-500">
-                {financialExecution}%
-              </h6>
+              <h6 className="text-red-500">{financialExecution}%</h6>
             </div>
             <div className="w-full bg-gray-200 h-2 rounded-full relative">
               <div
@@ -361,13 +394,18 @@ const ProjectDetails = () => {
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
                 style={{ left: `calc(${financialExecution}% - 10px)` }}
-                onMouseDown={canDrag ? (e) => {
-                  document.onmousemove = (ev) => handleDrag(ev, "financial");
-                  document.onmouseup = () => {
-                    document.onmousemove = null;
-                    handleDragEnd();
-                  };
-                } : undefined}
+                onMouseDown={
+                  canDrag
+                    ? (e) => {
+                        document.onmousemove = (ev) =>
+                          handleDrag(ev, "financial");
+                        document.onmouseup = () => {
+                          document.onmousemove = null;
+                          handleDragEnd();
+                        };
+                      }
+                    : undefined
+                }
               ></div>
             </div>
           </div>
@@ -546,6 +584,27 @@ const ProjectDetails = () => {
             </div>
           </div>
         </div>
+
+        <div className="mt-6 p-6">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Added Milestones</h3>
+      
+      {milestones.map((milestone) => (
+        <div key={milestone.id} className="flex items-center justify-between py-3 border-b">
+          <div>
+            <h4 className="font-medium text-gray-800">{milestone.id}. {milestone.title}</h4>
+            <p className="text-sm text-gray-500">{milestone.description}</p>
+          </div>
+          <div
+            onClick={() => toggleCheck(milestone.id)}
+            className={`h-8 w-8 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors duration-200 ${
+              milestone.checked ? "bg-black" : "border-gray-300 bg-white"
+            }`}
+          >
+            {milestone.checked && <Check size={20} color="black" strokeWidth={4} />}
+          </div>
+        </div>
+      ))}
+    </div>
 
         {/* Finance Status */}
         <div className="mt-14 justify-between w-full p-6">

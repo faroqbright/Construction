@@ -11,7 +11,37 @@ import ChangeLogModal from "../../ChangeLog/ChangeLog";
 import { Modal, Box } from "@mui/material";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import { User } from "lucide-react";
+import { Trash2, User } from "lucide-react";
+
+const members = [
+  { name: "Ralph Edwards", avatar: "/avatars/ralph.jpg" },
+  { name: "Kristin Watson", avatar: "/avatars/kristin.jpg" },
+  { name: "Floyd Miles", avatar: "/avatars/floyd.jpg" },
+  { name: "Amanda Parkers", avatar: "/avatars/amanda.jpg" },
+];
+
+const milestones2 = [
+  {
+    id: 1,
+    name: "Project Kickoff",
+    description: "Initial meeting and requirements gathering",
+  },
+  {
+    id: 2,
+    name: "Design Approval",
+    description: "Review and finalize UI/UX designs",
+  },
+  {
+    id: 3,
+    name: "Final Delivery",
+    description: "Project completion and handover",
+  },
+];
+
+const milestones = [
+  "Project Kick-off: Delivery of the Raw Materials",
+  "Delivery of the raw materials for the initial construction base.",
+];
 
 export default function EditProject() {
   const {
@@ -44,6 +74,10 @@ export default function EditProject() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [FinancialExecution, setFinancialExecution] = useState([]);
   const [fileName, setFileName] = useState([]);
+
+  const removeMember = (listSetter, index) => {
+    listSetter((prev) => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     if (initialValues?.projectBanner) {
@@ -167,17 +201,21 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
 
   const onSubmit = async (formData) => {
-     if (!formData.deadline || !formData.deadline.includes(" - ") || 
-      formData.deadline.endsWith(" - ") || formData.deadline.startsWith(" - ")) {
-    toast.error("Please select both the Start Date and End Date.");
-    return; // Prevent form submission
-  }
+    if (
+      !formData.deadline ||
+      !formData.deadline.includes(" - ") ||
+      formData.deadline.endsWith(" - ") ||
+      formData.deadline.startsWith(" - ")
+    ) {
+      toast.error("Please select both the Start Date and End Date.");
+      return; // Prevent form submission
+    }
 
-  if (selectedFiles.length > 10) {
-    toast.error("You can only have up to 10 banners.");
-    return;
-  }
-    
+    if (selectedFiles.length > 10) {
+      toast.error("You can only have up to 10 banners.");
+      return;
+    }
+
     if (selectedFiles.length > 10)
       return toast.error("You can only have up to 10 banners.");
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
@@ -526,6 +564,37 @@ export default function EditProject() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-6">Business Area</h2>
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">
+              Select the Business Area
+            </span>
+          </label>
+          <select className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="architecture">Architecture and Engineering</option>
+            <option value="construction">Management and Supervision</option>
+            <option value="it">Environment</option>
+            <option value="it">SOAPRO Academy</option>
+            <option value="it">Studies and Technical Consulting</option>
+            <option value="it">Real Estate Appraisals</option>
+          </select>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-6">Client Company</h2>
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">
+              Select the Client Company
+            </span>
+          </label>
+          <select className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="architecture">DP World</option>
+            <option value="construction">Turner Construction</option>
+            <option value="it">Fluor Corporation </option>
+          </select>
+        </div>
+
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
         <div className="mb-4">
           <label className="block text-2xl font-semibold mb-2 text-red-800">
@@ -781,6 +850,68 @@ export default function EditProject() {
                   className="text-red-500 hover:text-red-700"
                 >
                   ✖
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-6">Project Milestones</h2>
+
+          {/* Milestone Name Field */}
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">Milestone Name</span>
+          </label>
+          <input
+            type="text"
+            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Enter milestone name"
+          />
+
+          {/* Milestone Description Field */}
+          <label className="block text-2xl font-semibold mt-4 mb-2">
+            <span className="text-gray-700 text-sm">Milestone Description</span>
+          </label>
+          <textarea
+            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            rows={4}
+            placeholder="Enter milestone description"
+          ></textarea>
+        </div>
+        <div className="flex justify-end mb-6">
+          <button
+            type="submit"
+            className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
+          >
+            Save Milestones
+          </button>
+          <button className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md">
+            Cancel
+          </button>
+        </div>
+
+        <div>
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">Milestones</span>
+          </label>
+          <div>
+            {milestones2.map((milestone, index) => (
+              <div
+                key={milestone.id}
+                className="flex items-center justify-between py-3 border-b"
+              >
+                <div>
+                  <h4 className="font-medium text-gray-800">
+                    {index + 1}. {milestone.name}
+                  </h4>
+                  <p className="text-sm text-gray-500">
+                    {milestone.description}
+                  </p>
+                </div>
+
+                <button className="text-red-500">
+                  <Trash2 size={20} />
                 </button>
               </div>
             ))}
@@ -1267,8 +1398,8 @@ export default function EditProject() {
           </>
         )}
 
-        <div className="mt-6 flex justify-between">
-          <div>
+        <div className="mt-6">
+          <div className="flex justify-end ">
             {!isViewMode && (
               <button
                 type="submit"
