@@ -40,6 +40,10 @@ const MilestoneTable = () => {
   const navigate = useNavigate();
   const modalRef = useRef(null);
 
+  const _id = useSelector((state) => state?.auth?.userInfo?._id);
+  console.log("User ID:", _id);
+  
+
   const filteredProjects = projects.filter(project =>
     project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -59,7 +63,7 @@ const MilestoneTable = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await apiRequest("get", "/companies", {}, token);
+      const response = await apiRequest("get", `/additional/user/${_id}`, {}, token);
       console.log(response);
       if (response.data && Array.isArray(response.data.data)) {
         setUsers(response.data.data);
