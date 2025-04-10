@@ -8,7 +8,7 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ChangeLogModal from "../../ChangeLog/ChangeLog";
-import { Modal, Box } from "@mui/material";
+import { Modal, Box, FormControl, InputLabel, MenuItem } from "@mui/material";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { Trash2, User } from "lucide-react";
@@ -18,24 +18,6 @@ const members = [
   { name: "Kristin Watson", avatar: "/avatars/kristin.jpg" },
   { name: "Floyd Miles", avatar: "/avatars/floyd.jpg" },
   { name: "Amanda Parkers", avatar: "/avatars/amanda.jpg" },
-];
-
-const milestones2 = [
-  {
-    id: 1,
-    name: "Project Kickoff",
-    description: "Initial meeting and requirements gathering",
-  },
-  {
-    id: 2,
-    name: "Design Approval",
-    description: "Review and finalize UI/UX designs",
-  },
-  {
-    id: 3,
-    name: "Final Delivery",
-    description: "Project completion and handover",
-  },
 ];
 
 const milestones = [
@@ -74,10 +56,61 @@ export default function EditProject() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [FinancialExecution, setFinancialExecution] = useState([]);
   const [fileName, setFileName] = useState([]);
+  const [milestoneName, setMilestoneName] = useState("");
+  const [milestoneDescription, setMilestoneDescription] = useState("");
+  const [milestones, setMilestones] = useState([]);
+  const [businessArea, setBusinessArea] = useState("");
+  const [projecto, setProjecto] = useState([]);
+  const [formData, setFormData] = useState({});
+  const [editData, setEditData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  console.log(projecto);
 
-  const removeMember = (listSetter, index) => {
-    listSetter((prev) => prev.filter((_, i) => i !== index));
+  const handleMilestoneSubmit = (e) => {
+    e.preventDefault(); // This prevents page refresh
+
+    if (!milestoneName.trim()) {
+      alert("Please enter a milestone name");
+      return;
+    }
+
+    const newMilestone = {
+      id: Date.now(), // Creates a unique ID
+      name: milestoneName,
+      description: milestoneDescription,
+    };
+
+    // Correct way to update state
+    setMilestones((prevMilestones) => [...prevMilestones, newMilestone]);
+
+    // Clear the form
+    setMilestoneName("");
+    setMilestoneDescription("");
   };
+
+  const handleMilestoneDelete = (id) => {
+    setMilestones((prevMilestones) =>
+      prevMilestones.filter((m) => m.id !== id)
+    );
+  };
+
+  useEffect(() => {
+    const fetchProjecto = async () => {
+      setLoading(true);
+      try {
+        const response = await apiRequest("get", "/companies", {}, token);
+        if (response?.data?.statusCode === 200) {
+          setProjecto(response?.data?.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjecto();
+  }, [token]);
 
   useEffect(() => {
     if (initialValues?.projectBanner) {
@@ -239,6 +272,7 @@ export default function EditProject() {
       });
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
+      data.append("businessAreas", businessArea);
 
       requestData = data;
     } else {
@@ -252,6 +286,9 @@ export default function EditProject() {
       }
       if (formData.location !== initialValues.location) {
         updatedFields.location = formData.location;
+      }
+      if (formData.businessArea !== initialValues.businessArea) {
+        updatedFields.businessArea = businessArea;
       }
       if (formData.status !== initialValues.status) {
         updatedFields.status = formData.status;
@@ -571,13 +608,17 @@ export default function EditProject() {
               Select the Business Area
             </span>
           </label>
-          <select className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <select
+            value={businessArea}
+            onChange={(e) => setBusinessArea(e.target.value)}
+            className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
             <option value="architecture">Architecture and Engineering</option>
-            <option value="construction">Management and Supervision</option>
-            <option value="it">Environment</option>
-            <option value="it">SOAPRO Academy</option>
-            <option value="it">Studies and Technical Consulting</option>
-            <option value="it">Real Estate Appraisals</option>
+            <option value="Management">Management and Supervision</option>
+            <option value="Environment">Environment</option>
+            <option value="SOAPRO">SOAPRO Academy</option>
+            <option value="Studies">Studies and Technical Consulting</option>
+            <option value="Appraisals">Real Estate Appraisals</option>
           </select>
         </div>
 
@@ -588,11 +629,27 @@ export default function EditProject() {
               Select the Client Company
             </span>
           </label>
-          <select className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-            <option value="architecture">DP World</option>
-            <option value="construction">Turner Construction</option>
-            <option value="it">Fluor Corporation </option>
-          </select>
+          <FormControl fullWidth variant="outlined">
+            <Select
+              value={formData.companyName || ""} // Use the value from formData
+              onChange={(e) =>
+                setFormData({ ...formData, companyName: e.target.value })
+              }
+              label={t("Choose_Company")}
+            >
+              {loading ? (
+                <MenuItem disabled>{t("Loading...")}</MenuItem>
+              ) : projecto && projecto.length > 0 ? (
+                projecto.map((project) => (
+                  <MenuItem key={project?._id} value={project?.name}>
+                    {project?.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>{t("No companies available")}</MenuItem>
+              )}
+            </Select>
+          </FormControl>
         </div>
 
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
@@ -859,65 +916,89 @@ export default function EditProject() {
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-6">Project Milestones</h2>
 
-          {/* Milestone Name Field */}
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">Milestone Name</span>
-          </label>
-          <input
-            type="text"
-            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Enter milestone name"
-          />
-
-          {/* Milestone Description Field */}
-          <label className="block text-2xl font-semibold mt-4 mb-2">
-            <span className="text-gray-700 text-sm">Milestone Description</span>
-          </label>
-          <textarea
-            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            rows={4}
-            placeholder="Enter milestone description"
-          ></textarea>
-        </div>
-        <div className="flex justify-end mb-6">
-          <button
-            type="submit"
-            className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
-          >
-            Save Milestones
-          </button>
-          <button className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md">
-            Cancel
-          </button>
-        </div>
-
-        <div>
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">Milestones</span>
-          </label>
+          {/* Changed from form to div since it's nested in the main form */}
           <div>
-            {milestones2.map((milestone, index) => (
-              <div
-                key={milestone.id}
-                className="flex items-center justify-between py-3 border-b"
-              >
-                <div>
-                  <h4 className="font-medium text-gray-800">
-                    {index + 1}. {milestone.name}
-                  </h4>
-                  <p className="text-sm text-gray-500">
-                    {milestone.description}
-                  </p>
-                </div>
+            <label className="block text-2xl font-semibold mb-2">
+              <span className="text-gray-700 text-sm">Milestone Name</span>
+            </label>
+            <input
+              type="text"
+              className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Enter milestone name"
+              value={milestoneName}
+              onChange={(e) => setMilestoneName(e.target.value)}
+            />
 
-                <button className="text-red-500">
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            ))}
+            <label className="block text-2xl font-semibold mt-4 mb-2">
+              <span className="text-gray-700 text-sm">
+                Milestone Description
+              </span>
+            </label>
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              rows={4}
+              placeholder="Enter milestone description"
+              value={milestoneDescription}
+              onChange={(e) => setMilestoneDescription(e.target.value)}
+            ></textarea>
+
+            <div className="flex justify-end mb-6 mt-4">
+              {/* Changed to type="button" to prevent form submission */}
+              <button
+                type="button"
+                className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
+                onClick={handleMilestoneSubmit}
+              >
+                Save Milestones
+              </button>
+              <button
+                type="button"
+                className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md"
+                onClick={() => {
+                  setMilestoneName("");
+                  setMilestoneDescription("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          {/* Milestones List */}
+          <div>
+            <label className="block text-2xl font-semibold mb-2">
+              <span className="text-gray-700 text-sm">Milestones</span>
+            </label>
+            <div>
+              {milestones.length === 0 ? (
+                <p className="text-gray-500">No milestones added yet</p>
+              ) : (
+                milestones.map((milestone, index) => (
+                  <div
+                    key={milestone.id}
+                    className="flex items-center justify-between py-3 border-b"
+                  >
+                    <div>
+                      <h4 className="font-medium text-gray-800">
+                        {index + 1}. {milestone.name}
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        {milestone.description}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleMilestoneDelete(milestone.id)}
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
-
         <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
         <div className="mb-4">
           {!isViewMode && (

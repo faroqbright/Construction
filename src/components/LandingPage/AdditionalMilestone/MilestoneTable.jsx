@@ -9,6 +9,10 @@ import {
   TextField,
   Typography,
   IconButton,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { RiCloseLine } from "react-icons/ri";
@@ -25,10 +29,17 @@ import { Milestone } from "lucide-react";
 const MilestoneTable = () => {
   const [openStates, setOpenStates] = useState({});
   const [open, setOpen] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [milestones, setMilestones] = useState([]);
   const [editData, setEditData] = useState(null);
-  const [formData, setFormData] = useState();
-  const [selectedProject, setSelectedProject] = useState("");
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    status: "pending",
+    completedAt: null,
+    userId: "",
+    projectName: "",
+    projectId: "",
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -39,12 +50,11 @@ const MilestoneTable = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const modalRef = useRef(null);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   const _id = useSelector((state) => state?.auth?.userInfo?._id);
-  console.log("User ID:", _id);
-  
 
-  const filteredProjects = projects.filter(project =>
+  const filteredProjects = projects.filter((project) =>
     project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -61,12 +71,16 @@ const MilestoneTable = () => {
     };
   }, []);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchMilestones = useCallback(async () => {
     try {
-      const response = await apiRequest("get", `/additional/user/${_id}`, {}, token);
-      console.log(response);
+      const response = await apiRequest(
+        "get",
+        `/additional/user/${_id}`,
+        {},
+        token
+      );
       if (response.data && Array.isArray(response.data.data)) {
-        setUsers(response.data.data);
+        setMilestones(response.data.data);
         setTotalPages(response.data.totalPages);
       }
     } catch (error) {
@@ -78,7 +92,7 @@ const MilestoneTable = () => {
         console.error("Error:", error);
       }
     }
-  }, [token, dispatch, navigate, page]);
+  }, [token, dispatch, navigate, page, _id]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -98,21 +112,31 @@ const MilestoneTable = () => {
     fetchProjects();
   }, [token]);
 
-  const handleOpen = (user = null) => {
-    setEditData(user);
-    if (user) {
+  const handleOpen = (milestone = null) => {
+    setEditData(milestone);
+    if (milestone) {
       setFormData({
-        name: user.name,
-        email: user.email,
-        number: user.number,
+        title: milestone.title,
+        description: milestone.description,
+        status: milestone.status,
+        completedAt: milestone.completedAt || null,
+        userId: milestone.userId,
+        projectName: milestone.projectName,
+        projectId: milestone.projectId,
       });
     } else {
       setFormData({
-        name: "",
-        email: "",
-        number: "",
+        title: "",
+        description: "",
+        status: "pending",
+        completedAt: null,
+        userId: _id,
+        projectName: "",
+        projectId: "",
       });
     }
+    setSearchTerm("");
+    setIsProjectDropdownOpen(false);
     setOpen(true);
   };
 
@@ -139,9 +163,10 @@ const MilestoneTable = () => {
 
   const handleAdd = async () => {
     if (
-      !formData.name.trim() ||
-      !formData.email.trim() ||
-      !formData.number.trim()
+      !formData.title.trim() ||
+      !formData.description.trim() ||
+      !formData.status.trim() ||
+      !formData.projectId.trim()
     ) {
       toast.error("All fields are required.");
       return;
@@ -150,14 +175,32 @@ const MilestoneTable = () => {
       if (!token) {
         throw new Error("No token found");
       }
-      const response = await apiRequest("post", `/additional/milestone/${}`, formData, token);
 
-      if (response.data.statusCode === 201) {
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        status: formData.status,
+        completedAt:
+          formData.status === "completed" ? new Date().toISOString() : null,
+        userId: formData.userId,
+        projectName: formData.projectName,
+      };
+
+      const response = await apiRequest(
+        "post",
+        `/additional/milestone/${formData.projectId}`,
+        payload,
+        token
+      );
+
+      console.log("API Response:", response.data);
+
+      if (response.status === 200 || response.status === 201) {
         toast.success(response.data.message);
-        fetchUsers();
+        fetchMilestones();
         handleClose();
       } else {
-        toast.error("Failed to add user.");
+        toast.error("Failed to add milestone.");
       }
     } catch (error) {
       toast.error(
@@ -169,13 +212,18 @@ const MilestoneTable = () => {
     }
   };
 
-  const handleDelete = async (userId) => {
+  const handleDelete = async (milestoneId) => {
     try {
-      await apiRequest("delete", `/companies/${userId}`, {}, token);
-      toast.success("Company deleted successfully.");
-      fetchUsers();
+      await apiRequest(
+        "delete",
+        `/additional/milestone/delete/${milestoneId}`,
+        {},
+        token
+      );
+      toast.success("Milestone deleted successfully.");
+      fetchMilestones();
     } catch (error) {
-      toast.error("Failed to delete user.");
+      toast.error("Failed to delete milestone.");
       console.error("Error:", error);
     }
   };
@@ -183,29 +231,43 @@ const MilestoneTable = () => {
   const handleEditSubmit = async () => {
     try {
       const updatedData = {
-        name: formData.name,
-        email: formData.email,
-        number: formData.number,
+        title: formData.title,
+        description: formData.description,
+        status: formData.status,
+        completedAt:
+          formData.status === "completed"
+            ? formData.completedAt || new Date().toISOString()
+            : null,
+        projectName: formData.projectName,
       };
+
       await apiRequest(
-        "patch",
-        `/companies/${editData._id}`,
+        "put",
+        `/additional/milestone/update/${editData._id}`,
         updatedData,
         token
       );
 
-      toast.success("Comapny updated successfully.");
-      fetchUsers();
+      toast.success("Milestone updated successfully.");
+      fetchMilestones();
       handleClose();
     } catch (error) {
-      toast.error("Failed to update user.");
+      toast.error("Failed to update milestone.");
       console.error("Error:", error);
     }
   };
 
+  const handleStatusChange = (status) => {
+    setFormData({
+      ...formData,
+      status,
+      completedAt: status === "completed" ? new Date().toISOString() : null,
+    });
+  };
+
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchMilestones();
+  }, [fetchMilestones]);
 
   const modalStyles = {
     position: "absolute",
@@ -225,16 +287,16 @@ const MilestoneTable = () => {
     setPage(value);
   };
 
-  const hasCLientCreatePermission = RolePermissions(
-    "CompanyManagement",
+  const hasMilestoneCreatePermission = RolePermissions(
+    "MilestoneManagement",
     "create"
   );
-  const hasCLientUpdatePermission = RolePermissions(
-    "CompanyManagement",
+  const hasMilestoneUpdatePermission = RolePermissions(
+    "MilestoneManagement",
     "update"
   );
-  const hasCLientDeletePermission = RolePermissions(
-    "CompanyManagement",
+  const hasMilestoneDeletePermission = RolePermissions(
+    "MilestoneManagement",
     "delete"
   );
 
@@ -247,7 +309,7 @@ const MilestoneTable = () => {
           <h2 className="text-xl font-semibold">
             {t("Additional_Milestones")}
           </h2>
-          {hasCLientCreatePermission && (
+          {hasMilestoneCreatePermission && (
             <Button
               variant="contained"
               onClick={() => handleOpen(null)}
@@ -272,41 +334,50 @@ const MilestoneTable = () => {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
-
                 <th className="p-4 border-b">{t("Title")}</th>
                 <th className="p-4 border-b">{t("Description")}</th>
+                <th className="p-4 border-b">{t("Project")}</th>
                 <th className="p-4 border-b">{t("Completed_At")}</th>
                 <th className="p-4 border-b">{t("Created_At")}</th>
                 <th className="p-4 border-b">{t("Status")}</th>
-                {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
+                {(hasMilestoneUpdatePermission ||
+                  hasMilestoneDeletePermission) && (
                   <th className="p-4 border-b">{t("Actions")}</th>
                 )}
               </tr>
             </thead>
             <tbody>
-              {users.map((user, idx) => (
-                <tr key={user._id} className="hover:bg-gray-50">
+              {milestones.map((milestone, idx) => (
+                <tr key={milestone._id} className="hover:bg-gray-50">
                   <td className="p-4">
                     <Checkbox />
                   </td>
-                  <td className="p-4">{user.name}</td>
-                  <td className="p-4">{user.email}</td>
-                  <td className="p-4">{user.number}</td>
+                  <td className="p-4">{milestone.title}</td>
+                  <td className="p-4">{milestone.description}</td>
+                  <td className="p-4">{milestone.projectName}</td>
                   <td className="p-4">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {milestone.completedAt
+                      ? new Date(milestone.completedAt).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td className="p-4">
+                    {new Date(milestone.createdAt).toLocaleDateString()}
                   </td>
                   <td className="p-4">
                     <span
-                      className={`px-3 py-1 text-xs rounded ${
-                        user.status === "active"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
+                      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                        milestone.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      {user.status}
+                      {milestone.status === "completed"
+                        ? "Completed"
+                        : "Pending"}
                     </span>
                   </td>
-                  {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
+                  {(hasMilestoneUpdatePermission ||
+                    hasMilestoneDeletePermission) && (
                     <td className="p-4 relative">
                       <button
                         className="text-3xl"
@@ -320,9 +391,9 @@ const MilestoneTable = () => {
                           className="absolute p-2 -left-10 w-[130px] mt-2 bg-white shadow-lg z-20 rounded-md"
                           style={{ top: "70%" }}
                         >
-                          {hasCLientUpdatePermission && (
+                          {hasMilestoneUpdatePermission && (
                             <Button
-                              onClick={() => handleOpen(user)}
+                              onClick={() => handleOpen(milestone)}
                               size="small"
                             >
                               <FaEdit className="text-black-blacknew" />
@@ -331,9 +402,9 @@ const MilestoneTable = () => {
                               </span>
                             </Button>
                           )}
-                          {hasCLientDeletePermission && (
+                          {hasMilestoneDeletePermission && (
                             <Button
-                              onClick={() => handleDelete(user._id)}
+                              onClick={() => handleDelete(milestone._id)}
                               className="text-red-500"
                               size="small"
                             >
@@ -400,41 +471,72 @@ const MilestoneTable = () => {
               variant="outlined"
               fullWidth
               placeholder={t("Title")}
-              value={formData?.name}
+              value={formData?.title}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, title: e.target.value })
               }
+              required
             />
             <TextField
               label={t("Description")}
               variant="outlined"
               fullWidth
               placeholder={t("Description")}
-              value={formData?.email}
+              value={formData?.description}
               onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
+                setFormData({ ...formData, description: e.target.value })
               }
-            />
-            <TextField
-              label={t("Status")}
-              variant="outlined"
-              fullWidth
-              placeholder={t("Status")}
-              value={formData?.number}
-              onChange={(e) =>
-                setFormData({ ...formData, number: e.target.value })
-              }
+              required
+              multiline
+              rows={3}
             />
 
-            {/* Project Selection Dropdown with Search */}
-            <div className="relative">
-              <div 
-                className="mt-2 border border-gray-300 rounded-md p-2 w-full py-4 cursor-pointer"
-                onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
+            <FormControl fullWidth>
+              <InputLabel>{t("Status")}</InputLabel>
+              <Select
+                label={t("Status")}
+                value={formData?.status}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                required
               >
-                {selectedProject || t("Select_a_Project")}
-              </div>
-              {isProjectDropdownOpen && (
+                <MenuItem value="pending">Pending</MenuItem>
+                <MenuItem value="completed">Completed</MenuItem>
+              </Select>
+            </FormControl>
+
+            {formData.status === "completed" && (
+              <TextField
+                label={t("Completed_At")}
+                variant="outlined"
+                fullWidth
+                type="datetime-local"
+                value={
+                  formData.completedAt
+                    ? new Date(formData.completedAt).toISOString().slice(0, 16)
+                    : new Date().toISOString().slice(0, 16)
+                }
+                onChange={(e) =>
+                  setFormData({ ...formData, completedAt: e.target.value })
+                }
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            )}
+
+            {/* Project Selection Dropdown */}
+            <div className="relative">
+              {!editData && (
+                <div
+                  className="mt-2 border border-gray-300 rounded-md p-2 w-full py-4 cursor-pointer"
+                  onClick={() =>
+                    setIsProjectDropdownOpen(!isProjectDropdownOpen)
+                  }
+                >
+                  {formData.projectName || t("Select_a_Project")}
+                </div>
+              )}
+              {isProjectDropdownOpen && !editData && (
                 <div className="absolute overflow-auto z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
                   <input
                     type="text"
@@ -450,10 +552,17 @@ const MilestoneTable = () => {
                       filteredProjects.map((project) => (
                         <div
                           key={project._id}
-                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                          className={`p-2 hover:bg-gray-100 cursor-pointer ${
+                            formData.projectId === project._id
+                              ? "bg-gray-200"
+                              : ""
+                          }`}
                           onClick={() => {
-                            setSelectedProject(project.projectName);
-                            setFormData({ ...formData, projectName: project.projectName });
+                            setFormData({
+                              ...formData,
+                              projectName: project.projectName,
+                              projectId: project._id,
+                            });
                             setSearchTerm("");
                             setIsProjectDropdownOpen(false);
                           }}
