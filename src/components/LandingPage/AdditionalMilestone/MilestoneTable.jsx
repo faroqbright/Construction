@@ -150,7 +150,7 @@ const MilestoneTable = () => {
       if (!token) {
         throw new Error("No token found");
       }
-      const response = await apiRequest("post", "/companies", formData, token);
+      const response = await apiRequest("post", `/additional/milestone/${}`, formData, token);
 
       if (response.data.statusCode === 201) {
         toast.success(response.data.message);
