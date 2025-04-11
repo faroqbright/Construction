@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import apiRequest from "../../../utils/apiRequest";
@@ -13,17 +13,17 @@ import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { Trash2, User } from "lucide-react";
 
-const members = [
-  { name: "Ralph Edwards", avatar: "/avatars/ralph.jpg" },
-  { name: "Kristin Watson", avatar: "/avatars/kristin.jpg" },
-  { name: "Floyd Miles", avatar: "/avatars/floyd.jpg" },
-  { name: "Amanda Parkers", avatar: "/avatars/amanda.jpg" },
-];
+// const members = [
+//   { name: "Ralph Edwards", avatar: "/avatars/ralph.jpg" },
+//   { name: "Kristin Watson", avatar: "/avatars/kristin.jpg" },
+//   { name: "Floyd Miles", avatar: "/avatars/floyd.jpg" },
+//   { name: "Amanda Parkers", avatar: "/avatars/amanda.jpg" },
+// ];
 
-const milestones = [
-  "Project Kick-off: Delivery of the Raw Materials",
-  "Delivery of the raw materials for the initial construction base.",
-];
+// const milestones = [
+//   "Project Kick-off: Delivery of the Raw Materials",
+//   "Delivery of the raw materials for the initial construction base.",
+// ];
 
 export default function EditProject() {
   const {
@@ -56,51 +56,40 @@ export default function EditProject() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [FinancialExecution, setFinancialExecution] = useState([]);
   const [fileName, setFileName] = useState([]);
-  const [milestoneName, setMilestoneName] = useState("");
-  const [milestoneDescription, setMilestoneDescription] = useState("");
   const [milestones, setMilestones] = useState([]);
   const [businessArea, setBusinessArea] = useState("");
   const [projecto, setProjecto] = useState([]);
   const [formData, setFormData] = useState({});
   const [editData, setEditData] = useState(null);
   const [loading, setLoading] = useState(false);
-  console.log(projecto);
+  const userId = useSelector((state) => state?.auth?.userInfo?._id);
+  const [milestoneName, setMilestoneName] = useState("");
+  const [milestoneDescription, setMilestoneDescription] = useState("");
+  const [comapanyName, setCompanyName] = useState([]);
 
-  const handleMilestoneSubmit = (e) => {
-    e.preventDefault(); // This prevents page refresh
-
-    if (!milestoneName.trim()) {
-      alert("Please enter a milestone name");
-      return;
-    }
-
-    const newMilestone = {
-      id: Date.now(), // Creates a unique ID
-      name: milestoneName,
-      description: milestoneDescription,
-    };
-
-    // Correct way to update state
-    setMilestones((prevMilestones) => [...prevMilestones, newMilestone]);
-
-    // Clear the form
-    setMilestoneName("");
-    setMilestoneDescription("");
-  };
-
-  const handleMilestoneDelete = (id) => {
-    setMilestones((prevMilestones) =>
-      prevMilestones.filter((m) => m.id !== id)
-    );
-  };
+  // const handleMilestoneDelete = (id) => {
+  //   setMilestones((prevMilestones) =>
+  //     prevMilestones.filter((m) => m.id !== id)
+  //   );
+  // };
 
   useEffect(() => {
     const fetchProjecto = async () => {
       setLoading(true);
       try {
         const response = await apiRequest("get", "/companies", {}, token);
-        if (response?.data?.statusCode === 200) {
-          setProjecto(response?.data?.data || []);
+        console.log(response);
+
+        if (response?.data?.statusCode === 200 && response?.data?.data) {
+          // Map over the array of company objects and extract the name
+          const comapanyName = response.data.data.map(
+            (company) => company.name
+          );
+          setProjecto(comapanyName);
+          setCompanyName(comapanyName);
+        } else {
+          // Handle cases where data or statusCode is not as expected
+          setProjecto([]); // Set to empty array if no data or incorrect status
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -111,6 +100,8 @@ export default function EditProject() {
 
     fetchProjecto();
   }, [token]);
+
+  console.log("The companies are:", projecto);
 
   useEffect(() => {
     if (initialValues?.projectBanner) {
@@ -239,15 +230,16 @@ export default function EditProject() {
       !formData.deadline.includes(" - ") ||
       formData.deadline.endsWith(" - ") ||
       formData.deadline.startsWith(" - ")
-    ) {
-      toast.error("Please select both the Start Date and End Date.");
-      return; // Prevent form submission
-    }
+    )
+      if (selectedFiles.length > 10) {
+        {
+          toast.error("Please select both the Start Date and End Date.");
+          return; // Prevent form submission
+        }
 
-    if (selectedFiles.length > 10) {
-      toast.error("You can only have up to 10 banners.");
-      return;
-    }
+        toast.error("You can only have up to 10 banners.");
+        return;
+      }
 
     if (selectedFiles.length > 10)
       return toast.error("You can only have up to 10 banners.");
@@ -273,6 +265,7 @@ export default function EditProject() {
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
       data.append("businessAreas", businessArea);
+      data.append("comapanyName", comapanyName);
 
       requestData = data;
     } else {
@@ -341,15 +334,38 @@ export default function EditProject() {
       }
       const data = new FormData();
 
-      Object.keys(formData).forEach((key) => {
+      // Ensure required fields are present in FormData
+      const requiredFields = [
+        "projectName",
+        "description",
+        "location",
+        "deadline",
+      ];
+
+      requiredFields.forEach((field) => {
+        data.append(field, formData[field]);
+      });
+
+      // Then add other fields conditionally
+      Object.keys(updatedFields).forEach((key) => {
         if (
           key !== "projectBanner" &&
-          key !== "teamMembers" &&
-          key !== "clientMembers"
+          key !== "members" &&
+          key !== "projectOwners"
         ) {
-          data.append(key, formData[key]);
+          data.append(key, updatedFields[key]);
         }
       });
+
+      // Object.keys(formData).forEach((key) => {
+      //   if (
+      //     key !== "projectBanner" &&
+      //     key !== "teamMembers" &&
+      //     key !== "clientMembers"
+      //   ) {
+      //     data.append(key, formData[key]);
+      //   }
+      // });
 
       if (updatedFields.projectOwners) {
         updatedFields.projectOwners.forEach((owner, index) => {
@@ -402,6 +418,72 @@ export default function EditProject() {
 
         const responseid = response?.data?.data._id;
 
+        if (!milestoneName.trim()) {
+          toast.error("Please enter a milestone name");
+          return;
+        }
+
+        // Get projectName from form data
+        const projectName = formData.projectName || initialValues.projectName;
+
+        if (!projectName) {
+          toast.error("Project name is required");
+          return;
+        }
+
+        if (!userId) {
+          toast.error("User information not found");
+          return;
+        }
+
+        try {
+          // Create the payload
+          const payload = {
+            title: milestoneName,
+            description: milestoneDescription,
+            status: "pending",
+            projectName: projectName,
+            completedAt: null,
+            userId: userId,
+          };
+
+          // Make the API call
+          const response = await apiRequest(
+            "post",
+            `/additional/milestone/${id ? id : responseid}`, // Using the project ID from URL params
+            payload,
+            token
+          );
+
+          if (
+            response?.data?.statusCode === 200 ||
+            response?.data?.statusCode === 201 ||
+            response?.data?.message?.toLowerCase().includes("success")
+          ) {
+            const newMilestone = {
+              id: Date.now(),
+              name: milestoneName,
+              description: milestoneDescription,
+              apiId: response.data.data._id,
+            };
+
+            setMilestones((prevMilestones) => [
+              ...prevMilestones,
+              newMilestone,
+            ]);
+            setMilestoneName("");
+            setMilestoneDescription("");
+            toast.success("Milestone saved successfully");
+          } else {
+            throw new Error(
+              response?.data?.message || "Failed to create milestone"
+            );
+          }
+        } catch (error) {
+          console.error("Error creating milestone:", error);
+          toast.error(error.message || "Failed to create milestone");
+        }
+
         if (isCreateMode && selectedUsers.length > 0) {
           try {
             const updateResponse = await apiRequest(
@@ -434,6 +516,31 @@ export default function EditProject() {
     } catch (error) {
       toast.error(error?.response?.data?.message);
     }
+  };
+
+  const handleMilestoneDelete = async (id) => {
+    const milestoneToDelete = milestones.find((m) => m.id === id);
+
+    if (milestoneToDelete?.apiId) {
+      try {
+        await apiRequest(
+          "delete",
+          `/additional/milestone/delete/${milestoneToDelete.apiId}`,
+          {},
+          token
+        );
+        toast.success("Milestone deleted from server");
+      } catch (error) {
+        console.error("Error deleting milestone from server:", error);
+        toast.error("Failed to delete milestone from server");
+        return; // Don't remove from local state if API delete fails
+      }
+    }
+
+    // Remove from local state
+    setMilestones((prevMilestones) =>
+      prevMilestones.filter((m) => m.id !== id)
+    );
   };
 
   const handleUsersChange = (selectedOptions) => {
@@ -629,27 +736,40 @@ export default function EditProject() {
               Select the Client Company
             </span>
           </label>
-          <FormControl fullWidth variant="outlined">
+
+          {/* <FormControl fullWidth variant="outlined">
             <Select
-              value={formData.companyName || ""} // Use the value from formData
+              value={formData?.comapanyName || ""}
               onChange={(e) =>
-                setFormData({ ...formData, companyName: e.target.value })
+                setFormData({ ...formData, comapanyName: e.target.value })
               }
               label={t("Choose_Company")}
             >
               {loading ? (
                 <MenuItem disabled>{t("Loading...")}</MenuItem>
-              ) : projecto && projecto.length > 0 ? (
-                projecto.map((project) => (
-                  <MenuItem key={project?._id} value={project?.name}>
-                    {project?.name}
+              ) : companiesName && companiesName.length > 0 ? (
+                companiesName.map((projectName) => (
+                  <MenuItem key={projectName} value={projectName}>
+                    {projectName}
                   </MenuItem>
                 ))
               ) : (
                 <MenuItem disabled>{t("No companies available")}</MenuItem>
               )}
             </Select>
-          </FormControl>
+          </FormControl>  */}
+
+          <select className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            {projecto && projecto.length > 0 ? (
+              projecto.map((comapanyName, index) => (
+                <option key={index} value={comapanyName}>
+                  {comapanyName}
+                </option>
+              ))
+            ) : (
+              <option disabled>No companies available</option>
+            )}
+          </select>
         </div>
 
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
@@ -943,11 +1063,38 @@ export default function EditProject() {
             ></textarea>
 
             <div className="flex justify-end mb-6 mt-4">
-              {/* Changed to type="button" to prevent form submission */}
               <button
                 type="button"
                 className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
-                onClick={handleMilestoneSubmit}
+                onClick={() => {
+                  if (!milestoneName.trim()) {
+                    toast.error("Please enter a milestone name");
+                    return;
+                  }
+
+                  if (!milestoneDescription.trim()) {
+                    toast.error("Please enter a milestone description");
+                    return;
+                  }
+
+                  const newMilestone = {
+                    id: Date.now(), // or use a unique ID generator
+                    name: milestoneName,
+                    description: milestoneDescription,
+                  };
+
+                  // Add the new milestone to the milestones state
+                  setMilestones((prevMilestones) => [
+                    ...prevMilestones,
+                    newMilestone,
+                  ]);
+
+                  // Clear the input fields
+                  setMilestoneName("");
+                  setMilestoneDescription("");
+
+                  toast.success("Milestone saved successfully");
+                }}
               >
                 Save Milestones
               </button>
@@ -999,6 +1146,7 @@ export default function EditProject() {
             </div>
           </div>
         </div>
+
         <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
         <div className="mb-4">
           {!isViewMode && (

@@ -25,17 +25,34 @@ const ProjectDetails = () => {
   const [financialId, setFinancialId] = useState(null);
 
   const [milestones, setMilestones] = useState([
-    { id: 1, title: "Project Kickoff", description: "Initial meeting and requirements gathering", checked: false },
-    { id: 2, title: "Design Approval", description: "Review and finalize UI/UX designs", checked: false },
-    { id: 3, title: "Final Delivery", description: "Project completion and handover", checked: false }
+    {
+      id: 1,
+      title: "Project Kickoff",
+      description: "Initial meeting and requirements gathering",
+      checked: false,
+    },
+    {
+      id: 2,
+      title: "Design Approval",
+      description: "Review and finalize UI/UX designs",
+      checked: false,
+    },
+    {
+      id: 3,
+      title: "Final Delivery",
+      description: "Project completion and handover",
+      checked: false,
+    },
   ]);
 
   const toggleCheck = (id) => {
-    setMilestones(milestones.map(milestone => 
-      milestone.id === id 
-        ? { ...milestone, checked: !milestone.checked } 
-        : milestone
-    ));
+    setMilestones(
+      milestones.map((milestone) =>
+        milestone.id === id
+          ? { ...milestone, checked: !milestone.checked }
+          : milestone
+      )
+    );
   };
 
   const fetchProjects = useCallback(async () => {
@@ -209,15 +226,7 @@ const ProjectDetails = () => {
                 Business Area:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
-                {projectData?.projectOwners?.length
-                  ? projectData.projectOwners
-                      .map(
-                        (owner) =>
-                          owner.ownerName.charAt(0).toUpperCase() +
-                          owner.ownerName.slice(1)
-                      )
-                      .join(", ")
-                  : ""}
+                {projectData?.businessAreas}
               </span>
             </div>
             <div>
@@ -225,15 +234,7 @@ const ProjectDetails = () => {
                 Client Company:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
-                {projectData?.projectOwners?.length
-                  ? projectData.projectOwners
-                      .map(
-                        (owner) =>
-                          owner.ownerName.charAt(0).toUpperCase() +
-                          owner.ownerName.slice(1)
-                      )
-                      .join(", ")
-                  : ""}
+                {projectData?.comapanyName}
               </span>
             </div>
             <div>
@@ -586,25 +587,35 @@ const ProjectDetails = () => {
         </div>
 
         <div className="mt-6 p-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Added Milestones</h3>
-      
-      {milestones.map((milestone) => (
-        <div key={milestone.id} className="flex items-center justify-between py-3 border-b">
-          <div>
-            <h4 className="font-medium text-gray-800">{milestone.id}. {milestone.title}</h4>
-            <p className="text-sm text-gray-500">{milestone.description}</p>
-          </div>
-          <div
-            onClick={() => toggleCheck(milestone.id)}
-            className={`h-8 w-8 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors duration-200 ${
-              milestone.checked ? "bg-black" : "border-gray-300 bg-white"
-            }`}
-          >
-            {milestone.checked && <Check size={20} color="black" strokeWidth={4} />}
-          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Added Milestones
+          </h3>
+
+          {projectData?.additionalMilestones?.map((milestone) => (
+            <div
+              key={milestone.id}
+              className="flex items-center justify-between py-3 border-b"
+            >
+              <div>
+                <h4 className="font-medium text-gray-800">
+                  {milestone.id}. {milestone.title}
+                </h4>
+                <p className="text-sm text-gray-500">{milestone.description}</p>
+              </div>
+              <div
+                className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
+                  milestone.status === "completed"
+                    ? "bg-black"
+                    : "border-gray-300 bg-white"
+                }`}
+              >
+                {milestone.status === "completed" && (
+                  <Check size={20} color="black" strokeWidth={4} />
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
 
         {/* Finance Status */}
         <div className="mt-14 justify-between w-full p-6">
