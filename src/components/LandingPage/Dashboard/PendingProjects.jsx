@@ -95,6 +95,30 @@ const PendingProjects = () => {
     }
   }, [token]);
 
+  const [ongoing, setongoing] = useState([]);
+
+  const fetchOngoingProjects = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({
+        status: "Ongoing",
+        page: 1,
+      }).toString();
+
+      const response = await apiRequest(
+        "get",
+        `/projects?${params}`,
+        {},
+        token
+      );
+
+      if (response.data && response.data.data.projects) {
+        setongoing(response.data.data.projects);
+      }
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  }, [token]);
+
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
@@ -106,6 +130,10 @@ const PendingProjects = () => {
   useEffect(() => {
     fetchCompletedProjects();
   }, [fetchCompletedProjects]);
+
+  useEffect(() => {
+    fetchOngoingProjects();
+  }, [fetchOngoingProjects]);
 
   const settings = {
     dots: true,
@@ -250,7 +278,7 @@ const PendingProjects = () => {
           <div className="h-full slider-container">
             <header className="mb-6 flex justify-between">
               <h2 className="text-2xl font-bold text-black">
-                {t("Pending_Projects")}
+                {t("Ongoing")} {t("Projects")}
               </h2>
               <div className="flex">
                 <button
@@ -274,8 +302,8 @@ const PendingProjects = () => {
             {/* Slider Section */}
             <div className="slider-container  ">
               <Slider ref={sliderRefProjects} {...settings}>
-                {datas.length > 0 ? (
-                  datas?.map((project, index) => (
+                {ongoing.length > 0 ? (
+                  ongoing?.map((project, index) => (
                     <div
                       key={project._id}
                       className="bg-white rounded-lg justify-between w-full p-4 flex flex-col"
@@ -345,10 +373,8 @@ const PendingProjects = () => {
                                 {t("Physical_Execution")}
                               </p>
                               <h6 className="text-gray-800 font-semibold">
-                                {
-                                  project?.financeDocuments?.[0]
-                                    ?.physicalExecution || 0
-                                }{' '}
+                                {project?.financeDocuments?.[0]
+                                  ?.physicalExecution || 0}{" "}
                                 %
                               </h6>
                             </div>
@@ -379,10 +405,8 @@ const PendingProjects = () => {
                                 {t("Financial_Execution")}
                               </p>
                               <h6 className="text-red-redNew">
-                                {
-                                  project?.financeDocuments?.[0]
-                                    ?.financialExecution || 0
-                                }{' '}
+                                {project?.financeDocuments?.[0]
+                                  ?.financialExecution || 0}{" "}
                                 %
                               </h6>
                             </div>
@@ -563,7 +587,7 @@ const PendingProjects = () => {
                   <div className="flex flex-col bg-white rounded-[10px] p-4 w-full">
                     <div className="flex items-center space-x-4 mb-4">
                       <img
-                        src={doc.projectBanner?.[0]?.url ||  logo}
+                        src={doc.projectBanner?.[0]?.url || logo}
                         alt="Project Banner"
                         className="w-14 h-14 rounded-full object-contain"
                       />
@@ -602,6 +626,286 @@ const PendingProjects = () => {
             </p>
           )}
         </section>
+
+        <div className="w-full max-w-7xl my-10">
+          <div className="h-full slider-container">
+            <header className="mb-6 flex justify-between">
+              <h2 className="text-2xl font-bold text-black">
+                {t("Pending_Projects")}
+              </h2>
+              <div className="flex">
+                <button
+                  onClick={handlePrevClickProjects}
+                  className="p-1 rounded-full"
+                >
+                  <GrFormPrevious
+                    className="text-gray-600 slick-arrow"
+                    size={18}
+                  />
+                </button>
+                <button
+                  onClick={handleNextClickProjects}
+                  className="p-1 rounded-full"
+                >
+                  <GrFormNext className="slick-arrow" size={18} />
+                </button>
+              </div>
+            </header>
+
+            {/* Slider Section */}
+            <div className="slider-container  ">
+              <Slider ref={sliderRefProjects} {...settings}>
+                {datas.length > 0 ? (
+                  datas?.map((project, index) => (
+                    <div
+                      key={project._id}
+                      className="bg-white rounded-lg justify-between w-full p-4 flex flex-col"
+                      style={{ marginLeft: project ? "50px" : "0px" }}
+                    >
+                      {/* Image */}
+                      {project.projectBanner?.length > 0 ? (
+                        <Swiper
+                          spaceBetween={10}
+                          slidesPerView={1}
+                          grabCursor={true}
+                          onClick={() => handleViewProjectClick(project._id)}
+                        >
+                          {project.projectBanner.map((banner, index) => (
+                            <SwiperSlide key={banner._id || index}>
+                              <img
+                                className="w-full h-32 cursor-pointer object-cover rounded"
+                                src={banner.url}
+                                alt={`Project Banner ${index + 1}`}
+                              />
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      ) : (
+                        <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
+                          {/* <FaRecordVinyl className="w-8 h-8 text-gray-500" /> */}
+                          <p className="text-gray-500 text-sm mt-1">
+                            <img src={logo} alt="" />
+                          </p>
+                        </div>
+                      )}
+                      {/* Content */}
+                      <div>
+                        <div
+                          onClick={() => handleViewProjectClick(project._id)}
+                          className="cursor-pointer"
+                        >
+                          <div className="flex w-full justify-between space-x-2 items-center mb-2">
+                            <h3 className="text-sm flex font-semibold text-black text-nowrap sm:w-auto w-full">
+                              {project.projectName}
+                            </h3>
+                          </div>
+                          <p className="text-sm black text-nowrap sm:w-full sm:block w-full">
+                            <span className="text-black font-bold ">
+                              {t("Deadline")}
+                            </span>{" "}
+                            {project.deadline}
+                          </p>
+                          <div className="flex flex-row items-center gap-2 mb-3">
+                            <Clock1 className="w-4 h-4" />
+                            <span className="text-sm text-black mb-1">
+                              {" "}
+                              {project.status === "Pending"
+                                ? t("Pending")
+                                : project.status === "Completed"
+                                ? t("Completed")
+                                : project.status === "Ongoing"
+                                ? t("Ongoing")
+                                : project.daysLeft}
+                            </span>
+                          </div>
+
+                          {/* Progress Bars */}
+                          <div className="mt-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <p className="text-black font-medium text-sm">
+                                {t("Physical_Execution")}
+                              </p>
+                              <h6 className="text-gray-800 font-semibold">
+                                {project?.financeDocuments?.[0]
+                                  ?.physicalExecution || 0}{" "}
+                                %
+                              </h6>
+                            </div>
+
+                            <div className="relative w-full h-2 bg-gray-200 rounded-full">
+                              <div
+                                className={`absolute top-0 left-0 h-2 rounded-full bg-red-redNew ${
+                                  project.status === "Completed"
+                                    ? "bg-green-500"
+                                    : "bg-red-500"
+                                }`}
+                                style={{
+                                  width: `${project?.financeDocuments?.[0]?.physicalExecution}%`,
+                                }}
+                              ></div>
+                              <div
+                                className="absolute w-5 h-5 rounded-full bg-red-redNew border-2 border-red-redNew"
+                                style={{
+                                  left: `calc(${project?.financeDocuments?.[0]?.physicalExecution}% - 10px)`,
+                                  top: "-6px",
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                          <div className="mb-4 mt-2 relative">
+                            <div className="flex justify-between">
+                              <p className="black text-sm mb-1">
+                                {t("Financial_Execution")}
+                              </p>
+                              <h6 className="text-red-redNew">
+                                {project?.financeDocuments?.[0]
+                                  ?.financialExecution || 0}{" "}
+                                %
+                              </h6>
+                            </div>
+                            <div className="w-full bg-gray-200 h-2 rounded-full relative">
+                              {/* Progress Bar - Gray when 0%, Red when >0% */}
+                              <div
+                                className={`h-2 rounded-full transition-all ${
+                                  project?.financeDocuments?.[0]
+                                    ?.financialExecution > 0
+                                    ? "bg-red-500"
+                                    : "bg-gray-300"
+                                }`}
+                                style={{
+                                  width: `${project?.financeDocuments?.[0]?.financialExecution}%`,
+                                }}
+                              ></div>
+
+                              {/* Indicator Circle - Always Red */}
+                              <div
+                                className="w-5 h-5 bg-red-500 rounded-full absolute top-1/2 -translate-y-1/2 
+                                flex items-center justify-center shadow-md cursor-pointer transition-all"
+                                style={{
+                                  left: `calc(${project?.financeDocuments?.[0]?.financialExecution}% - 10px)`,
+                                }}
+                              >
+                                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          {/* Button to open the modal */}
+                          <button
+                            className="text-[#54577A] underline"
+                            onClick={() => openModal(project._id)}
+                          >
+                            {t("deliverables_attached")}
+                          </button>
+
+                          {/* Modal */}
+                          <Modal
+                            open={isModalOpen}
+                            onClose={closeModal}
+                            aria-labelledby="modal-modal-title"
+                            aria-describedby="modal-modal-description"
+                          >
+                            <Box
+                              sx={{
+                                ...modalStyle,
+                                borderRadius: "16px",
+                                height: "470px",
+                                display: "flex",
+                                flexDirection: "column",
+                                padding: "24px",
+                              }}
+                            >
+                              <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-semibold text-black-blacknew">
+                                  {t("Deliverables_Attached")}
+                                </h2>
+                                <button
+                                  onClick={closeModal}
+                                  className="text-black-blacknew font-bold hover:text-gray-700 focus:outline-none"
+                                  aria-label="Close"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                              <div className="mt-4 flex-grow scrollbar-custom">
+                                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
+                                  {t("Attached_Documents")}
+                                </h3>
+                                {modalDocuments && modalDocuments.length > 0 ? (
+                                  <ul className="space-y-4">
+                                    {modalDocuments.map((file, index) => (
+                                      <li
+                                        key={index}
+                                        className="flex items-start bg-gray-100 p-3 rounded-lg"
+                                      >
+                                        {/* PDF Icon */}
+                                        <div className="w-14 h-14 flex items-center justify-center bg-gray-200 rounded-lg">
+                                          <img
+                                            src={pdf}
+                                            alt="PDF Icon"
+                                            className="w-10 h-10"
+                                          />
+                                        </div>
+                                        {/* File Details */}
+                                        <div className="ml-3 flex-1">
+                                          <p className="text-sm font-semibold text-gray-700">
+                                            {file.fileName}
+                                          </p>
+                                          <p className="text-xs text-gray-500 mt-1">
+                                            Uploaded by: {file.user}
+                                          </p>
+                                        </div>
+                                        {/* Download Button (Optional) */}
+                                        <a
+                                          href={file.fileUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-sm text-blue-500 hover:text-blue-700"
+                                        >
+                                          <Button
+                                            startIcon={
+                                              <MdOutlineFileDownload
+                                                size={40}
+                                              />
+                                            }
+                                            sx={{
+                                              textTransform: "none",
+                                              color: "#121619",
+                                            }}
+                                          ></Button>
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="text-gray-500">
+                                    {t("No_files_attached")}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="flex justify-between mt-4 w-full">
+                                <button
+                                  onClick={closeModal}
+                                  className="px-4 py-3 w-full ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+                                >
+                                  {t("Cancel")}
+                                </button>
+                              </div>
+                            </Box>
+                          </Modal>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center">{t("No_projects_available")}</p>
+                )}
+              </Slider>
+            </div>
+          </div>
+        </div>
 
         <div className="w-full max-w-7xl mt-10">
           <div className="h-full slider-container">
@@ -704,10 +1008,8 @@ const PendingProjects = () => {
                                 {t("Physical_Execution")}
                               </p>
                               <h6 className="text-gray-800 font-semibold">
-                                {
-                                  project?.financeDocuments?.[0]
-                                    ?.physicalExecution || 0
-                                }{' '}
+                                {project?.financeDocuments?.[0]
+                                  ?.physicalExecution || 0}{" "}
                                 %
                               </h6>
                             </div>
@@ -739,10 +1041,8 @@ const PendingProjects = () => {
                                   {t("Financial_Execution")}
                                 </p>
                                 <h6 className="text-red-redNew">
-                                  {
-                                    project?.financeDocuments?.[0]
-                                      ?.financialExecution || 0
-                                  }{' '}
+                                  {project?.financeDocuments?.[0]
+                                    ?.financialExecution || 0}{" "}
                                   %
                                 </h6>
                               </div>
