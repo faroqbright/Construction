@@ -708,6 +708,91 @@ export default function EditProject() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
+        <h2 className="text-2xl font-bold mb-6">Project Gallery</h2>
+
+        <div className="mb-4">
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">{t("Project_Banner")}</span>
+          </label>
+
+          <div
+            onClick={() =>
+              document.getElementById("projectBannerInput").click()
+            }
+            className="border-2 border-dashed border-gray-300 rounded-lg py-10 px-4 text-center cursor-pointer hover:bg-gray-50 transition duration-150"
+          >
+            <p className="text-gray-600 mb-4">
+              Drop your images here or{" "}
+              <span className="text-blue-600 font-semibold underline hover:text-blue-800">
+                Upload
+              </span>
+            </p>
+
+            <Controller
+              name="projectBanner"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="projectBannerInput"
+                  type="file"
+                  accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    const maxSize = 5 * 1024 * 1024;
+
+                    if (files.length > 0) {
+                      const isValid = Array.from(files).every(
+                        (file) => file.size <= maxSize
+                      );
+
+                      if (!isValid) {
+                        toast.error(
+                          "Selected file should not be greater than 5MB."
+                        );
+                        return;
+                      }
+                    }
+
+                    handleFileChangetwo(e);
+                    field.onChange(files);
+                  }}
+                  className="hidden"
+                  multiple
+                />
+              )}
+            />
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {selectedFiles.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between border px-3 py-2 rounded-md"
+              >
+                <span className="text-gray-700">
+                  {file?.name
+                    ? file?.name
+                    : (() => {
+                        const filename = file?.url?.split("/").pop();
+                        return filename?.length > 40
+                          ? filename?.slice(0, 30) +
+                              "..." +
+                              filename?.slice(-10)
+                          : filename;
+                      })()}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ✖
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-6">Business Area</h2>
           <label className="block text-2xl font-semibold mb-2">
@@ -966,72 +1051,6 @@ export default function EditProject() {
             </div>
           </>
         )}
-        <div className="mb-4">
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">{t("Project_Banner")}</span>
-          </label>
-          <Controller
-            name="projectBanner"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="file"
-                accept=".png, .jpg, .jpeg, .gif, .bmp, .webp"
-                onChange={(e) => {
-                  const files = e.target.files;
-                  const maxSize = 5 * 1024 * 1024;
-
-                  if (files.length > 0) {
-                    const isValid = Array.from(files).every(
-                      (file) => file.size <= maxSize
-                    );
-
-                    if (!isValid) {
-                      toast.error(
-                        "Selected file should not be greater than 5MB."
-                      );
-                      return;
-                    }
-                  }
-
-                  handleFileChangetwo(e);
-                  field.onChange(files);
-                }}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                multiple
-              />
-            )}
-          />
-
-          <div className="mt-4 space-y-2">
-            {selectedFiles.map((file, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between border px-3 py-2 rounded-md"
-              >
-                <span className="text-gray-700">
-                  {file?.name
-                    ? file?.name
-                    : (() => {
-                        const filename = file?.url?.split("/").pop();
-                        return filename?.length > 40
-                          ? filename?.slice(0, 30) +
-                              "..." +
-                              filename?.slice(-10)
-                          : filename;
-                      })()}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeFile(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  ✖
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
 
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-6">Project Milestones</h2>
