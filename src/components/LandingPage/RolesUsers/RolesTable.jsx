@@ -45,6 +45,7 @@ export default function RolesTable() {
   const hasCreatePermission = RolePermissions("RolesManagement", "create");
   const hasDeletePermission = RolePermissions("RolesManagement", "delete");
   const hasUpdatePermission = RolePermissions("RolesManagement", "update");
+  
   const fetchRoles = useCallback(async () => {
     setLoading(true);
     try {

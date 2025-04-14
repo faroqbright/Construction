@@ -37,86 +37,96 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         p.read
     );
 
-    const sidebarItems = [
-      { icon: dash, label: t("Dashboard"), to: "/", module: null },
-      {
-        icon: book,
-        label: t("Project_Management"),
-        to: "/project-management",
-        module: "ProjectsManagement",
-      },
-      { icon: user, label: t("Billing"), to: "/finance", module: "FinanceManagement" },
-      {
-        icon: group,
-        label: t("History"),
-        to: "/history",
-        module: "HistoryManagement",
-      },
-      ...(Admin
-        ? [
-            {
-              icon: report,
-              label: t("Reports"),
-              to: "/report?tab=All%20Projects",
-              module: "ReportsManagement",  
-              isDropdown: true,
-              dropdownItems: [
-                { label: t("Pending_Reports"), to: "/report?tab=Pending"},
-                { label: t("Approved_Reports"), to: "/report?tab=Approved"},
-                { label: t("Rejected_Reports"), to: "/report?tab=Rejected"},
-              ],  
-            },
-          ]
-        : [
-            {
-              icon: report,
-              label: t("Reports"),
-              to: "/userReports",
-              module: "ReportsManagement",
-            },
-          ]),
-      {
-        icon: client,
-        label: t("Client_Evaluation"),
-        to: "/client-evaluation",
-        module: "EvaluationManagement",
-      },
-      {
-        icon: message,
-        label: t("Notifications"),
-        to: "/notifications",
-        module: null,
-      },
-      { icon: document, label: t("Documents"), to: "/documents", module: "DocumentManagement" },
-      ...(showRolesUsersButton
-        ? [
-            {
-              icon: users,
-              label: t("Roles_&_Users"),
-              to: "/roles-users",
-              module: null,
-            },
-          ]
-        : []),
-        {
-          icon: solar,
-          label: t("All_Clients"),
-          to: "/all-companies",
-          module: "ClientsManagement",
-        },
-        {
-          icon: building,
-          label: t("All_Companies"),
-          to: "/all-clients",
-          module: "CompanyManagement",
-        },
-        {
-          icon: milestone,
-          label: t("Additional_Milestones"),
-          to: "/additional-milestones",
-          module: "MilestoneManagement",
-        },
-    ];    
+  const sidebarItems = [
+    { icon: dash, label: t("Dashboard"), to: "/", module: null },
+    {
+      icon: book,
+      label: t("Project_Management"),
+      to: "/project-management",
+      module: "ProjectsManagement",
+    },
+    {
+      icon: user,
+      label: t("Billing"),
+      to: "/finance",
+      module: "FinanceManagement",
+    },
+    {
+      icon: group,
+      label: t("History"),
+      to: "/history",
+      module: "HistoryManagement",
+    },
+    ...(Admin
+      ? [
+          {
+            icon: report,
+            label: t("Reports"),
+            to: "/report?tab=All%20Projects",
+            module: "ReportsManagement",
+            isDropdown: true,
+            dropdownItems: [
+              { label: t("Pending_Reports"), to: "/report?tab=Pending" },
+              { label: t("Approved_Reports"), to: "/report?tab=Approved" },
+              { label: t("Rejected_Reports"), to: "/report?tab=Rejected" },
+            ],
+          },
+        ]
+      : [
+          {
+            icon: report,
+            label: t("Reports"),
+            to: "/userReports",
+            module: "ReportsManagement",
+          },
+        ]),
+    {
+      icon: client,
+      label: t("Client_Evaluation"),
+      to: "/client-evaluation",
+      module: "EvaluationManagement",
+    },
+    {
+      icon: message,
+      label: t("Notifications"),
+      to: "/notifications",
+      module: null,
+    },
+    {
+      icon: document,
+      label: t("Documents"),
+      to: "/documents",
+      module: "DocumentManagement",
+    },
+    ...(showRolesUsersButton
+      ? [
+          {
+            icon: users,
+            label: t("Roles_&_Users"),
+            to: "/roles-users",
+            module: null,
+          },
+        ]
+      : []),
+    {
+      icon: solar,
+      label: t("All_Clients"),
+      to: "/all-companies",
+      module: "ClientsManagement",
+    },
+    {
+      icon: building,
+      label: t("All_Companies"),
+      to: "/all-clients",
+      module: "CompanyManagement",
+    },
+    {
+      icon: milestone,
+      label: t("Additional_Milestones"),
+      to: "/additional-milestones",
+      module: "MilestoneManagement",
+    },
+  ];
 
   const filteredItems = Admin
     ? sidebarItems
@@ -255,7 +265,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         {isOpen && (
           <div className="mt-auto w-full px-4 mb-4">
             <div className="bg-black-blacknew p-4 rounded-lg text-center shadow-lg">
-              <h3 className="text-lg font-semibold text-white">{t("Help_Center")}</h3>
+              <h3 className="text-lg font-semibold text-white">
+                {t("Help_Center")}
+              </h3>
               <p className="text-sm text-gray-500 mb-3">
                 {t("Having_Trouble?_Please_contact_us_for_more_questions.")}
               </p>

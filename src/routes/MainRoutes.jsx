@@ -32,8 +32,9 @@ import AllComapnies from "../pages/MainPages/AllCompanies/AllCompanies";
 import Finance from "../components/LandingPage/Finance/Finance";
 import SubmitFinance from "../components/LandingPage/Finance/SubmitFinance";
 import Settings from "../pages/MainPages/Settings/settings";
-import { Milestone } from "lucide-react";
+import { Bus, Milestone } from "lucide-react";
 import Milestones from "../pages/MainPages/AdditionalMilestone/MileStones";
+import BusinessAreas from "../pages/BusinessArea/BusinessArea";
 
 const App = () => {
   return (
@@ -243,6 +244,16 @@ const App = () => {
                 </RouteMiddleware>
               }
             />
+            {/* <Route
+              path="/business-areas"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["BusinessAreaManagement"]}
+                >
+                </RouteMiddleware>
+              }
+            /> */}
             <Route
               path="/all-companies"
               element={

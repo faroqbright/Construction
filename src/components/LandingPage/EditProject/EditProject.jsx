@@ -13,18 +13,6 @@ import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { Trash2, User } from "lucide-react";
 
-// const members = [
-//   { name: "Ralph Edwards", avatar: "/avatars/ralph.jpg" },
-//   { name: "Kristin Watson", avatar: "/avatars/kristin.jpg" },
-//   { name: "Floyd Miles", avatar: "/avatars/floyd.jpg" },
-//   { name: "Amanda Parkers", avatar: "/avatars/amanda.jpg" },
-// ];
-
-// const milestones = [
-//   "Project Kick-off: Delivery of the Raw Materials",
-//   "Delivery of the raw materials for the initial construction base.",
-// ];
-
 export default function EditProject() {
   const {
     control,
@@ -57,7 +45,7 @@ export default function EditProject() {
   const [FinancialExecution, setFinancialExecution] = useState([]);
   const [fileName, setFileName] = useState([]);
   const [milestones, setMilestones] = useState([]);
-  const [businessArea, setBusinessArea] = useState("");
+  const [businessAreas, setBusinessAreas] = useState([]);
   const [projecto, setProjecto] = useState([]);
   const [formData, setFormData] = useState({});
   const [editData, setEditData] = useState(null);
@@ -66,12 +54,35 @@ export default function EditProject() {
   const [milestoneName, setMilestoneName] = useState("");
   const [milestoneDescription, setMilestoneDescription] = useState("");
   const [comapanyName, setCompanyName] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const dispatch = useDispatch();
 
-  // const handleMilestoneDelete = (id) => {
-  //   setMilestones((prevMilestones) =>
-  //     prevMilestones.filter((m) => m.id !== id)
-  //   );
-  // };
+  useEffect(() => {
+    const fetchBusinessAreas = async () => {
+      try {
+        const response = await apiRequest("get", `/businessArea`, {}, token);
+        console.log(response.data.data);
+
+        if (response.data && Array.isArray(response.data.data)) {
+          setBusinessAreas(response.data.data);
+        }
+      } catch (error) {
+        if (error?.response?.status === 401) {
+          dispatch(removeUserInfo());
+          toast.success("You have been logged out.");
+          navigate("/login");
+        } else {
+          console.error("Error:", error);
+        }
+      }
+    };
+
+    fetchBusinessAreas();
+  }, [token, dispatch, navigate]);
+
+  // useEffect(() => {
+  //   fetchBusinessAreas();
+  // }, [fetchBusinessAreas]);
 
   useEffect(() => {
     const fetchProjecto = async () => {
@@ -264,7 +275,7 @@ export default function EditProject() {
       });
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
-      data.append("businessAreas", businessArea);
+      data.append("businessAreas", businessAreas);
       data.append("comapanyName", comapanyName);
 
       requestData = data;
@@ -356,16 +367,6 @@ export default function EditProject() {
           data.append(key, updatedFields[key]);
         }
       });
-
-      // Object.keys(formData).forEach((key) => {
-      //   if (
-      //     key !== "projectBanner" &&
-      //     key !== "teamMembers" &&
-      //     key !== "clientMembers"
-      //   ) {
-      //     data.append(key, formData[key]);
-      //   }
-      // });
 
       if (updatedFields.projectOwners) {
         updatedFields.projectOwners.forEach((owner, index) => {
@@ -795,22 +796,26 @@ export default function EditProject() {
 
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-6">Business Area</h2>
-          <label className="block text-2xl font-semibold mb-2">
+          <labal className="block text-2xl font-semibold mb-2">
             <span className="text-gray-700 text-sm">
               Select the Business Area
             </span>
-          </label>
+          </labal>
           <select
-            value={businessArea}
-            onChange={(e) => setBusinessArea(e.target.value)}
+            // value={businessAreas}
+            // onChange={(e) => setBusinessAreas(e.target.value)}
             className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
-            <option value="architecture">Architecture and Engineering</option>
-            <option value="Management">Management and Supervision</option>
-            <option value="Environment">Environment</option>
-            <option value="SOAPRO">SOAPRO Academy</option>
-            <option value="Studies">Studies and Technical Consulting</option>
-            <option value="Appraisals">Real Estate Appraisals</option>
+            <MenuItem value="">Select Business Area</MenuItem>
+            {businessAreas && businessAreas.length > 0 ? (
+              businessAreas.map((area) => (
+                <option key={area._id} value={area._id}>
+                  {area.businessArea}
+                </option>
+              ))
+            ) : (
+              <option disabled>No businessAreas available</option>
+            )}
           </select>
         </div>
 
@@ -822,29 +827,12 @@ export default function EditProject() {
             </span>
           </label>
 
-          {/* <FormControl fullWidth variant="outlined">
-            <Select
-              value={formData?.comapanyName || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, comapanyName: e.target.value })
-              }
-              label={t("Choose_Company")}
-            >
-              {loading ? (
-                <MenuItem disabled>{t("Loading...")}</MenuItem>
-              ) : companiesName && companiesName.length > 0 ? (
-                companiesName.map((projectName) => (
-                  <MenuItem key={projectName} value={projectName}>
-                    {projectName}
-                  </MenuItem>
-                ))
-              ) : (
-                <MenuItem disabled>{t("No companies available")}</MenuItem>
-              )}
-            </Select>
-          </FormControl>  */}
-
-          <select className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <select
+            className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            onChange={(e) => setSelectedCompany(e.target.value)}
+            value={selectedCompany}
+          >
+            <option value="">Select Client Company</option>
             {projecto && projecto.length > 0 ? (
               projecto.map((comapanyName, index) => (
                 <option key={index} value={comapanyName}>
@@ -1433,7 +1421,7 @@ export default function EditProject() {
                           (user) =>
                             !clientMembers.some(
                               (owner) => owner._id === user._id
-                            )
+                            ) && user.companyName === selectedCompany
                         )
                         .map((user) => ({
                           value: user._id,
@@ -1535,7 +1523,24 @@ export default function EditProject() {
                         <Select
                           {...field}
                           isMulti
-                          options={filteredOptions}
+                          options={owners
+                            .filter(
+                              (user) =>
+                                !modalClientMembers.some(
+                                  (owner) =>
+                                    (owner.ownerId &&
+                                      owner.ownerId === user._id) ||
+                                    (owner.ownerName &&
+                                      owner.ownerName === user.ownerName) ||
+                                    (owner.userName &&
+                                      owner.userName === user.userName)
+                                ) && user.companyName === selectedCompany
+                            )
+                            .map((user) => ({
+                              value: user._id,
+                              label: user.ownerName || user.userName,
+                              avatar: user.avatar,
+                            }))}
                           value={modalClientMembers.map((owner) => ({
                             value: owner._id,
                             label: owner.ownerName || owner.userName,
