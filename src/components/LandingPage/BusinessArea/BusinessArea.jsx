@@ -32,7 +32,6 @@ const BusinessAreaTable = () => {
   const [formData, setFormData] = useState({
     businessArea: "",
     email: "",
-    projectName: "",
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -82,13 +81,11 @@ const BusinessAreaTable = () => {
       setFormData({
         businessArea: businessArea.businessArea,
         email: businessArea.email,
-        projectName: businessArea.projectName,
       });
     } else {
       setFormData({
         businessArea: "",
         email: "",
-        projectName: "",
       });
     }
 
@@ -120,8 +117,7 @@ const BusinessAreaTable = () => {
   const handleAdd = async () => {
     if (
       !formData.businessArea.trim() ||
-      !formData.email.trim() ||
-      !formData.projectName.trim()
+      !formData.email.trim() 
     ) {
       toast.error("All fields are required.");
       return;
@@ -134,7 +130,6 @@ const BusinessAreaTable = () => {
       const payload = {
         businessArea: formData.businessArea,
         email: formData.email,
-        projectName: formData.projectName,
       };
 
       const response = await apiRequest(
@@ -177,7 +172,6 @@ const BusinessAreaTable = () => {
       const updatedData = {
         businessArea: formData.businessArea,
         email: formData.email,
-        projectName: formData.projectName,
       };
 
       await apiRequest(
@@ -304,7 +298,6 @@ const BusinessAreaTable = () => {
                   </td>
                   <td className="p-4">{businessArea.businessArea}</td>
                   <td className="p-4">{businessArea.email}</td>
-                  <td className="p-4">{businessArea.projectName}</td>
                   <td className="p-4">
                     {new Date(businessArea.createdAt).toLocaleDateString()}
                   </td>
