@@ -31,7 +31,6 @@ const BusinessAreaTable = () => {
   const [projects, setProjects] = useState([]);
   const [formData, setFormData] = useState({
     businessArea: "",
-    email: "",
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -80,12 +79,10 @@ const BusinessAreaTable = () => {
     if (businessArea) {
       setFormData({
         businessArea: businessArea.businessArea,
-        email: businessArea.email,
       });
     } else {
       setFormData({
         businessArea: "",
-        email: "",
       });
     }
 
@@ -116,8 +113,7 @@ const BusinessAreaTable = () => {
 
   const handleAdd = async () => {
     if (
-      !formData.businessArea.trim() ||
-      !formData.email.trim() 
+      !formData.businessArea.trim()
     ) {
       toast.error("All fields are required.");
       return;
@@ -129,7 +125,6 @@ const BusinessAreaTable = () => {
 
       const payload = {
         businessArea: formData.businessArea,
-        email: formData.email,
       };
 
       const response = await apiRequest(
@@ -171,7 +166,6 @@ const BusinessAreaTable = () => {
     try {
       const updatedData = {
         businessArea: formData.businessArea,
-        email: formData.email,
       };
 
       await apiRequest(
@@ -255,7 +249,7 @@ const BusinessAreaTable = () => {
     <>
       <div className="mx-5">
         <div className="flex justify-between mb-4 mx-5">
-          <h2 className="text-xl font-semibold">Business Areas</h2>
+          <h2 className="text-xl font-semibold">{t("Business_Areas")}</h2>
           {hasCreatePermission && (
             <Button
               variant="contained"
@@ -282,8 +276,6 @@ const BusinessAreaTable = () => {
                   <Checkbox />
                 </th>
                 <th className="p-4 border-b">{t("Business_Area_Name")}</th>
-                <th className="p-4 border-b">{t("Email")}</th>
-                <th className="p-4 border-b">{t("Project_Name")}</th>
                 <th className="p-4 border-b">{t("Created_At")}</th>
                 {(hasUpdatePermission || hasDeletePermission) && (
                   <th className="p-4 border-b">{t("Actions")}</th>
@@ -297,7 +289,6 @@ const BusinessAreaTable = () => {
                     <Checkbox />
                   </td>
                   <td className="p-4">{businessArea.businessArea}</td>
-                  <td className="p-4">{businessArea.email}</td>
                   <td className="p-4">
                     {new Date(businessArea.createdAt).toLocaleDateString()}
                   </td>
@@ -401,37 +392,6 @@ const BusinessAreaTable = () => {
               }
               required
             />
-
-            {/* Email Select Field with scrollable dropdown */}
-            <TextField
-              select
-              label={t("Email")}
-              variant="outlined"
-              fullWidth
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              required
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200, // Fixed height for scroll
-                      overflow: "auto", // Enable scrolling
-                    },
-                  },
-                },
-              }}
-            >
-              {roles
-                ?.filter((role) => role.email)
-                ?.map((role, index) => (
-                  <MenuItem key={index} value={role.email}>
-                    {role.email}
-                  </MenuItem>
-                ))}
-            </TextField>
             <div className="flex justify-end space-x-2">
               <Button
                 variant="contained"

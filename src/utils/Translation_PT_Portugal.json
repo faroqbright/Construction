@@ -251,5 +251,21 @@
     "Are_you_sure_you_want_to_delete_this_project?": "Tem a certeza de que pretende eliminar este projeto?",
     "Delete_Project_Confirmation":" Confirmar Eliminação do Projecto",
     "Yes": "Sim",
-    "No": "Não"  
+    "No": "Não",
+    "Business_Areas": "Áreas de Negócio",
+    "Create_New_Business_Area": "Criar nova área de negócio",
+    "Business_Area_Name": "Nome da área comercial",
+    "Project_Gallery": "Galeria de Projetos",
+    "Drop_your_images_here_or": "Solte aqui as suas imagens ou",
+    "Upload": "Carregar",
+    "Business_Area": "Área de Negócio",
+    "Select_the_Business_Area": "Selecione a área de negócio",
+    "Client_Company": "Empresa Cliente",
+    "Select_the_Client_Company": "Selecione a empresa cliente",
+    "Milestone_Name": "Nome do Marco",
+    "Milestone_Description": "Descrição do marco",
+    "Save_Milestones": "Guardar marcos",
+    "Add_Business_Area": "Adicionar área comercial",
+    "Milestones": "Conquistas",
+    "No_milestones_added_yet": "Nenhum marco adicionado ainda" 
 }

@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FaRecordVinyl } from "react-icons/fa6";
 import { MdOutlineFileDownload } from "react-icons/md";
+import { FaStar } from "react-icons/fa";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
@@ -36,6 +37,76 @@ const PendingProjects = () => {
   const { t } = useTranslation();
 
   const token = useSelector((state) => state.auth.userToken);
+  const userId = useSelector((state) => state?.auth?.userInfo?._id);
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+
+  const openReviewModal = () => {
+    setIsReviewModalOpen(true);
+  };
+
+  const closeReviewModal = () => {
+    setIsReviewModalOpen(false);
+  };
+
+  const handleRatingChange = (newRating) => {
+    setRating(newRating);
+  };
+
+  const handleReviewTextChange = (event) => {
+    setReviewText(event.target.value);
+  };
+
+  const handleSubmitReview = async () => {
+    try {
+      // API call to submit the review
+      const payload = {
+        projectId: selectedProjectId,
+        userId: userId,
+        message: reviewText,
+        rating: rating,
+      };
+
+      const response = await apiRequest("post", "/reviews", payload, token);
+
+      if (response.status === 201) {
+        // Review submitted successfully
+        console.log("Review submitted successfully!");
+        closeReviewModal();
+        // You might want to refresh the project details or display a success message
+      } else {
+        // Handle errors
+        console.error("Error submitting review:", response.data);
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
+
+  const StarRating = ({ rating, onRatingChange }) => {
+    return (
+      <div className="flex justify-center gap-2 mt-4 mb-6">
+        {[...Array(5)].map((_, index) => {
+          const starValue = index + 1;
+          return (
+            <FaStar
+              key={index}
+              color={starValue <= rating ? "#ffc107" : "#e4e5e9"}
+              onClick={() => onRatingChange(starValue)}
+              style={{
+                cursor: "pointer",
+                width: "24px",
+                height: "24px",
+              }}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
   const fetchProjects = useCallback(async () => {
     try {
       const params = new URLSearchParams({
@@ -1074,12 +1145,83 @@ const PendingProjects = () => {
                             </div>
                           </div>
                         </div>
-                        <button
-                          className="text-[#54577A] underline"
-                          onClick={() => openModal(project._id)}
+                        <div className="flex justify-between items-center mb-4">
+                          <button
+                            className="text-[#54577A] underline"
+                            onClick={() => openModal(project._id)}
+                          >
+                            {t("deliverables_attached")}
+                          </button>
+                          <button
+                            className="text-[#54577A] underline"
+                            onClick={openReviewModal}
+                          >
+                            Write a Review
+                          </button>
+                        </div>
+                        <Modal
+                          open={isReviewModalOpen}
+                          onClose={closeReviewModal}
+                          aria-labelledby="review-modal-title"
+                          aria-describedby="review-modal-description"
                         >
-                          {t("deliverables_attached")}
-                        </button>
+                          <Box
+                            sx={{
+                              ...modalStyle,
+                              borderRadius: "16px",
+                              height: "auto",
+                              width: "600px",
+                              display: "flex",
+                              flexDirection: "column",
+                              padding: "24px",
+                              position: "relative", // needed for absolute positioning of the close button
+                            }}
+                          >
+                            {/* Close Icon */}
+                            <button
+                              onClick={closeReviewModal}
+                              className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl font-bold"
+                              aria-label="Close"
+                            >
+                              ×
+                            </button>
+
+                            <h2
+                              id="review-modal-title"
+                              className="flex justify-center text-xl font-semibold text-black-blacknew mb-4"
+                            >
+                              Write a Review
+                            </h2>
+
+                            <StarRating
+                              rating={rating}
+                              onRatingChange={handleRatingChange}
+                            />
+                            <h4 className="text-xl font-medium text-black-blacknew">Write a Description</h4>
+                            <textarea
+                              id="review-modal-description"
+                              className="w-full h-32 p-2 border border-gray-300 rounded-xl mt-4"
+                              placeholder="Your review here"
+                              value={reviewText}
+                              onChange={handleReviewTextChange}
+                            ></textarea>
+
+                            <div className="flex justify-end mt-8 gap-2">
+                              <button
+                                onClick={handleSubmitReview}
+                                className="px-4 py-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
+                              >
+                                Submit Review
+                              </button>
+                              <button
+                                onClick={closeReviewModal}
+                                className="px-4 py-2 mr-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </Box>
+                        </Modal>
                       </div>
                     </div>
                   ))

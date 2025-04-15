@@ -352,8 +352,13 @@ const MilestoneTable = () => {
                   <td className="p-4">
                     <Checkbox />
                   </td>
-                  <td className="p-4">{milestone.title}</td>
-                  <td className="p-4">{milestone.description}</td>
+                  <td className="p-4">{milestone.title || "-"}</td>
+                  <td
+                    className="p-4 max-w-xs truncate"
+                    title={milestone.description}
+                  >
+                    {milestone.description || "-"}
+                  </td>
                   <td className="p-4">{milestone.projectName}</td>
                   <td className="p-4">
                     {milestone.completedAt

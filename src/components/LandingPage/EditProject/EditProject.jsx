@@ -80,10 +80,6 @@ export default function EditProject() {
     fetchBusinessAreas();
   }, [token, dispatch, navigate]);
 
-  // useEffect(() => {
-  //   fetchBusinessAreas();
-  // }, [fetchBusinessAreas]);
-
   useEffect(() => {
     const fetchProjecto = async () => {
       setLoading(true);
@@ -149,6 +145,8 @@ export default function EditProject() {
   const closeModal = () => setIsModalOpen(false);
   const closeClientModal = () => setIsclientModalOpen(false);
 
+  const [projectsData, setProjectData] = useState([]);
+
   const fetchProjects = useCallback(async () => {
     if (isCreateMode) return;
 
@@ -156,6 +154,8 @@ export default function EditProject() {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
       if (response?.data?.statusCode === 200) {
         const data = response?.data?.data;
+        setProjectData(data);
+        
 
         const financeResponse = await apiRequest("get", "/finance", {}, token);
         if (financeResponse?.status === 200) {
@@ -195,6 +195,9 @@ export default function EditProject() {
       setError("Error fetching project data");
     }
   }, [id, token, isCreateMode, setValue]);
+
+  console.log("Projects data is:", projectsData);
+  
 
   useEffect(() => {
     fetchProjects();
@@ -419,12 +422,6 @@ export default function EditProject() {
 
         const responseid = response?.data?.data._id;
 
-        if (!milestoneName.trim()) {
-          toast.error("Please enter a milestone name");
-          return;
-        }
-
-        // Get projectName from form data
         const projectName = formData.projectName || initialValues.projectName;
 
         if (!projectName) {
@@ -442,7 +439,7 @@ export default function EditProject() {
           const payload = {
             title: milestoneName,
             description: milestoneDescription,
-            status: "pending",
+            status: "Ongoing",
             projectName: projectName,
             completedAt: null,
             userId: userId,
@@ -709,7 +706,7 @@ export default function EditProject() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-md"
       >
-        <h2 className="text-2xl font-bold mb-6">Project Gallery</h2>
+        <h2 className="text-2xl font-bold mb-6">{t("Project_Gallery")}</h2>
 
         <div className="mb-4">
           <label className="block text-2xl font-semibold mb-2">
@@ -723,9 +720,9 @@ export default function EditProject() {
             className="border-2 border-dashed border-gray-300 rounded-lg py-10 px-4 text-center cursor-pointer hover:bg-gray-50 transition duration-150"
           >
             <p className="text-gray-600 mb-4">
-              Drop your images here or{" "}
+              {t("Drop_your_images_here_or")}{" "}
               <span className="text-blue-600 font-semibold underline hover:text-blue-800">
-                Upload
+                {t("Upload")}
               </span>
             </p>
 
@@ -795,10 +792,10 @@ export default function EditProject() {
         </div>
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-6">Business Area</h2>
+          <h2 className="text-2xl font-bold mb-6">{t("Business_Area")}</h2>
           <labal className="block text-2xl font-semibold mb-2">
             <span className="text-gray-700 text-sm">
-              Select the Business Area
+              {t("Select_the_Business_Area")}
             </span>
           </labal>
           <select
@@ -820,10 +817,10 @@ export default function EditProject() {
         </div>
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-6">Client Company</h2>
+          <h2 className="text-2xl font-bold mb-6">{t("Client_Company")}</h2>
           <label className="block text-2xl font-semibold mb-2">
             <span className="text-gray-700 text-sm">
-              Select the Client Company
+              {t("Select_the_Client_Company")}
             </span>
           </label>
 
@@ -1041,12 +1038,10 @@ export default function EditProject() {
         )}
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-6">Project Milestones</h2>
-
-          {/* Changed from form to div since it's nested in the main form */}
+          <h2 className="text-2xl font-bold mb-6">{t("Project_Milestones")}</h2>
           <div>
             <label className="block text-2xl font-semibold mb-2">
-              <span className="text-gray-700 text-sm">Milestone Name</span>
+              <span className="text-gray-700 text-sm">{t("Milestone_Name")}</span>
             </label>
             <input
               type="text"
@@ -1058,7 +1053,7 @@ export default function EditProject() {
 
             <label className="block text-2xl font-semibold mt-4 mb-2">
               <span className="text-gray-700 text-sm">
-                Milestone Description
+                {t("Milestone_Description")}
               </span>
             </label>
             <textarea
@@ -1074,36 +1069,22 @@ export default function EditProject() {
                 type="button"
                 className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
                 onClick={() => {
-                  if (!milestoneName.trim()) {
-                    toast.error("Please enter a milestone name");
-                    return;
-                  }
-
-                  if (!milestoneDescription.trim()) {
-                    toast.error("Please enter a milestone description");
-                    return;
-                  }
-
                   const newMilestone = {
-                    id: Date.now(), // or use a unique ID generator
+                    id: Date.now(),
                     name: milestoneName,
                     description: milestoneDescription,
                   };
 
-                  // Add the new milestone to the milestones state
                   setMilestones((prevMilestones) => [
                     ...prevMilestones,
                     newMilestone,
                   ]);
 
-                  // Clear the input fields
                   setMilestoneName("");
                   setMilestoneDescription("");
-
-                  toast.success("Milestone saved successfully");
                 }}
               >
-                Save Milestones
+                {t("Save_Milestones")}
               </button>
               <button
                 type="button"
@@ -1113,19 +1094,18 @@ export default function EditProject() {
                   setMilestoneDescription("");
                 }}
               >
-                Cancel
+                {t("Cancel")}
               </button>
             </div>
           </div>
 
-          {/* Milestones List */}
           <div>
             <label className="block text-2xl font-semibold mb-2">
-              <span className="text-gray-700 text-sm">Milestones</span>
+              <span className="text-gray-700 text-sm">{t("Milestones")}</span>
             </label>
             <div>
               {milestones.length === 0 ? (
-                <p className="text-gray-500">No milestones added yet</p>
+                <p className="text-gray-500">{t("No_milestones_added_yet")}</p>
               ) : (
                 milestones.map((milestone, index) => (
                   <div

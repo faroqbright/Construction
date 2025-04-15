@@ -249,5 +249,21 @@
   "Project_Id": "Project ID",
   "Updated_At": "Updated At",
   "Edit_Milestone": "Edit Milestone",
-  "No": "No"
+  "No": "No",
+  "Business_Areas": "Business Areas",
+  "Create_New_Business_Area": "Create New Business Area",
+  "Business_Area_Name": "Business Area Name",
+  "Project_Gallery": "Project Gallery",
+  "Drop_your_images_here_or": "Drop your images here or",
+  "Upload": "Upload",
+  "Business_Area": "Business Area",
+  "Select_the_Business_Area": "Select the Business Area",
+  "Client_Company": "Client Company",
+  "Select_the_Client_Company": "Select the Client Company",
+  "Milestone_Name": "Milestone Name",
+  "Milestone_Description": "Milestone Description",
+  "Save_Milestones": "Save Milestones",
+  "Add_Business_Area": "Add Business Area",
+  "Milestones": "Milestones",
+  "No_milestones_added_yet" : "No milestones added yet"
 }
