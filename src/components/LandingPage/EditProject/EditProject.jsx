@@ -762,6 +762,7 @@ export default function EditProject() {
                         toast.error(
                           "Selected file should not be greater than 5MB."
                         );
+                        e.target.value = "";
                         return;
                       }
                     }
@@ -808,27 +809,31 @@ export default function EditProject() {
 
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-6">{t("Business_Area")}</h2>
-          <labal className="block text-2xl font-semibold mb-2">
+          <label className="block text-2xl font-semibold mb-2">
             <span className="text-gray-700 text-sm">
               {t("Select_the_Business_Area")}
             </span>
-          </labal>
-          <select
-            // value={businessAreas}
-            // onChange={(e) => setBusinessAreas(e.target.value)}
-            className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <MenuItem value="">Select Business Area</MenuItem>
-            {businessAreas && businessAreas.length > 0 ? (
-              businessAreas.map((area) => (
-                <option key={area._id} value={area._id}>
-                  {area.businessArea}
-                </option>
-              ))
-            ) : (
-              <option disabled>No businessAreas available</option>
+          </label>
+          <Controller
+            name="businessArea"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                options={businessAreas.map((area) => ({
+                  value: area._id,
+                  label: area.businessArea,
+                }))}
+                isSearchable
+                placeholder="Search Business Area"
+                className="mt-1"
+                onChange={(selectedOption) => {
+                  field.onChange(selectedOption?.value);
+                }}
+                value={businessAreas.find((area) => area._id === field.value)}
+              />
             )}
-          </select>
+          />
         </div>
 
         <div className="mb-6">
@@ -838,23 +843,27 @@ export default function EditProject() {
               {t("Select_the_Client_Company")}
             </span>
           </label>
-
-          <select
-            className="block w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            onChange={(e) => setSelectedCompany(e.target.value)}
-            value={selectedCompany}
-          >
-            <option value="">Select Client Company</option>
-            {projecto && projecto.length > 0 ? (
-              projecto.map((comapanyName, index) => (
-                <option key={index} value={comapanyName}>
-                  {comapanyName}
-                </option>
-              ))
-            ) : (
-              <option disabled>No companies available</option>
+          <Controller
+            name="company"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                options={projecto.map((company, index) => ({
+                  value: company,
+                  label: company,
+                }))}
+                isSearchable
+                placeholder="Search Client Company"
+                className="mt-1"
+                onChange={(selectedOption) => {
+                  field.onChange(selectedOption?.value);
+                  setSelectedCompany(selectedOption?.value);
+                }}
+                value={projecto.find((company) => company === field.value)}
+              />
             )}
-          </select>
+          />
         </div>
 
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
