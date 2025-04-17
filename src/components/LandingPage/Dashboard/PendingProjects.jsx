@@ -60,8 +60,9 @@ const PendingProjects = () => {
   };
 
   const handleSubmitReview = async () => {
+    console.log("id", selectedProjectId);
+
     try {
-      // API call to submit the review
       const payload = {
         projectId: selectedProjectId,
         userId: userId,
@@ -72,12 +73,9 @@ const PendingProjects = () => {
       const response = await apiRequest("post", "/reviews", payload, token);
 
       if (response.status === 201) {
-        // Review submitted successfully
         console.log("Review submitted successfully!");
         closeReviewModal();
-        // You might want to refresh the project details or display a success message
       } else {
-        // Handle errors
         console.error("Error submitting review:", response.data);
       }
     } catch (error) {
@@ -1154,7 +1152,10 @@ const PendingProjects = () => {
                           </button>
                           <button
                             className="text-[#54577A] underline"
-                            onClick={openReviewModal}
+                            onClick={() => {
+                              setSelectedProjectId(project._id); 
+                              openReviewModal();
+                            }}
                           >
                             Write a Review
                           </button>
@@ -1197,7 +1198,9 @@ const PendingProjects = () => {
                               rating={rating}
                               onRatingChange={handleRatingChange}
                             />
-                            <h4 className="text-xl font-medium text-black-blacknew">Write a Description</h4>
+                            <h4 className="text-xl font-medium text-black-blacknew">
+                              Write a Description
+                            </h4>
                             <textarea
                               id="review-modal-description"
                               className="w-full h-32 p-2 border border-gray-300 rounded-xl mt-4"

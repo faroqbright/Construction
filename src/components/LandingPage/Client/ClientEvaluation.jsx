@@ -1,202 +1,262 @@
-import React, { useState } from "react";
-import { Avatar, Box, Rating } from "@mui/material";
-import { FiBell } from "react-icons/fi";
+import React, { useState, useEffect, useCallback } from "react";
+import { Avatar, Box, Rating, Typography } from "@mui/material";
 import img1 from "../../../assets/Image (1).svg";
-import arrow from "../../../assets/arrow.svg";
-import noti from "../../../assets/notif.svg";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import { t } from "i18next";
+import apiRequest from "../../../utils/apiRequest";
+import { useSelector } from "react-redux";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
 
 const ClientEvaluation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { t } = useTranslation();
+  const [reviews, setReviews] = useState([]);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedProjectName, setSelectedProjectName] = useState("");
 
-  const toggleModal = () => {
-    setIsModalOpen((prev) => !prev);
+  const { t } = useTranslation();
+  const token = useSelector((state) => state.auth.userToken);
+  const userName = useSelector((state) => state.auth.userInfo?.userName);
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await apiRequest("get", `/reviews`, {}, token);
+      const reviewsData = Array.isArray(response?.data?.data)
+        ? response.data.data
+        : [];
+
+      const formattedReviews = reviewsData.map((review) => {
+        const project = review.project || {};
+        return {
+          _id: review._id,
+          userId: {
+            _id: review.userId,
+            name: userName,
+            avatar: null,
+          },
+          projectName: project?.projectName || t("Unnamed_Project"),
+          projectBanner: project?.projectBanner || [],
+          projectOwners:
+            project?.projectOwners?.map((owner) => ({
+              ownerName: owner.ownerId || t("Unknown_Owner"),
+            })) || [],
+          message: review.message,
+          rating: review.rating,
+          createdAt: review.createdAt,
+        };
+      });
+
+      setReviews(formattedReviews);
+
+      // Set the first project as selected
+      if (formattedReviews.length > 0) {
+        setSelectedProjectName(formattedReviews[0].projectName);
+      }
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      setError("Failed to load reviews");
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, t, userName]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  const toggleModal = (review = null) => {
+    setSelectedReview(review);
+    setIsModalOpen(!isModalOpen);
   };
 
-  const reviews = [
-    {
-      name: "Ralph Edwards",
-      rating: 5,
-      date: "02 Days Ago",
-      message:
-        "Architecto consequatur molestias repellat qui. Quis est eos doloremque veniam est rerum. Soluta.",
-      avatar: "IMG.svg", // Replace with actual avatar URL
-    },
-    {
-      name: "Kevin Hunt",
-      rating: 5,
-      date: "02 Days Ago",
-      message:
-        "Architecto consequatur molestias repellat qui. Quis est eos doloremque veniam est rerum. Soluta.",
-      avatar: "placeholder.svg",
-    },
-    {
-      name: "Isabelle",
-      rating: 5,
-      date: "02 Days Ago",
-      message:
-        "Architecto consequatur molestias repellat qui. Quis est eos doloremque veniam est rerum. Soluta.",
-      avatar: "placeholder (1).svg",
-    },
-    {
-      name: "Ralph Edwards",
-      rating: 5,
-      date: "02 Days Ago",
-      message:
-        "Architecto consequatur molestias repellat qui. Quis est eos doloremque veniam est rerum. Soluta.",
-      avatar: "IMG.svg", // Replace with actual avatar URL
-    },
-    {
-      name: "Kevin Hunt",
-      rating: 5,
-      date: "02 Days Ago",
-      message:
-        "Architecto consequatur molestias repellat qui. Quis est eos doloremque veniam est rerum. Soluta.",
-      avatar: "placeholder.svg",
-    },
-    {
-      name: "Isabelle",
-      rating: 5,
-      date: "02 Days Ago",
-      message:
-        "Architecto consequatur molestias repellat qui. Quis est eos doloremque veniam est rerum. Soluta.",
-      avatar: "placeholder (1).svg",
-    },
-  ];
+  const uniqueProjects = Array.from(
+    new Map(reviews.map((r) => [r.projectName, r])).values()
+  );
+
+  const filteredReviews = selectedProjectName
+    ? reviews.filter((r) => r.projectName === selectedProjectName)
+    : reviews;
+
+  if (loading) {
+    return <div className="p-6 min-h-screen font-raleway">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 min-h-screen font-raleway">{error}</div>;
+  }
 
   return (
     <>
       <div className={`relative ${isModalOpen ? "brightness-50" : ""}`}>
-        <div className="p-6  min-h-screen font-raleway">
-          {/* Card Container */}
+        <div className="p-6 min-h-screen font-raleway">
           <div className="bg-white rounded-lg shadow-md overflow-hidden p-6">
-            {/* Project Image */}
+            {/* Project Slider */}
+            {uniqueProjects.length > 0 && (
+        <Swiper
+        modules={[Navigation]}
+        slidesPerView={1}
+        navigation={{
+          nextEl: '.custom-next',
+          prevEl: '.custom-prev',
+        }}
+        onSlideChange={(swiper) => {
+          const current = uniqueProjects[swiper.activeIndex];
+          setSelectedProjectName(current?.projectName || "");
+        }}
+        className="w-full h-64 relative"
+      >
+        {/* Custom navigation buttons */}
+        <div className="absolute top-1/2 left-4 z-10 -translate-y-1/2">
+          <button className="custom-prev bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+        
+        <div className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
+          <button className="custom-next bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      
+        {uniqueProjects.map((project, index) => (
+          <SwiperSlide key={index}>
             <img
-              src={img1} // Replace with your image URL
+              src={project.projectBanner?.[0]?.url || img1}
               alt="Project"
               className="w-full h-64 object-cover"
             />
-
-            {/* Project Details */}
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-800">
-                Oceanview Plaza
+                {project.projectName}
               </h2>
               <p className="text-gray-600 mt-1">
-                <span className="font-semibold">{t("Project_Owner")}:</span> John Doe
+                <span className="font-semibold">{t("Project_Owner")}:</span>{" "}
+                {project.projectOwners?.[0]?.ownerName || t("Unknown_Owner")}
               </p>
             </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+            )}
 
             {/* Reviews Section */}
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {reviews.map((review, index) => (
-                <Box
-                  key={index}
-                  onClick={toggleModal}
-                  className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer"
-                >
-                  <div className="flex items-center mb-4">
-                    <Avatar src={review.avatar} alt={review.name} />
-                    <div className="ml-3">
-                      <div className="flex justify-between text-nowrap">
-                        <p className="text-gray-800 font-medium">
-                          {review.name}
-                        </p>
-                        <p className="text-gray-600 text-[0.6rem] flex justify-end">
-                          {review.date}
-                        </p>
-                      </div>
-                      <Rating
-                        name={`rating-${index}`}
-                        value={review.rating}
-                        readOnly
-                        size="small"
+            {filteredReviews.length === 0 ? (
+              <Typography variant="body1" className="p-6 text-center">
+                {t("No_Reviews_Available")}
+              </Typography>
+            ) : (
+              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredReviews.map((review, index) => (
+                  <Box
+                    key={index}
+                    onClick={() => toggleModal(review)}
+                    className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center mb-4">
+                      <Avatar
+                        src={review.userId?.avatar || "placeholder.svg"}
+                        alt={review.userId?.name || "Anonymous"}
                       />
-                      <span className="text-lightpurple-light text-[0.7rem] pb-5">
-                        (5 Stars)
-                      </span>
+                      <div className="ml-3 w-full">
+                        <div className="flex justify-between items-center">
+                          <p className="text-gray-800 font-medium">
+                            {review.userId?.name || t("Anonymous")}
+                          </p>
+                          <p className="text-gray-600 text-[0.7rem]">
+                            {review.createdAt
+                              ? new Date(review.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )
+                              : ""}
+                          </p>
+                        </div>
+                        <Rating
+                          name={`rating-${index}`}
+                          value={review.rating || 0}
+                          readOnly
+                          size="small"
+                        />
+                        <span className="text-lightpurple-light text-[0.7rem]">
+                          ({review.rating || 0} {t("Stars")})
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-700 mt-2 text-sm">
-                      {review.message}
-                    </p>
-                  </div>
-                </Box>
-              ))}
-            </div>
+                    <div>
+                      <p className="text-gray-700 mt-2 text-sm line-clamp-3">
+                        {review.message || t("No_Review_Message")}
+                      </p>
+                    </div>
+                  </Box>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && <ClientModal toggleModal={toggleModal} />}
+      {isModalOpen && (
+        <ClientModal toggleModal={toggleModal} review={selectedReview} />
+      )}
     </>
   );
 };
 
-const ClientModal = ({ toggleModal }) => {
+const ClientModal = ({ toggleModal, review }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
-      <div className="w-[400px] bg-white rounded-lg shadow-lg p-6 relative">
-        {/* Close Button */}
+      <div className="w-[400px] bg-white rounded-lg shadow-lg p-6 relative max-w-[90vw]">
         <button
           onClick={toggleModal}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
+          aria-label={t("Close")}
         >
           &times;
         </button>
 
-        {/* Header Section */}
         <div className="flex items-center space-x-4">
-          <img
-            src="placeholder.svg"
-            alt="User Avatar"
-            className="w-12 h-12 rounded-full"
+          <Avatar
+            src={review?.userId?.avatar || "placeholder.svg"}
+            alt={review?.userId?.name || t("Anonymous")}
+            className="w-12 h-12"
           />
           <div>
-            <h2 className="text-lg font-bold">John Doe</h2>
+            <h2 className="text-lg font-bold">
+              {review?.userId?.name || t("Anonymous")}
+            </h2>
             <div className="flex items-center">
-              {/* Stars */}
-              <div className="flex text-yellow-500">
-                {[...Array(4)].map((_, index) => (
-                  <svg
-                    key={index}
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    className="w-4 h-4"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M3.612 15.443c-.396.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.32-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.63.283.95l-3.523 3.356.83 4.73c.078.443-.35.79-.746.592L8 13.187l-4.389 2.256z" />
-                  </svg>
-                ))}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  className="w-4 h-4 text-gray-300"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M3.612 15.443c-.396.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.32-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.63.283.95l-3.523 3.356.83 4.73c.078.443-.35.79-.746.592L8 13.187l-4.389 2.256z" />
-                </svg>
-              </div>
-              <span className="ml-2 text-sm text-gray-500">(5 Stars)</span>
+              <Rating value={review?.rating || 0} readOnly size="small" />
+              <span className="ml-2 text-sm text-gray-500">
+                ({review?.rating || 0} {t("Stars")})
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Content */}
         <p className="mt-4 text-gray-600 leading-relaxed">
-          Architecto consequatur molestias repleat qui. Quia est asd doloremque
-          veniam est rerum. Soluta Quia est asd doloremque.
+          {review?.message || t("No_Review_Message")}
         </p>
 
-        {/* Close Button */}
         <button
           onClick={toggleModal}
-          className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded"
+          className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition-colors"
         >
           {t("Close")}
         </button>

@@ -9,7 +9,6 @@ import {
   TextField,
   Typography,
   IconButton,
-  MenuItem,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { RiCloseLine } from "react-icons/ri";
@@ -21,25 +20,22 @@ import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
+import { Autocomplete } from "@mui/material";
 
 const BusinessAreaTable = () => {
   const [openStates, setOpenStates] = useState({});
   const [open, setOpen] = useState(false);
   const [businessAreas, setBusinessAreas] = useState([]);
   const [editData, setEditData] = useState(null);
-  const [roles, setRoles] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [formData, setFormData] = useState({
     businessArea: "",
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state?.auth?.userToken);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const modalRef = useRef(null);
-
   const _id = useSelector((state) => state?.auth?.userInfo?._id);
 
   const handleClickOutside = (event) => {
@@ -85,8 +81,6 @@ const BusinessAreaTable = () => {
         businessArea: "",
       });
     }
-
-    await fetchRoles();
     setOpen(true);
   };
 
@@ -112,9 +106,7 @@ const BusinessAreaTable = () => {
   };
 
   const handleAdd = async () => {
-    if (
-      !formData.businessArea.trim()
-    ) {
+    if (!formData.businessArea.trim()) {
       toast.error("All fields are required.");
       return;
     }
@@ -187,30 +179,6 @@ const BusinessAreaTable = () => {
   useEffect(() => {
     fetchBusinessAreas();
   }, [fetchBusinessAreas]);
-
-  const fetchRoles = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await apiRequest("get", "/rolesUser", {}, token);
-      if (
-        response.data &&
-        response.data.data &&
-        Array.isArray(response.data.data)
-      ) {
-        setRoles(response.data.data);
-      }
-    } catch (error) {
-      if (error && error?.status === 401) {
-        dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
-        navigate("/login");
-      } else {
-        console.error("Error:", error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
 
   const modalStyles = {
     position: "absolute",
@@ -354,14 +322,8 @@ const BusinessAreaTable = () => {
               <PaginationItem
                 {...item}
                 components={{
-                  previous: () => <span>{t("Previos")}</span>,
-                  next: () => <span>{t("Next")}</span>,
-                }}
-                sx={{
-                  "&.MuiPaginationItem-previous, &.MuiPaginationItem-next": {
-                    color: "black",
-                    fontWeight: "bold",
-                  },
+                  previous: () => <span>Prev</span>,
+                  next: () => <span>Next</span>,
                 }}
               />
             )}
@@ -369,6 +331,7 @@ const BusinessAreaTable = () => {
         </div>
       </div>
 
+      {/* Modal for Add/Edit Business Area */}
       <Modal open={open} onClose={handleClose}>
         <Box sx={modalStyles}>
           <div className="flex justify-between items-center mb-4">
@@ -381,17 +344,37 @@ const BusinessAreaTable = () => {
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            <TextField
-              label={t("Business_Area_Name")}
-              variant="outlined"
-              fullWidth
-              placeholder={t("Business_Area_Name")}
-              value={formData?.businessArea}
-              onChange={(e) =>
-                setFormData({ ...formData, businessArea: e.target.value })
-              }
-              required
+            <Autocomplete
+              freeSolo
+              disableClearable
+              options={[
+                ...new Set(businessAreas.map((area) => area.businessArea)),
+              ]}
+              value={formData.businessArea}
+              onChange={(event, newValue) => {
+                setFormData({ ...formData, businessArea: newValue });
+              }}
+              onInputChange={(event, newInputValue) => {
+                setFormData({ ...formData, businessArea: newInputValue });
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t("Select_Business_Area_Name")}
+                  placeholder={t("Search_or_Type")}
+                  fullWidth
+                  required
+                  InputProps={{
+                    ...params.InputProps,
+                    type: "search", // Keeps it as a search input
+                  }}
+                />
+              )}
+              // Disable dropdown to make it only a search input
+              disableOpenOnFocus
+              open={false}
             />
+
             <div className="flex justify-end space-x-2">
               <Button
                 variant="contained"

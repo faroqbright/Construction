@@ -92,12 +92,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       to: "/notifications",
       module: null,
     },
-    {
-      icon: document,
-      label: t("Documents"),
-      to: "/documents",
-      module: "DocumentManagement",
-    },
+    // {
+    //   icon: document,
+    //   label: t("Documents"),
+    //   to: "/documents",
+    //   module: "DocumentManagement",
+    // },
     ...(showRolesUsersButton
       ? [
           {
