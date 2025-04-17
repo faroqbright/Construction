@@ -10,6 +10,7 @@ import {
   Typography,
   IconButton,
   MenuItem,
+  Autocomplete
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { RiCloseLine } from "react-icons/ri";
@@ -29,8 +30,10 @@ const BusinessAreaTable = () => {
   const [editData, setEditData] = useState(null);
   const [formData, setFormData] = useState({
     businessArea: "",
+    role: "",
   });
   const [page, setPage] = useState(1);
+  const [roles, setRoles] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const token = useSelector((state) => state?.auth?.userToken);
   const dispatch = useDispatch();
@@ -51,6 +54,17 @@ const BusinessAreaTable = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const fetchRoles = useCallback(async () => {
+    try {
+      const response = await apiRequest("get", `/roles`, {}, token);
+      if (response.data && Array.isArray(response.data.data)) {
+        setRoles(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    }
+  }, [token]);
 
   const fetchBusinessAreas = useCallback(async () => {
     try {
@@ -76,13 +90,15 @@ const BusinessAreaTable = () => {
     if (businessArea) {
       setFormData({
         businessArea: businessArea.businessArea,
+        role: businessArea.role?._id || "",
       });
     } else {
       setFormData({
         businessArea: "",
+        role: "",
       });
     }
-    setOpen(true); 
+    setOpen(true);
   };
 
   const handleSubmit = (e) => {
@@ -107,9 +123,7 @@ const BusinessAreaTable = () => {
   };
 
   const handleAdd = async () => {
-    if (
-      !formData.businessArea.trim()
-    ) {
+    if (!formData.businessArea.trim() || !formData.role.trim()) {
       toast.error("All fields are required.");
       return;
     }
@@ -120,6 +134,7 @@ const BusinessAreaTable = () => {
 
       const payload = {
         businessArea: formData.businessArea,
+        role: formData.role,
       };
 
       const response = await apiRequest(
@@ -161,6 +176,7 @@ const BusinessAreaTable = () => {
     try {
       const updatedData = {
         businessArea: formData.businessArea,
+        role: formData.role,
       };
 
       await apiRequest(
@@ -180,8 +196,9 @@ const BusinessAreaTable = () => {
   };
 
   useEffect(() => {
+    fetchRoles();
     fetchBusinessAreas();
-  }, [fetchBusinessAreas]);
+  }, [fetchBusinessAreas, fetchRoles]);
 
   const modalStyles = {
     position: "absolute",
@@ -363,6 +380,24 @@ const BusinessAreaTable = () => {
               }
               required
             />
+            <Autocomplete
+              options={roles}
+              getOptionLabel={(option) => option.roleName}
+              value={roles.find((role) => role._id === formData.role) || null}
+              onChange={(event, newValue) =>
+                setFormData({ ...formData, role: newValue?._id || "" })
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t("Role")}
+                  variant="outlined"
+                  fullWidth
+                  required
+                />
+              )}
+            />
+
             <div className="flex justify-end space-x-2">
               <Button
                 variant="contained"

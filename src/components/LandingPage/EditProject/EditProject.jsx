@@ -458,8 +458,8 @@ export default function EditProject() {
 
           const payload = {
             // title: formData.title,
-            title: formData.title,
-            description: formData.description,
+            title: formData.title || " ",
+            description: formData.description || "",
             status: formData.status,
             completedAt:
               formData.status === "completed" ? new Date().toISOString() : null,
@@ -813,22 +813,28 @@ export default function EditProject() {
           <Controller
             name="businessArea"
             control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={businessAreas.map((area) => ({
-                  value: area._id,
-                  label: area.businessArea,
-                }))}
-                isSearchable
-                placeholder="Search Business Area"
-                className="mt-1"
-                onChange={(selectedOption) => {
-                  field.onChange(selectedOption?.value);
-                }}
-                value={businessAreas.find((area) => area._id === field.value)}
-              />
-            )}
+            render={({ field }) => {
+              const options = businessAreas.map((area) => ({
+                value: area._id,
+                label: area.businessArea,
+              }));
+              return (
+                <Select
+                  {...field}
+                  options={options}
+                  isSearchable
+                  placeholder="Search Business Area"
+                  className="mt-1"
+                  onChange={(selectedOption) => {
+                    field.onChange(selectedOption?.value);
+                  }}
+                  value={
+                    options.find((option) => option.value === field.value) ||
+                    null
+                  }
+                />
+              );
+            }}
           />
         </div>
 
@@ -842,23 +848,30 @@ export default function EditProject() {
           <Controller
             name="company"
             control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={projecto.map((company, index) => ({
-                  value: company,
-                  label: company,
-                }))}
-                isSearchable
-                placeholder="Search Client Company"
-                className="mt-1"
-                onChange={(selectedOption) => {
-                  field.onChange(selectedOption?.value);
-                  setSelectedCompany(selectedOption?.value);
-                }}
-                value={projecto.find((company) => company === field.value)}
-              />
-            )}
+            render={({ field }) => {
+              const options = projecto.map((company) => ({
+                value: company,
+                label: company,
+              }));
+
+              return (
+                <Select
+                  {...field}
+                  options={options}
+                  isSearchable
+                  placeholder="Search Client Company"
+                  className="mt-1"
+                  onChange={(selectedOption) => {
+                    field.onChange(selectedOption?.value);
+                    setSelectedCompany(selectedOption?.value);
+                  }}
+                  value={
+                    options.find((option) => option.value === field.value) ||
+                    null
+                  }
+                />
+              );
+            }}
           />
         </div>
 
@@ -1084,14 +1097,14 @@ export default function EditProject() {
               </span>
             </label>
             <Controller
-              name="description"
+              name="milestone"
               control={control}
               render={({ field }) => (
                 <textarea
                   {...field}
-                  className="w-full p-3 border border-gray-300 rounded-md "
+                  className="w-full p-3 border border-gray-300 rounded-md"
                   rows={4}
-                  placeholder="Enter milestone description"
+                  placeholder="Enter milestone description (optional)" // Added "optional" to indicate it's not required
                 ></textarea>
               )}
             />
@@ -1108,8 +1121,8 @@ export default function EditProject() {
 
                   const newMilestone = {
                     id: Date.now(),
-                    name: formValues.title,
-                    description: formValues.description,
+                    name: formValues.title || " ",
+                    description: formValues.description || " ",
                   };
 
                   setMilestones((prev) => [...prev, newMilestone]);
