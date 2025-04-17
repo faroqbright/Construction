@@ -9,6 +9,7 @@ import {
   TextField,
   Typography,
   IconButton,
+  MenuItem,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { RiCloseLine } from "react-icons/ri";
@@ -20,7 +21,6 @@ import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
-import { Autocomplete } from "@mui/material";
 
 const BusinessAreaTable = () => {
   const [openStates, setOpenStates] = useState({});
@@ -36,6 +36,7 @@ const BusinessAreaTable = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const modalRef = useRef(null);
+
   const _id = useSelector((state) => state?.auth?.userInfo?._id);
 
   const handleClickOutside = (event) => {
@@ -81,7 +82,7 @@ const BusinessAreaTable = () => {
         businessArea: "",
       });
     }
-    setOpen(true);
+    setOpen(true); 
   };
 
   const handleSubmit = (e) => {
@@ -106,7 +107,9 @@ const BusinessAreaTable = () => {
   };
 
   const handleAdd = async () => {
-    if (!formData.businessArea.trim()) {
+    if (
+      !formData.businessArea.trim()
+    ) {
       toast.error("All fields are required.");
       return;
     }
@@ -215,7 +218,7 @@ const BusinessAreaTable = () => {
 
   return (
     <>
-      <div className="mx-5">
+      <div className="mx-5 mt-8">
         <div className="flex justify-between mb-4 mx-5">
           <h2 className="text-xl font-semibold">{t("Business_Areas")}</h2>
           {hasCreatePermission && (
@@ -243,7 +246,7 @@ const BusinessAreaTable = () => {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
-                <th className="p-4 border-b">{t("Business_Area_Name")}</th>
+                <th className="p-4 border-b">{t("Business_Name")}</th>
                 <th className="p-4 border-b">{t("Created_At")}</th>
                 {(hasUpdatePermission || hasDeletePermission) && (
                   <th className="p-4 border-b">{t("Actions")}</th>
@@ -322,8 +325,14 @@ const BusinessAreaTable = () => {
               <PaginationItem
                 {...item}
                 components={{
-                  previous: () => <span>Prev</span>,
-                  next: () => <span>Next</span>,
+                  previous: () => <span>{t("Previos")}</span>,
+                  next: () => <span>{t("Next")}</span>,
+                }}
+                sx={{
+                  "&.MuiPaginationItem-previous, &.MuiPaginationItem-next": {
+                    color: "black",
+                    fontWeight: "bold",
+                  },
                 }}
               />
             )}
@@ -331,7 +340,6 @@ const BusinessAreaTable = () => {
         </div>
       </div>
 
-      {/* Modal for Add/Edit Business Area */}
       <Modal open={open} onClose={handleClose}>
         <Box sx={modalStyles}>
           <div className="flex justify-between items-center mb-4">
@@ -344,37 +352,17 @@ const BusinessAreaTable = () => {
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            <Autocomplete
-              freeSolo
-              disableClearable
-              options={[
-                ...new Set(businessAreas.map((area) => area.businessArea)),
-              ]}
-              value={formData.businessArea}
-              onChange={(event, newValue) => {
-                setFormData({ ...formData, businessArea: newValue });
-              }}
-              onInputChange={(event, newInputValue) => {
-                setFormData({ ...formData, businessArea: newInputValue });
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={t("Select_Business_Area_Name")}
-                  placeholder={t("Search_or_Type")}
-                  fullWidth
-                  required
-                  InputProps={{
-                    ...params.InputProps,
-                    type: "search", // Keeps it as a search input
-                  }}
-                />
-              )}
-              // Disable dropdown to make it only a search input
-              disableOpenOnFocus
-              open={false}
+            <TextField
+              label={t("Business_Area_Name")}
+              variant="outlined"
+              fullWidth
+              placeholder={t("Business_Area_Name")}
+              value={formData?.businessArea}
+              onChange={(e) =>
+                setFormData({ ...formData, businessArea: e.target.value })
+              }
+              required
             />
-
             <div className="flex justify-end space-x-2">
               <Button
                 variant="contained"
