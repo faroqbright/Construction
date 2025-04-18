@@ -70,7 +70,7 @@ const BusinessAreaTable = () => {
     try {
       const response = await apiRequest("get", `/businessArea`, {}, token);
       if (response.data && Array.isArray(response.data.data)) {
-        setBusinessAreas(response.data.data);
+        setBusinessAreas(response.data.data.reverse());
         setTotalPages(response.data.totalPages);
       }
     } catch (error) {

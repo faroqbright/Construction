@@ -1,11 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  useParams,
-  useNavigate,
-  useLocation,
-  Navigate,
-} from "react-router-dom";
+import { useParams, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";
@@ -401,6 +396,7 @@ export default function EditProject() {
     }
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
+      
       if (
         response?.data?.statusCode === 201 ||
         response?.data?.statusCode === 200
@@ -409,8 +405,34 @@ export default function EditProject() {
         const selectedData = FinancialExecution?.find(
           (file) => file.fileName === selectedInvoice
         );
-
         const id = selectedData?.id;
+
+        try {
+          for (const milestone of milestones) {
+            const payload = {
+              title: milestone.name,
+              dsc: milestone.description,
+              status: "pending",
+              completedAt: null,
+              userId: userId,
+              projectName: formData.projectName,
+            };
+        
+            await apiRequest(
+              "post",
+              `/additional/milestone/${response.data.data._id}`,
+              payload,
+              token
+            );
+          }
+        
+          setMilestones([]);
+          toast.success("Milestones saved successfully!");
+        
+        } catch (error) {
+          toast.error("Failed to save milestones.");
+          console.error(error);
+        }        
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
           try {
@@ -474,12 +496,12 @@ export default function EditProject() {
             token
           );
 
+          
           console.log("API Response:", response.data);
-
+          
           if (response.status === 200 || response.status === 201) {
             toast.success(response.data.message);
-            fetchMilestones();
-            handleClose();
+            // handleClose();
           } else {
             toast.error("Failed to add milestone.");
           }
@@ -1070,26 +1092,26 @@ export default function EditProject() {
           </>
         )}
 
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-6">{t("Project_Milestones")}</h2>
-          <div>
-            <label className="block text-2xl font-semibold mb-2">
-              <span className="text-gray-700 text-sm">
-                {t("Milestone_Name")}
-              </span>
-            </label>
-            <Controller
-              name="title" // 👈 corresponds to `formData.title`
-              control={control}
-              render={({ field }) => (
-                <input
-                  {...field}
-                  type="text"
-                  className="w-full p-3 border border-gray-300 rounded-md"
-                  placeholder="Enter milestone name"
-                />
-              )}
-            />
+<div className="mb-12">
+  <h2 className="text-2xl font-bold mb-6">{t("Project_Milestones")}</h2>
+
+  {/* 💡 Input Form Section */}
+  <div className="bg-white p-6 border border-gray-200 rounded-md shadow-sm mb-10">
+    <label className="block text-2xl font-semibold mb-2">
+      <span className="text-gray-700 text-sm">{t("Milestone_Name")}</span>
+    </label>
+    <Controller
+      name="title"
+      control={control}
+      render={({ field }) => (
+        <input
+          {...field}
+          type="text"
+          className="w-full p-3 border border-gray-300 rounded-md"
+          placeholder="Enter milestone name"
+        />
+      )}
+    />
 
             <label className="block text-2xl font-semibold mt-4 mb-2">
               <span className="text-gray-700 text-sm">
@@ -1108,78 +1130,97 @@ export default function EditProject() {
                 ></textarea>
               )}
             />
+    <label className="block text-2xl font-semibold mt-4 mb-2">
+      <span className="text-gray-700 text-sm">{t("Milestone_Description")}</span>
+    </label>
+    <Controller
+      name="description"
+      control={control}
+      render={({ field }) => (
+        <textarea
+          {...field}
+          className="w-full p-3 border border-gray-300 rounded-md"
+          rows={4}
+          placeholder="Enter milestone description"
+        ></textarea>
+      )}
+    />
 
-            <div className="flex justify-end mb-6 mt-4">
-              <button
-                type="button"
-                className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
-                onClick={() => {
-                  const formValues = getValues();
-                  if (!formValues.title || !formValues.description) {
-                    return;
-                  }
+    <div className="flex justify-end mt-6">
+      <button
+        type="button"
+        className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
+        onClick={() => {
+          const formValues = getValues();
+          if (!formValues.title || !formValues.description) return;
 
                   const newMilestone = {
                     id: Date.now(),
                     name: formValues.title || " ",
                     description: formValues.description || " ",
                   };
+          const newMilestone = {
+            id: Date.now(),
+            name: formValues.title,
+            description: formValues.description,
+          };
 
-                  setMilestones((prev) => [...prev, newMilestone]);
+          setMilestones((prev) => [...prev, newMilestone]);
+          setValue("title", "");
+          setValue("description", "");
+        }}
+      >
+        {t("Save_Milestones")}
+      </button>
 
-                  setValue("title", "");
-                  setValue("description", "");
-                }}
-              >
-                {t("Save_Milestones")}
-              </button>
+      <button
+        type="button"
+        className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md"
+        onClick={() => {
+          setValue("title", "");
+          setValue("description", "");
+        }}
+      >
+        {t("Cancel")}
+      </button>
+    </div>
+  </div>
 
-              <button
-                type="button"
-                className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md"
-                onClick={() => {
-                  setValue("title", "");
-                  setValue("description", "");
-                }}
-              >
-                {t("Cancel")}
-              </button>
+  {/* ✅ Milestones List Section */}
+  <div className="mt-4">
+    <h3 className="text-xl font-semibold mb-4">{t("Milestones")}</h3>
+    {milestones.length === 0 ? (
+      <p className="text-gray-500">{t("No_milestones_added_yet")}</p>
+    ) : (
+      <div className="space-y-4">
+        {milestones.map((milestone, index) => (
+          <div
+            key={milestone.id}
+            className="p-4 bg-white border border-gray-200 rounded-md shadow-sm flex justify-between items-start"
+          >
+            <div>
+              <h4 className="text-lg font-medium text-gray-800">
+                {index + 1}. {milestone.name}
+              </h4>
+              <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
+                {milestone.description}
+              </p>
             </div>
+            <button
+              type="button"
+              className="text-red-500 hover:text-red-700"
+              onClick={() => handleMilestoneDelete(milestone.id)}
+              title="Delete"
+            >
+              <Trash2 size={20} />
+            </button>
           </div>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
 
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-4">{t("Milestones")}</h3>
-            {milestones.length === 0 ? (
-              <p className="text-gray-500">{t("No_milestones_added_yet")}</p>
-            ) : (
-              <div className="space-y-4">
-                {milestones.map((milestone, index) => (
-                  <div
-                    key={milestone.id}
-                    className="p-4 bg-white border border-gray-200 rounded-md shadow-sm flex justify-between items-start"
-                  >
-                    <div>
-                      <h4 className="text-lg font-medium text-gray-800">
-                        {index + 1}. {milestone.name}
-                      </h4>
-                      <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
-                        {milestone.description}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() => handleMilestoneDelete(milestone.id)}
-                      title="Delete"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
 
         <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
         <div className="mb-4">
