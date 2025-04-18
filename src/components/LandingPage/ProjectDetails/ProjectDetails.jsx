@@ -13,6 +13,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Slider from "react-slick";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { toast } from "react-toastify";
+import logo from "../../../assets/logo1.png";
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
@@ -256,7 +257,7 @@ const ProjectDetails = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        {/* <div className="p-6">
           <h3 className="text-md font-semibold text-gray-800">
             {t("Project_Deliverables")}:
           </h3>
@@ -287,7 +288,7 @@ const ProjectDetails = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
         <div className="p-6">
           <h3 className="text-md font-semibold text-gray-800">
             {t("Project_Reports")}:
@@ -464,16 +465,9 @@ const ProjectDetails = () => {
                 ))}
               </Slider>
             ) : (
-              <div className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2 mx-2">
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="Placeholder Image"
-                  className="object-cover rounded-xl w-full h-[284px]"
-                />
-                <div className="flex justify-between w-full p-2">
-                  <p>{t("Added_On")}</p>
-                  <p>-</p>
-                </div>
+              <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
+                <img src={logo} alt="" />
+                <span className="font-semibold text-sm mt-4">No Images yet.</span>
               </div>
             )}
           </div>

@@ -140,8 +140,15 @@ const ProjectManager = () => {
     setCurrentPage(1);
   }, [selectedTab]);
 
-  const handleTabClick = (tab) => {
-    setSelectedTab(tab);
+  const tabs = [
+    { label: t("All"), value: "All" },
+    { label: t("Ongoing"), value: "Ongoing" },
+    { label: t("Pending"), value: "Pending" },
+    { label: t("Completed"), value: "Completed" },
+  ];
+
+  const handleTabClick = (tabValue) => {
+    setSelectedTab(tabValue);
   };
 
   const handlePageChange = (event, page) => {
@@ -314,28 +321,27 @@ const ProjectManager = () => {
           alignItems="center"
         >
           <Stack direction="row" spacing={5}>
-            {[t("All"), t("Ongoing"), t("Pending"), t("Completed")].map(
-              (tab) => (
-                <Chip
-                  key={tab}
-                  label={tab}
-                  onClick={() => handleTabClick(tab)}
-                  sx={{
-                    py: 3,
-                    px: 3,
-                    borderRadius: "9999px",
-                    backgroundColor: selectedTab === tab ? "#B91724" : "white",
-                    color: selectedTab === tab ? "white" : "black",
-                    fontWeight: selectedTab === tab ? "bold" : "normal",
-                    "&:hover": {
-                      backgroundColor:
-                        selectedTab === tab ? "#B91724" : "lightgray",
-                    },
-                  }}
-                />
-              )
-            )}
+            {tabs.map(({ label, value }) => (
+              <Chip
+                key={value}
+                label={label}
+                onClick={() => handleTabClick(value)}
+                sx={{
+                  py: 3,
+                  px: 3,
+                  borderRadius: "9999px",
+                  backgroundColor: selectedTab === value ? "#B91724" : "white",
+                  color: selectedTab === value ? "white" : "black",
+                  fontWeight: selectedTab === value ? "bold" : "normal",
+                  "&:hover": {
+                    backgroundColor:
+                      selectedTab === value ? "#B91724" : "lightgray",
+                  },
+                }}
+              />
+            ))}
           </Stack>
+
           {hasProjCreatePermission && (
             <div className="w-full flex justify-end p-4">
               <Button
@@ -485,7 +491,9 @@ const ProjectManager = () => {
                           {t("Physical_Execution")}
                         </p>
                         <h6 className="text-gray-800 font-semibold">
-                          {project?.financeDocuments?.[0]?.physicalExecution || 0}{' '}%
+                          {project?.financeDocuments?.[0]?.physicalExecution ||
+                            0}{" "}
+                          %
                         </h6>
                       </div>
 
@@ -516,7 +524,9 @@ const ProjectManager = () => {
                           {t("Financial_Execution")}
                         </p>
                         <h6 className="text-red-redNew">
-                          {project?.financeDocuments?.[0]?.financialExecution || 0}{' '}%
+                          {project?.financeDocuments?.[0]?.financialExecution ||
+                            0}{" "}
+                          %
                         </h6>
                       </div>
                       <div className="w-full bg-gray-200 h-2 rounded-full relative">
@@ -592,7 +602,7 @@ const ProjectManager = () => {
                             : t("View_Project")
                           : t("View_Project")}
                       </h6>
-                      
+
                       {hasProjDeletePermission && (
                         <h6
                           onClick={() => handleDeleteProjectClick(project._id)}
