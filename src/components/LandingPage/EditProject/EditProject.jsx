@@ -473,7 +473,7 @@ export default function EditProject() {
           }
 
           setMilestones([]);
-          toast.success("Milestones saved successfully!");
+          // toast.success("Milestones saved successfully!");
         } catch (error) {
           toast.error("Failed to save milestones.");
           console.error(error);
@@ -508,7 +508,6 @@ export default function EditProject() {
           toast.error("User information not found");
           return;
         }
-console.log(selectedClientUsers,selectedUsers);
 
         if (isCreateMode && selectedUsers.length > 0) {
           try {
@@ -555,7 +554,6 @@ console.log(selectedClientUsers,selectedUsers);
 
           if (response.status === 200 || response.status === 201) {
             toast.success(response.data.message);
-            // handleClose();
           } else {
             toast.error("Failed to add milestone.");
           }
@@ -579,17 +577,14 @@ console.log(selectedClientUsers,selectedUsers);
   
     if (!milestoneToDelete) return;
   
-    // For existing milestones (with apiId), add to deletedMilestones array
     if (milestoneToDelete.apiId) {
       setDeletedMilestones((prev) => [...prev, milestoneToDelete.apiId]);
     }
   
-    // Remove from local state immediately
     setMilestones((prevMilestones) =>
       prevMilestones.filter((m) => m.id !== id)
     );
   
-    toast.success("Milestone marked for deletion");
   };
   
   const handleUsersChange = (selectedOptions) => {
