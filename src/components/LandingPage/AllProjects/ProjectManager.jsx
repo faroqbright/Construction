@@ -342,6 +342,7 @@ const ProjectManager = () => {
             ))}
           </Stack>
 
+
           {hasProjCreatePermission && (
             <div className="w-full flex justify-end p-4">
               <Button
