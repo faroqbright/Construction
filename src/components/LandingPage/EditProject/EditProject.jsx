@@ -146,8 +146,8 @@ export default function EditProject() {
   const closeModal = () => setIsModalOpen(false);
   const closeClientModal = () => setIsclientModalOpen(false);
   const [projectsData, setProjectData] = useState([]);
-  const [SelectedbusinessArea, setSelectedbusinessArea] = useState([]);  
-  
+  const [SelectedbusinessArea, setSelectedbusinessArea] = useState([]);
+
   const fetchProjects = useCallback(async () => {
     if (isCreateMode) return;
 
@@ -155,10 +155,9 @@ export default function EditProject() {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
       if (response?.data?.statusCode === 200) {
         const data = response?.data?.data;
-        
+
         setProjectData(data);
         console.log("Project data is:", data);
-        
 
         const financeResponse = await apiRequest("get", "/finance", {}, token);
         if (financeResponse?.status === 200) {
@@ -180,7 +179,12 @@ export default function EditProject() {
           projectOwners: data.projectOwners,
           logs: data.logs,
           financeDocuments: data.financeDocuments,
+          additionalMilestones: data.additionalMilestones,
+          businessArea: data.businessAreas, // Add this line
+          company: data.comapanyName, // Add this line (note the typo in the API response)
         });
+
+        // Set form values
         setValue("projectName", data.projectName);
         setValue("title", data.title);
         setValue("description", data.description);
@@ -188,6 +192,23 @@ export default function EditProject() {
         setValue("status", data.status);
         setValue("projectBanner", data.projectBanner);
         setValue("deadline", data.deadline);
+        setValue("businessArea", data.businessAreas); // Add this line
+        setValue("company", data.comapanyName); // Add this line
+
+        // Set state variables
+        setSelectedbusinessArea(data.businessAreas);
+        setSelectedCompany(data.comapanyName);
+
+        if (data.additionalMilestones) {
+          setMilestones(
+            data.additionalMilestones.map((milestone) => ({
+              id: milestone._id,
+              apiId: milestone._id,
+              name: milestone.title,
+              description: milestone.description,
+            }))
+          );
+        }
         setTeamMembers(data.projectOwners);
         setClientMembers(data.members);
         setFinancialExecution(data.financeDocuments);
@@ -241,6 +262,7 @@ export default function EditProject() {
   useEffect(() => {
     fetchProjectsUser();
   }, [fetchProjectsUser]);
+  const [deletedMilestones, setDeletedMilestones] = useState([]);
 
   const onSubmit = async (formData) => {
     if (
@@ -260,6 +282,20 @@ export default function EditProject() {
 
     if (selectedFiles.length > 10)
       return toast.error("You can only have up to 10 banners.");
+    try {
+      for (const milestoneId of deletedMilestones) {
+        await apiRequest(
+          "delete",
+          `/additional/milestone/delete/${milestoneId}`,
+          {},
+          token
+        );
+      }
+      setDeletedMilestones([]);
+    } catch (error) {
+      toast.error("Failed to delete some milestones");
+      console.error("Error deleting milestones:", error);
+    }
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
 
@@ -271,8 +307,10 @@ export default function EditProject() {
         if (
           key !== "teamMembers" &&
           key !== "clientMembers" &&
-          key !== "projectBanner" && 
-          key !== "milestone" 
+          key !== "projectBanner" &&
+          key !== "milestonetitle" &&
+          key !== "milestonedesc" &&
+          key !== "additionalMilestones"
         ) {
           data.append(key, formData[key]);
         }
@@ -292,17 +330,20 @@ export default function EditProject() {
       if (formData.projectName !== initialValues.projectName) {
         updatedFields.projectName = formData.projectName;
       }
-      // if (formData.title !== initialValues.title) {
-      //   updatedFields.title = formData.title;
-      // }
-      // if (formData.description !== initialValues.description) {
-      //   updatedFields.description = formData.description;
-      // }
+      if (formData.title !== initialValues.title) {
+        updatedFields.title = formData.title;
+      }
+      if (formData.description !== initialValues.description) {
+        updatedFields.description = formData.description;
+      }
       if (formData.location !== initialValues.location) {
         updatedFields.location = formData.location;
       }
-      if (formData.businessArea !== initialValues.businessArea) {
-        updatedFields.businessArea = businessArea;
+      if (SelectedbusinessArea !== initialValues.businessArea) {
+        updatedFields.businessAreas = SelectedbusinessArea;
+      }
+      if (selectedCompany !== initialValues.company) {
+        updatedFields.comapanyName = selectedCompany;
       }
       if (formData.status !== initialValues.status) {
         updatedFields.status = formData.status;
@@ -416,11 +457,11 @@ export default function EditProject() {
           for (const milestone of milestones) {
             const payload = {
               title: milestone.name,
-              dsc: milestone.description,
+              description: milestone.description,
               status: "pending",
               completedAt: null,
               userId: userId,
-              projectName: formData.projectName,
+              projectId: response.data.data._id,
             };
 
             await apiRequest(
@@ -467,35 +508,7 @@ export default function EditProject() {
           toast.error("User information not found");
           return;
         }
-
-        if (
-          !formData.title.trim() ||
-          !formData.description.trim() ||
-          !formData.status.trim() ||
-          !formData.projectId.trim()
-        ) {
-          toast.error("All fields are required.");
-          return;
-        }
-        try {
-          if (!token) {
-            throw new Error("No token found");
-          }
-
-          if (response.status === 200 || response.status === 201) {
-            toast.success(response.data.message);
-            handleClose();
-          } else {
-            toast.error("Failed to add milestone.");
-          }
-        } catch (error) {
-          toast.error(
-            error.response?.data?.message ||
-              error.message ||
-              "Something went wrong. Please try again."
-          );
-          console.error("Error:", error);
-        }
+console.log(selectedClientUsers,selectedUsers);
 
         if (isCreateMode && selectedUsers.length > 0) {
           try {
@@ -525,6 +538,35 @@ export default function EditProject() {
           navigate("/project-management");
           toast.success(response?.data?.message);
         }
+
+        if (
+          !formData.title.trim() ||
+          !formData.description.trim() ||
+          !formData.status.trim() ||
+          !formData.projectId.trim()
+        ) {
+          toast.error("All fields are required.");
+          return;
+        }
+        try {
+          if (!token) {
+            throw new Error("No token found");
+          }
+
+          if (response.status === 200 || response.status === 201) {
+            toast.success(response.data.message);
+            // handleClose();
+          } else {
+            toast.error("Failed to add milestone.");
+          }
+        } catch (error) {
+          toast.error(
+            error.response?.data?.message ||
+              error.message ||
+              "Something went wrong. Please try again."
+          );
+          console.error("Error:", error);
+        }
       }
     } catch (error) {
       toast.error(error?.response?.data?.message);
@@ -534,29 +576,22 @@ export default function EditProject() {
 
   const handleMilestoneDelete = async (id) => {
     const milestoneToDelete = milestones.find((m) => m.id === id);
-
-    if (milestoneToDelete?.apiId) {
-      try {
-        await apiRequest(
-          "delete",
-          `/additional/milestone/delete/${milestoneToDelete.apiId}`,
-          {},
-          token
-        );
-        toast.success("Milestone deleted from server");
-      } catch (error) {
-        console.error("Error deleting milestone from server:", error);
-        toast.error("Failed to delete milestone from server");
-        return; // Don't remove from local state if API delete fails
-      }
+  
+    if (!milestoneToDelete) return;
+  
+    // For existing milestones (with apiId), add to deletedMilestones array
+    if (milestoneToDelete.apiId) {
+      setDeletedMilestones((prev) => [...prev, milestoneToDelete.apiId]);
     }
-
-    // Remove from local state
+  
+    // Remove from local state immediately
     setMilestones((prevMilestones) =>
       prevMilestones.filter((m) => m.id !== id)
     );
+  
+    toast.success("Milestone marked for deletion");
   };
-
+  
   const handleUsersChange = (selectedOptions) => {
     const existingMembers = modalTeamMembers || [];
     const newMembers = selectedOptions.map((option) => ({
@@ -809,77 +844,80 @@ export default function EditProject() {
         </div>
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-6">{t("Business_Area")}</h2>
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">
-              {t("Select_the_Business_Area")}
-            </span>
-          </label>
-          <Controller
-            name="businessArea"
-            control={control}
-            render={({ field }) => {
-              const options = businessAreas.map((area) => ({
-                value: area._id,
-                label: area.businessArea,
-              }));
-              return (
-                <Select
-                  {...field}
-                  options={options}
-                  isSearchable
-                  placeholder="Search Business Area"
-                  className="mt-1"
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption?.value);
-                    setSelectedbusinessArea(selectedOption?.label);
-                  }}
-                  value={
-                    options.find((option) => option.value === field.value) ||
-                    null
-                  }
-                />
-              );
-            }}
-          />
-        </div>
+  <h2 className="text-2xl font-bold mb-6">{t("Business_Area")}</h2>
+  <label className="block text-2xl font-semibold mb-2">
+    <span className="text-gray-700 text-sm">
+      {t("Select_the_Business_Area")}
+    </span>
+  </label>
+  <Controller
+    name="businessArea"
+    control={control}
+    render={({ field }) => {
+      const options = businessAreas.map((area) => ({
+        value: area._id,
+        label: area.businessArea,
+      }));
+      
+      // Find the initial value based on the name from API
+      const initialValue = options.find(
+        option => option.label === initialValues.businessArea
+      ) || null;
+      
+      return (
+        <Select
+          {...field}
+          options={options}
+          isSearchable
+          placeholder="Search Business Area"
+          className="mt-1"
+          onChange={(selectedOption) => {
+            field.onChange(selectedOption?.value); // Update form value
+            setSelectedbusinessArea(selectedOption?.label); // Update state
+          }}
+          value={options.find(option => 
+            option.value === field.value || 
+            option.label === field.value
+          ) || initialValue}
+        />
+      );
+    }}
+  />
+</div>
 
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-6">{t("Client_Company")}</h2>
-          <label className="block text-2xl font-semibold mb-2">
-            <span className="text-gray-700 text-sm">
-              {t("Select_the_Client_Company")}
-            </span>
-          </label>
-          <Controller
-            name="company"
-            control={control}
-            render={({ field }) => {
-              const options = projecto.map((company) => ({
-                value: company,
-                label: company,
-              }));
+<div className="mb-6">
+  <h2 className="text-2xl font-bold mb-6">{t("Client_Company")}</h2>
+  <label className="block text-2xl font-semibold mb-2">
+    <span className="text-gray-700 text-sm">
+      {t("Select_the_Client_Company")}
+    </span>
+  </label>
+  <Controller
+    name="company"
+    control={control}
+    render={({ field }) => {
+      const options = projecto.map((company) => ({
+        value: company,
+        label: company,
+      }));
 
-              return (
-                <Select
-                  {...field}
-                  options={options}
-                  isSearchable
-                  placeholder="Search Client Company"
-                  className="mt-1"
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption?.value);
-                    setSelectedCompany(selectedOption?.value);
-                  }}
-                  value={
-                    options.find((option) => option.value === field.value) ||
-                    null
-                  }
-                />
-              );
-            }}
-          />
-        </div>
+      return (
+        <Select
+          {...field}
+          options={options}
+          isSearchable
+          placeholder="Search Client Company"
+          className="mt-1"
+          onChange={(selectedOption) => {
+            field.onChange(selectedOption?.value); // Update form value
+            setSelectedCompany(selectedOption?.value); // Update state
+          }}
+          value={options.find(option => option.value === field.value) || null}
+        />
+      );
+    }}
+  />
+</div>
 
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
         <div className="mb-4">
@@ -1123,15 +1161,20 @@ export default function EditProject() {
                 className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
                 onClick={() => {
                   const formValues = getValues();
-                  if (!formValues.title || !formValues.description) return;
+                  if (!formValues.milestonetitle || !formValues.milestonedesc)
+                    return;
 
                   const newMilestone = {
                     id: Date.now(),
-                    name: formValues.title || " ",
-                    description: formValues.description || " ",
+                    name: formValues.milestonetitle,
+                    description: formValues.milestonedesc,
                   };
 
                   setMilestones((prev) => [...prev, newMilestone]);
+                  setValue("additionalMilestones", [
+                    ...milestones,
+                    newMilestone,
+                  ]);
                   setValue("milestonetitle", "");
                   setValue("milestonedesc", "");
                 }}
