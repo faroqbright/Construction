@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams, useNavigate, useLocation, Navigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
+import { useForm, Controller, set } from "react-hook-form";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";
 import Select from "react-select";
@@ -48,11 +53,8 @@ export default function EditProject() {
   const [milestones, setMilestones] = useState([]);
   const [businessAreas, setBusinessAreas] = useState([]);
   const [projecto, setProjecto] = useState([]);
-  const [formData, setFormData] = useState({});
-  const [editData, setEditData] = useState(null);
   const [loading, setLoading] = useState(false);
   const userId = useSelector((state) => state?.auth?.userInfo?._id);
-  const [comapanyName, setCompanyName] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState("");
   const dispatch = useDispatch();
   const values = getValues(); // from useForm()
@@ -93,7 +95,6 @@ export default function EditProject() {
             (company) => company.name
           );
           setProjecto(comapanyName);
-          setCompanyName(comapanyName);
         } else {
           // Handle cases where data or statusCode is not as expected
           setProjecto([]); // Set to empty array if no data or incorrect status
@@ -144,9 +145,9 @@ export default function EditProject() {
   const openClientModal = () => setIsclientModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const closeClientModal = () => setIsclientModalOpen(false);
-
   const [projectsData, setProjectData] = useState([]);
-
+  const [SelectedbusinessArea, setSelectedbusinessArea] = useState([]);  
+  
   const fetchProjects = useCallback(async () => {
     if (isCreateMode) return;
 
@@ -154,7 +155,10 @@ export default function EditProject() {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
       if (response?.data?.statusCode === 200) {
         const data = response?.data?.data;
+        
         setProjectData(data);
+        console.log("Project data is:", data);
+        
 
         const financeResponse = await apiRequest("get", "/finance", {}, token);
         if (financeResponse?.status === 200) {
@@ -267,7 +271,8 @@ export default function EditProject() {
         if (
           key !== "teamMembers" &&
           key !== "clientMembers" &&
-          key !== "projectBanner"
+          key !== "projectBanner" && 
+          key !== "milestone" 
         ) {
           data.append(key, formData[key]);
         }
@@ -277,8 +282,8 @@ export default function EditProject() {
       });
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
-      data.append("businessAreas", businessAreas);
-      data.append("comapanyName", comapanyName);
+      data.append("businessAreas", SelectedbusinessArea);
+      data.append("comapanyName", selectedCompany);
 
       requestData = data;
     } else {
@@ -287,12 +292,12 @@ export default function EditProject() {
       if (formData.projectName !== initialValues.projectName) {
         updatedFields.projectName = formData.projectName;
       }
-      if (formData.title !== initialValues.title) {
-        updatedFields.title = formData.title;
-      }
-      if (formData.description !== initialValues.description) {
-        updatedFields.description = formData.description;
-      }
+      // if (formData.title !== initialValues.title) {
+      //   updatedFields.title = formData.title;
+      // }
+      // if (formData.description !== initialValues.description) {
+      //   updatedFields.description = formData.description;
+      // }
       if (formData.location !== initialValues.location) {
         updatedFields.location = formData.location;
       }
@@ -396,7 +401,7 @@ export default function EditProject() {
     }
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
-      
+
       if (
         response?.data?.statusCode === 201 ||
         response?.data?.statusCode === 200
@@ -417,7 +422,7 @@ export default function EditProject() {
               userId: userId,
               projectName: formData.projectName,
             };
-        
+
             await apiRequest(
               "post",
               `/additional/milestone/${response.data.data._id}`,
@@ -425,14 +430,13 @@ export default function EditProject() {
               token
             );
           }
-        
+
           setMilestones([]);
           toast.success("Milestones saved successfully!");
-        
         } catch (error) {
           toast.error("Failed to save milestones.");
           console.error(error);
-        }        
+        }
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
           try {
@@ -478,30 +482,9 @@ export default function EditProject() {
             throw new Error("No token found");
           }
 
-          const payload = {
-            // title: formData.title,
-            title: formData.title || " ",
-            description: formData.description || "",
-            status: formData.status,
-            completedAt:
-              formData.status === "completed" ? new Date().toISOString() : null,
-            userId: formData.userId,
-            projectName: formData.projectName,
-          };
-
-          const response = await apiRequest(
-            "post",
-            `/additional/milestone/${formData.projectId}`,
-            payload,
-            token
-          );
-
-          
-          console.log("API Response:", response.data);
-          
           if (response.status === 200 || response.status === 201) {
             toast.success(response.data.message);
-            // handleClose();
+            handleClose();
           } else {
             toast.error("Failed to add milestone.");
           }
@@ -849,6 +832,7 @@ export default function EditProject() {
                   className="mt-1"
                   onChange={(selectedOption) => {
                     field.onChange(selectedOption?.value);
+                    setSelectedbusinessArea(selectedOption?.label);
                   }}
                   value={
                     options.find((option) => option.value === field.value) ||
@@ -1092,26 +1076,28 @@ export default function EditProject() {
           </>
         )}
 
-<div className="mb-12">
-  <h2 className="text-2xl font-bold mb-6">{t("Project_Milestones")}</h2>
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6">{t("Project_Milestones")}</h2>
 
-  {/* 💡 Input Form Section */}
-  <div className="bg-white p-6 border border-gray-200 rounded-md shadow-sm mb-10">
-    <label className="block text-2xl font-semibold mb-2">
-      <span className="text-gray-700 text-sm">{t("Milestone_Name")}</span>
-    </label>
-    <Controller
-      name="title"
-      control={control}
-      render={({ field }) => (
-        <input
-          {...field}
-          type="text"
-          className="w-full p-3 border border-gray-300 rounded-md"
-          placeholder="Enter milestone name"
-        />
-      )}
-    />
+          {/* 💡 Input Form Section */}
+          <div className="bg-white p-6 border border-gray-200 rounded-md shadow-sm mb-10">
+            <label className="block text-2xl font-semibold mb-2">
+              <span className="text-gray-700 text-sm">
+                {t("Milestone_Name")}
+              </span>
+            </label>
+            <Controller
+              name="milestonetitle"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  placeholder="Enter milestone name"
+                />
+              )}
+            />
 
             <label className="block text-2xl font-semibold mt-4 mb-2">
               <span className="text-gray-700 text-sm">
@@ -1119,108 +1105,87 @@ export default function EditProject() {
               </span>
             </label>
             <Controller
-              name="milestone"
+              name="milestonedesc"
               control={control}
               render={({ field }) => (
                 <textarea
                   {...field}
                   className="w-full p-3 border border-gray-300 rounded-md"
                   rows={4}
-                  placeholder="Enter milestone description (optional)" // Added "optional" to indicate it's not required
+                  placeholder="Enter milestone description"
                 ></textarea>
               )}
             />
-    <label className="block text-2xl font-semibold mt-4 mb-2">
-      <span className="text-gray-700 text-sm">{t("Milestone_Description")}</span>
-    </label>
-    <Controller
-      name="description"
-      control={control}
-      render={({ field }) => (
-        <textarea
-          {...field}
-          className="w-full p-3 border border-gray-300 rounded-md"
-          rows={4}
-          placeholder="Enter milestone description"
-        ></textarea>
-      )}
-    />
 
-    <div className="flex justify-end mt-6">
-      <button
-        type="button"
-        className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
-        onClick={() => {
-          const formValues = getValues();
-          if (!formValues.title || !formValues.description) return;
+            <div className="flex justify-end mt-6">
+              <button
+                type="button"
+                className="bg-black-blacknew text-white px-6 py-2 rounded-md shadow-md mr-4"
+                onClick={() => {
+                  const formValues = getValues();
+                  if (!formValues.title || !formValues.description) return;
 
                   const newMilestone = {
                     id: Date.now(),
                     name: formValues.title || " ",
                     description: formValues.description || " ",
                   };
-          const newMilestone = {
-            id: Date.now(),
-            name: formValues.title,
-            description: formValues.description,
-          };
 
-          setMilestones((prev) => [...prev, newMilestone]);
-          setValue("title", "");
-          setValue("description", "");
-        }}
-      >
-        {t("Save_Milestones")}
-      </button>
+                  setMilestones((prev) => [...prev, newMilestone]);
+                  setValue("milestonetitle", "");
+                  setValue("milestonedesc", "");
+                }}
+              >
+                {t("Save_Milestones")}
+              </button>
 
-      <button
-        type="button"
-        className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md"
-        onClick={() => {
-          setValue("title", "");
-          setValue("description", "");
-        }}
-      >
-        {t("Cancel")}
-      </button>
-    </div>
-  </div>
-
-  {/* ✅ Milestones List Section */}
-  <div className="mt-4">
-    <h3 className="text-xl font-semibold mb-4">{t("Milestones")}</h3>
-    {milestones.length === 0 ? (
-      <p className="text-gray-500">{t("No_milestones_added_yet")}</p>
-    ) : (
-      <div className="space-y-4">
-        {milestones.map((milestone, index) => (
-          <div
-            key={milestone.id}
-            className="p-4 bg-white border border-gray-200 rounded-md shadow-sm flex justify-between items-start"
-          >
-            <div>
-              <h4 className="text-lg font-medium text-gray-800">
-                {index + 1}. {milestone.name}
-              </h4>
-              <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
-                {milestone.description}
-              </p>
+              <button
+                type="button"
+                className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md"
+                onClick={() => {
+                  setValue("milestonetitle", "");
+                  setValue("milestonedesc", "");
+                }}
+              >
+                {t("Cancel")}
+              </button>
             </div>
-            <button
-              type="button"
-              className="text-red-500 hover:text-red-700"
-              onClick={() => handleMilestoneDelete(milestone.id)}
-              title="Delete"
-            >
-              <Trash2 size={20} />
-            </button>
           </div>
-        ))}
-      </div>
-    )}
-  </div>
-</div>
 
+          {/* ✅ Milestones List Section */}
+          <div className="mt-4">
+            <h3 className="text-xl font-semibold mb-4">{t("Milestones")}</h3>
+            {milestones.length === 0 ? (
+              <p className="text-gray-500">{t("No_milestones_added_yet")}</p>
+            ) : (
+              <div className="space-y-4">
+                {milestones.map((milestone, index) => (
+                  <div
+                    key={milestone.id}
+                    className="p-4 bg-white border border-gray-200 rounded-md shadow-sm flex justify-between items-start"
+                  >
+                    <div>
+                      <h4 className="text-lg font-medium text-gray-800">
+                        {index + 1}. {milestone.name}
+                      </h4>
+                      <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
+                        {milestone.description}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleMilestoneDelete(milestone.id)}
+                      title="Delete"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
         <div className="mb-4">
