@@ -774,7 +774,7 @@ const ProjectDetails = () => {
         </div>
 
         <div className="flex justify-end gap-5 pr-6 pb-6">
-          {projectData?.fromBusinessArea === false && (
+          {!projectData?.fromBusinessArea && (
             <button
               onClick={() => navigate(`/details/edit/${projectData?._id}`)}
               className="px-5 py-2 bg-black-blacknew text-white rounded-md"
