@@ -586,7 +586,7 @@ const ProjectManager = () => {
                           </span>
                         </div>
                       )}
-                      {projects?.fromBusinessArea === false &&  (
+                      {!projects?.fromBusinessArea &&  (
                         <>
                           <h6
                             onClick={() =>
