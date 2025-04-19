@@ -224,7 +224,7 @@ const ProjectDetails = () => {
           <div className="flex text-sm gap-4 mt-6 ">
             <div>
               <strong className="text-black-blacknew text-base">
-                Business Area:{" "}
+                {t("Business Area")}:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
                 {projectData?.businessAreas}
@@ -232,7 +232,7 @@ const ProjectDetails = () => {
             </div>
             <div>
               <strong className="text-black-blacknew text-base">
-                Client Company:{" "}
+                {t("Client_Company")}:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
                 {projectData?.comapanyName}
@@ -332,7 +332,7 @@ const ProjectDetails = () => {
           <div className="mt-3 space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-black font-medium text-sm">
-                Physical Execution
+                {t("Physical_Execution")}
               </p>
               <h6 className="text-gray-800 font-semibold">
                 {physicalExecution}%
@@ -379,7 +379,7 @@ const ProjectDetails = () => {
           {/* Financial Execution */}
           <div className="mb-4 mt-2 relative">
             <div className="flex justify-between">
-              <p className="black text-sm mb-1">Financial Execution</p>
+              <p className="black text-sm mb-1">{t("Financial_Execution")}</p>
               <h6 className="text-red-500">{financialExecution}%</h6>
             </div>
             <div className="w-full bg-gray-200 h-2 rounded-full relative">
@@ -467,7 +467,9 @@ const ProjectDetails = () => {
             ) : (
               <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
                 <img src={logo} alt="" />
-                <span className="font-semibold text-sm mt-4">No Images yet.</span>
+                <span className="font-semibold text-sm mt-4">
+                  No Images yet.
+                </span>
               </div>
             )}
           </div>
@@ -572,7 +574,9 @@ const ProjectDetails = () => {
                       milestone.completed ? "text-red-redNew" : "text-gray-400"
                     }`}
                   >
-                    {t(milestone.name.replace(" ", "_"))}
+                    {milestone.name === "Filling"
+                      ? t("Filling")
+                      : t(milestone.name.replace(" ", "_"))}
                   </span>
                 </div>
               ))}
@@ -582,7 +586,7 @@ const ProjectDetails = () => {
 
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Added Milestones
+            {t("Added_Milestones")}
           </h3>
 
           {projectData?.additionalMilestones?.map((milestone) => (
@@ -680,7 +684,7 @@ const ProjectDetails = () => {
                           document.body.removeChild(link);
                         }}
                       >
-                        View
+                        {t("View")}
                       </button>
                     </td>
                   </tr>
@@ -726,7 +730,7 @@ const ProjectDetails = () => {
         {/* Client Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
-            {t("Company Team")}
+            {t("Company_Team")}
           </h3>
           <div className="flex flex-col gap-4 mt-4">
             {projectData?.members?.map((member, index) => (
@@ -749,7 +753,7 @@ const ProjectDetails = () => {
         {/* Team Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
-            {t("Soapro Team")}
+            {t("Soapro_Team")}
           </h3>
           <div className="flex flex-col gap-4 mt-4">
             {projectData?.projectOwners?.map((member, index) => (
@@ -777,7 +781,7 @@ const ProjectDetails = () => {
             {t("Add_Information")}
           </button>
           <button className="px-5 py-2 rounded-md bg-gray-100">
-            View Change Log
+            {t("View_Change_Log")}
           </button>
         </div>
       </div>

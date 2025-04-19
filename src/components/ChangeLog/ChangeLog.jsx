@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Box } from "@mui/material";
+import { t } from "i18next";
 
 const ChangeLogModal = ({ data, open, handleClose }) => {
   return (
@@ -8,7 +9,7 @@ const ChangeLogModal = ({ data, open, handleClose }) => {
         className="bg-white rounded-lg shadow-lg p-6 mx-auto mt-28 w-full sm:w-[400px]"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Change Log</h2>
+          <h2 className="text-lg font-semibold">{t("Change_Log")}</h2>
           <button
             onClick={handleClose}
             className="text-gray-500 hover:text-gray-700"
@@ -39,7 +40,7 @@ const ChangeLogModal = ({ data, open, handleClose }) => {
             onClick={handleClose}
             className="mt-6 w-[50%] py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md"
           >
-            Close
+            {t("Close")}
           </button>
         </div>
       </Box>

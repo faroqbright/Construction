@@ -99,7 +99,7 @@ const ProjectManager = () => {
       setLoading(true);
       try {
         const formattedStatus =
-          selectedTab !== "All Projects"
+          selectedTab !== "All_Projects"
             ? selectedTab.charAt(0).toUpperCase() +
               selectedTab.slice(1).toLowerCase()
             : undefined;
@@ -365,7 +365,13 @@ const ProjectManager = () => {
         </Stack>
         <div className="flex p-2 justify-between mt-6">
           <span className="text-black font-bold">
-            {selectedTab} {t("Projects")}
+            {selectedTab === "All"
+              ? t("All_Projects")
+              : selectedTab === "Ongoing"
+              ? t("Ongoing_Projects")
+              : selectedTab === "Pending"
+              ? t("Pending_Projects")
+              : t("Completed_Projects")}
           </span>
           <div className="flex">
             <button

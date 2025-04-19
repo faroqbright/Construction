@@ -263,7 +263,7 @@ const BusinessAreaTable = () => {
                 <th className="p-4 border-b">
                   <Checkbox />
                 </th>
-                <th className="p-4 border-b">{t("Business_Name")}</th>
+                <th className="p-4 border-b">{t("Business_Area")}</th>
                 <th className="p-4 border-b">{t("Created_At")}</th>
                 {(hasUpdatePermission || hasDeletePermission) && (
                   <th className="p-4 border-b">{t("Actions")}</th>

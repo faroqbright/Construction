@@ -334,7 +334,7 @@ const ClientsTable = () => {
               <PaginationItem
                 {...item}
                 components={{
-                  previous: () => <span>{t("Previos")}</span>,
+                  previous: () => <span>{t("Previous")}</span>,
                   next: () => <span>{t("Next")}</span>,
                 }}
                 sx={{

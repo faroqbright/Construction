@@ -317,7 +317,7 @@ export default function Finance() {
                             document.body.removeChild(link);
                           }}
                         >
-                          View
+                          {t("View")}
                         </button>
                       </td>
                       {(hasCLientUpdatePermission ||
@@ -384,7 +384,7 @@ export default function Finance() {
               <PaginationItem
                 {...item}
                 components={{
-                  previous: () => <span>{t("Previos")}</span>,
+                  previous: () => <span>{t("Previous")}</span>,
                   next: () => <span>{t("Next")}</span>,
                 }}
                 sx={{

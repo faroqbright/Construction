@@ -869,7 +869,7 @@ console.log(selectedClientUsers,selectedUsers);
           {...field}
           options={options}
           isSearchable
-          placeholder="Search Business Area"
+          placeholder={t("Search_Business_Area")}
           className="mt-1"
           onChange={(selectedOption) => {
             field.onChange(selectedOption?.value); // Update form value
@@ -886,7 +886,7 @@ console.log(selectedClientUsers,selectedUsers);
 </div>
 
 <div className="mb-6">
-  <h2 className="text-2xl font-bold mb-6">{t("Client_Company")}</h2>
+  <h2 className="text-2xl font-bold mb-6">{t("Client")}</h2>
   <label className="block text-2xl font-semibold mb-2">
     <span className="text-gray-700 text-sm">
       {t("Select_the_Client_Company")}
@@ -906,7 +906,7 @@ console.log(selectedClientUsers,selectedUsers);
           {...field}
           options={options}
           isSearchable
-          placeholder="Search Client Company"
+          placeholder={t("Search_Client_Company")}
           className="mt-1"
           onChange={(selectedOption) => {
             field.onChange(selectedOption?.value); // Update form value
@@ -1132,7 +1132,7 @@ console.log(selectedClientUsers,selectedUsers);
                   {...field}
                   type="text"
                   className="w-full p-3 border border-gray-300 rounded-md"
-                  placeholder="Enter milestone name"
+                  placeholder={t("Enter_milestone_name")}
                 />
               )}
             />
@@ -1150,7 +1150,7 @@ console.log(selectedClientUsers,selectedUsers);
                   {...field}
                   className="w-full p-3 border border-gray-300 rounded-md"
                   rows={4}
-                  placeholder="Enter milestone description"
+                  placeholder={t("Enter_milestone_description")}
                 ></textarea>
               )}
             />
@@ -1230,7 +1230,7 @@ console.log(selectedClientUsers,selectedUsers);
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">Soapro {t("Team")}</h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6"> {t("Team")} Soapro </h2>
         <div className="mb-4">
           {!isViewMode && (
             <>

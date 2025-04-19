@@ -47,10 +47,10 @@ export default function Report() {
   useEffect(() => {
     const currentTabInUrl = queryParams.get("tab") || "All Projects";
     setSelectedTab(currentTabInUrl);
-     // If using selectedTabTwo for UI, sync it as well if needed:
-     setSelectedTabTwo(currentTabInUrl);
-     // Reset page if tab changes via URL potentially
-     // setPage(1); // Uncomment if resetting page on URL-driven tab change is desired
+    // If using selectedTabTwo for UI, sync it as well if needed:
+    setSelectedTabTwo(currentTabInUrl);
+    // Reset page if tab changes via URL potentially
+    // setPage(1); // Uncomment if resetting page on URL-driven tab change is desired
   }, [location.search]); // Depend on location.search to react to URL changes
 
   useEffect(() => {
@@ -62,8 +62,8 @@ export default function Report() {
         if (response?.status === 200) {
           setDocuments(response?.data || []);
         } else {
-           console.error("Failed to fetch documents:", response);
-           setDocuments([]); // Clear documents on failure
+          console.error("Failed to fetch documents:", response);
+          setDocuments([]); // Clear documents on failure
         }
       } catch (error) {
         console.error("Error fetching documents:", error);
@@ -74,8 +74,9 @@ export default function Report() {
       }
     };
 
-    if (token) { // Only fetch if token exists
-        fetchProjects();
+    if (token) {
+      // Only fetch if token exists
+      fetchProjects();
     }
   }, [token]); // Re-fetch only when token changes
 
@@ -96,13 +97,13 @@ export default function Report() {
 
   const TAB_KEYS = {
     ALL: "All Projects",
-    PENDING: "Pending",
-    APPROVED: "Approved",
-    REJECTED: "Rejected",
+    PENDING: t("Pending"),
+    APPROVED: t("Approved"),
+    REJECTED: t("Rejected"),
   };
 
   const TAB_TRANSLATION_KEYS = {
-    [TAB_KEYS.ALL]: "All_Projects",
+    [TAB_KEYS.ALL]: "All_projects",
     [TAB_KEYS.PENDING]: "Pending",
     [TAB_KEYS.APPROVED]: "Approved",
     [TAB_KEYS.REJECTED]: "Rejected",
@@ -110,7 +111,7 @@ export default function Report() {
 
   // This state controls the visual appearance of the tabs
   const [selectedTabTwo, setSelectedTabTwo] = useState(() => {
-      return queryParams.get("tab") || TAB_KEYS.ALL; // Initialize based on URL
+    return queryParams.get("tab") || TAB_KEYS.ALL; // Initialize based on URL
   });
 
   const handleTabChange = (tabKey) => {
@@ -126,9 +127,12 @@ export default function Report() {
     const sortedDocs = [...docs];
     if (sortOption === "Alphabetical") {
       // Add safety checks for projName
-      return sortedDocs.sort((a, b) => (a.projName || '').localeCompare(b.projName || ''));
-    } else { // Chronological (assuming newest first)
-       // Add safety checks for uploadedAt
+      return sortedDocs.sort((a, b) =>
+        (a.projName || "").localeCompare(b.projName || "")
+      );
+    } else {
+      // Chronological (assuming newest first)
+      // Add safety checks for uploadedAt
       return sortedDocs.sort(
         (a, b) => (new Date(b.uploadedAt) || 0) - (new Date(a.uploadedAt) || 0)
       );
@@ -137,7 +141,8 @@ export default function Report() {
 
   // FIX 2: Corrected filtering logic
   const filteredDocuments = Array.isArray(documents)
-    ? sortDocuments( // Apply sorting *after* filtering
+    ? sortDocuments(
+        // Apply sorting *after* filtering
         documents.filter((doc) => {
           if (!doc || !doc.status || !doc.uploadedAt) return false; // Basic safety check for required fields
 
@@ -148,18 +153,20 @@ export default function Report() {
 
           // --- Month Filter ---
           let matchesMonth = true; // Default to true (don't filter by month if none selected)
-          if (selectedMonth instanceof Date && !isNaN(selectedMonth)) { // Check if selectedMonth is a valid Date
+          if (selectedMonth instanceof Date && !isNaN(selectedMonth)) {
+            // Check if selectedMonth is a valid Date
             try {
-                const docDate = new Date(doc.uploadedAt);
-                if (!isNaN(docDate)) { // Check if docDate is valid
-                    matchesMonth =
-                        docDate.getMonth() === selectedMonth.getMonth() &&
-                        docDate.getFullYear() === selectedMonth.getFullYear();
-                } else {
-                    matchesMonth = false; // Invalid document date
-                }
+              const docDate = new Date(doc.uploadedAt);
+              if (!isNaN(docDate)) {
+                // Check if docDate is valid
+                matchesMonth =
+                  docDate.getMonth() === selectedMonth.getMonth() &&
+                  docDate.getFullYear() === selectedMonth.getFullYear();
+              } else {
+                matchesMonth = false; // Invalid document date
+              }
             } catch (e) {
-                matchesMonth = false; // Error parsing date
+              matchesMonth = false; // Error parsing date
             }
           }
           // If selectedMonth is null or invalid, matchesMonth remains true
@@ -178,16 +185,16 @@ export default function Report() {
   );
 
   const handleStatusUpdate = async (docId, newStatus) => {
-     // Basic check
-     if (!docId || !newStatus) return;
+    // Basic check
+    if (!docId || !newStatus) return;
 
-     // Optimistic UI update (optional, but good UX)
-     const originalDocuments = [...documents];
-     setDocuments((prevDocs) =>
-         prevDocs.map((doc) =>
-             doc._id === docId ? { ...doc, status: newStatus } : doc
-         )
-     );
+    // Optimistic UI update (optional, but good UX)
+    const originalDocuments = [...documents];
+    setDocuments((prevDocs) =>
+      prevDocs.map((doc) =>
+        doc._id === docId ? { ...doc, status: newStatus } : doc
+      )
+    );
 
     try {
       const response = await apiRequest(
@@ -245,9 +252,9 @@ export default function Report() {
                 // Add displayEmpty and renderValue for better placeholder behavior if needed
               >
                 <MenuItem value="Chronological">
-                  {t("Sort")}: Chronological
+                  {t("Sort")}: {t("Chronological")}
                 </MenuItem>
-                <MenuItem value="Alphabetical">Alphabetical</MenuItem>
+                <MenuItem value="Alphabetical">{t("Alphabetical")}</MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -261,7 +268,7 @@ export default function Report() {
                 setPage(1); // Reset to first page when month changes
               }}
               dateFormat="MMMM yyyy" // Correct date format string
-              placeholderText="Select month and year"
+              placeholderText={t("Select_month_and_year")}
               showMonthYearPicker
               isClearable // Allows user to clear the date selection
               className="w-full outline-none bg-white text-gray-700"
@@ -289,7 +296,7 @@ export default function Report() {
               "& .MuiOutlinedInput-root": {
                 borderRadius: "0.5rem", // Tailwind's rounded-lg equivalent
                 // Remove internal border if DatePicker/Select don't have it
-                '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
               },
             }}
           />
@@ -326,9 +333,11 @@ export default function Report() {
 
       <div className="flex justify-between items-center w-full h-auto md:h-14 px-4 my-4">
         <h2 className="text-lg font-extrabold mb-6 mt-6">
-          {t("All_Projects_Report")}s {/* Typo? Maybe remove the 's' */}
+          {t("All_Projects_Report")} {/* Typo? Maybe remove the 's' */}
         </h2>
-        <div className="w-full flex justify-end p-4"> {/* Might overlap with title, adjust layout if needed */}
+        <div className="w-full flex justify-end p-4">
+          {" "}
+          {/* Might overlap with title, adjust layout if needed */}
           <Button
             variant="contained"
             sx={{
@@ -351,7 +360,7 @@ export default function Report() {
           <table className="min-w-full text-black-blacknew border-gray-200 text-sm">
             <thead className="text-black-blacknew font-semibold">
               <tr className="bg-white">
-                 {/* Consider removing checkbox if not used for bulk actions */}
+                {/* Consider removing checkbox if not used for bulk actions */}
                 <th className="pr-10">
                   <input type="checkbox" />
                 </th>
@@ -366,75 +375,130 @@ export default function Report() {
               </tr>
             </thead>
             <tbody>
-             {/* Add Loading State Display */}
+              {/* Add Loading State Display */}
               {loading ? (
-                 <tr><td colSpan="7" className="p-4 text-center text-gray-500">{t("Loading...")}</td></tr>
+                <tr>
+                  <td colSpan="7" className="p-4 text-center text-gray-500">
+                    {t("Loading...")}
+                  </td>
+                </tr>
               ) : paginatedDocuments && paginatedDocuments.length > 0 ? ( // Check paginatedDocuments directly
-                paginatedDocuments.map((doc) => ( // Use doc._id if available and unique, otherwise index is fallback
-                  <tr key={doc._id || index} className="hover:bg-gray-50 border-b"> {/* Use unique key, add border */}
-                    <td className="p-5">
-                       {/* Ensure checkbox has associated state if selection is needed */}
-                      <input type="checkbox" />
-                    </td>
-                    <td className="p-4 font-semibold">{doc.projName || "-"}</td>
-                    <td className="p-4 font-normal">
-                       {/* Improved filename display */}
-                      {doc.fileName
-                        ? doc.fileName.length > 20
-                          ? `${doc.fileName.substring(0, 18)}...${doc.fileName.slice(-4)}` // Show extension better
-                          : doc.fileName
-                        : <span className="text-gray-400 italic">{t("No_Report")}</span>}
-                    </td>
-                    <td className="p-4 capitalize"> {/* Use capitalize class */}
-                      {doc.status || "-"} {/* Display status directly, maybe add styling/badge */}
-                    </td>
-                    <td className="p-4">
-                       {/* Capitalize name */}
-                      {doc.user
-                        ? doc.user
-                            .split(" ")
-                            .map(
-                              (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                            )
-                            .join(" ")
-                        : "-"}
-                    </td>{" "}
-                    <td className="p-4 font-normal">
-                      {/* Format date consistently */}
-                      {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "-"}
-                    </td>
-                    <td className="p-4"> {/* Adjusted padding */}
-                       {/* Action Buttons */}
-                       <div className="flex items-center justify-start gap-x-2 pl-8"> {/* Align actions better */}
-                            <Button
-                                startIcon={<MdOutlineFileDownload />}
-                                sx={{ textTransform: "none", color: "#121619", minWidth: 'auto', padding: '4px' }}
-                                onClick={() => handleOpenFile(doc.fileUrl)}
-                                disabled={!doc.fileUrl} // Disable if no URL
-                                title={t("Download_Report")} // Tooltip
-                            />
-                            <Button
-                                startIcon={<CheckCircle />}
-                                sx={{ textTransform: "none", color: "#10B981", minWidth: 'auto', padding: '4px' }} // Green color
-                                onClick={() => handleStatusUpdate(doc._id, "approved")}
-                                disabled={doc.status?.toLowerCase() === 'approved'} // Disable if already approved
-                                title={t("Approve")} // Tooltip
-                            />
-                            <Button
-                                startIcon={<XCircle />}
-                                sx={{ textTransform: "none", color: "#EF4444", minWidth: 'auto', padding: '4px' }} // Red color
-                                onClick={() => handleStatusUpdate(doc._id, "rejected")}
-                                disabled={doc.status?.toLowerCase() === 'rejected'} // Disable if already rejected
-                                title={t("Reject")} // Tooltip
-                            />
-                       </div>
-                    </td>
-                  </tr>
-                ))
+                paginatedDocuments.map(
+                  (
+                    doc // Use doc._id if available and unique, otherwise index is fallback
+                  ) => (
+                    <tr
+                      key={doc._id || index}
+                      className="hover:bg-gray-50 border-b"
+                    >
+                      {" "}
+                      {/* Use unique key, add border */}
+                      <td className="p-5">
+                        {/* Ensure checkbox has associated state if selection is needed */}
+                        <input type="checkbox" />
+                      </td>
+                      <td className="p-4 font-semibold">
+                        {doc.projName || "-"}
+                      </td>
+                      <td className="p-4 font-normal">
+                        {/* Improved filename display */}
+                        {doc.fileName ? (
+                          doc.fileName.length > 20 ? (
+                            `${doc.fileName.substring(
+                              0,
+                              18
+                            )}...${doc.fileName.slice(-4)}` // Show extension better
+                          ) : (
+                            doc.fileName
+                          )
+                        ) : (
+                          <span className="text-gray-400 italic">
+                            {t("No_Report")}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4 capitalize">
+                        {" "}
+                        {/* Use capitalize class */}
+                        {t(doc.status) || "-"}{" "}
+                        {/* Display status directly, maybe add styling/badge */}
+                      </td>
+                      <td className="p-4">
+                        {/* Capitalize name */}
+                        {doc.user
+                          ? doc.user
+                              .split(" ")
+                              .map(
+                                (word) =>
+                                  word.charAt(0).toUpperCase() + word.slice(1)
+                              )
+                              .join(" ")
+                          : "-"}
+                      </td>{" "}
+                      <td className="p-4 font-normal">
+                        {/* Format date consistently */}
+                        {doc.uploadedAt
+                          ? new Date(doc.uploadedAt).toLocaleDateString()
+                          : "-"}
+                      </td>
+                      <td className="p-4">
+                        {" "}
+                        {/* Adjusted padding */}
+                        {/* Action Buttons */}
+                        <div className="flex items-center justify-start gap-x-2 pl-8">
+                          {" "}
+                          {/* Align actions better */}
+                          <Button
+                            startIcon={<MdOutlineFileDownload />}
+                            sx={{
+                              textTransform: "none",
+                              color: "#121619",
+                              minWidth: "auto",
+                              padding: "4px",
+                            }}
+                            onClick={() => handleOpenFile(doc.fileUrl)}
+                            disabled={!doc.fileUrl} // Disable if no URL
+                            title={t("Download_Report")} // Tooltip
+                          />
+                          <Button
+                            startIcon={<CheckCircle />}
+                            sx={{
+                              textTransform: "none",
+                              color: "#10B981",
+                              minWidth: "auto",
+                              padding: "4px",
+                            }} // Green color
+                            onClick={() =>
+                              handleStatusUpdate(doc._id, "approved")
+                            }
+                            disabled={doc.status?.toLowerCase() === "approved"} // Disable if already approved
+                            title={t("Approve")} // Tooltip
+                          />
+                          <Button
+                            startIcon={<XCircle />}
+                            sx={{
+                              textTransform: "none",
+                              color: "#EF4444",
+                              minWidth: "auto",
+                              padding: "4px",
+                            }} // Red color
+                            onClick={() =>
+                              handleStatusUpdate(doc._id, "rejected")
+                            }
+                            disabled={doc.status?.toLowerCase() === "rejected"} // Disable if already rejected
+                            title={t("Reject")} // Tooltip
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )
               ) : (
                 <tr>
                   {/* Adjust colspan if checkbox column is removed */}
-                  <td colSpan="7" className="p-6 text-center text-gray-500"> {/* Increased padding */}
+                  <td colSpan="7" className="p-6 text-center text-gray-500">
+                    {" "}
+                    {/* Increased padding */}
                     {t("No_Data_Available")}
                   </td>
                 </tr>
@@ -447,47 +511,49 @@ export default function Report() {
       {/* Pagination */}
       {/* Only render pagination if there are documents to paginate */}
       {filteredDocuments && filteredDocuments.length > recordsPerPage && (
-          <div className="flex justify-end items-center mt-4">
-            <Pagination
-              count={Math.ceil(filteredDocuments.length / recordsPerPage)}
-              page={page}
-              onChange={(event, value) => setPage(value)}
-              variant="outlined"
-              shape="rounded"
-              sx={{
-                "& .Mui-selected": {
-                  backgroundColor: "#B91724 !important",
-                  color: "white !important",
-                  borderRadius: "50%",
+        <div className="flex justify-end items-center mt-4">
+          <Pagination
+            count={Math.ceil(filteredDocuments.length / recordsPerPage)}
+            page={page}
+            onChange={(event, value) => setPage(value)}
+            variant="outlined"
+            shape="rounded"
+            sx={{
+              "& .Mui-selected": {
+                backgroundColor: "#B91724 !important",
+                color: "white !important",
+                borderRadius: "50%",
+              },
+              "& .MuiPaginationItem-root": {
+                color: "black",
+                borderRadius: "50%",
+                "&:hover": {
+                  // Add hover effect
+                  backgroundColor: "rgba(0, 0, 0, 0.04)",
                 },
-                "& .MuiPaginationItem-root": {
-                  color: "black",
-                  borderRadius: "50%",
-                   "&:hover": { // Add hover effect
-                      backgroundColor: "rgba(0, 0, 0, 0.04)"
-                   }
+              },
+              "& .MuiPaginationItem-previousNext": {
+                border: "none",
+                backgroundColor: "transparent",
+                color: "black",
+                "&.Mui-disabled": {
+                  // Style disabled arrows
+                  opacity: 0.5,
                 },
-                "& .MuiPaginationItem-previousNext": {
-                  border: "none",
-                  backgroundColor: "transparent",
-                  color: "black",
-                  '&.Mui-disabled': { // Style disabled arrows
-                     opacity: 0.5
-                  }
-                },
-              }}
-              renderItem={(item) => (
-                <PaginationItem
-                  {...item}
-                   // Use default icons, provide text via translation
-                  slots={{
-                    previous: () => <span className="px-1">{t("Previous")}</span>, // Add padding for text
-                    next: () => <span className="px-1">{t("Next")}</span>,     // Add padding for text
-                  }}
-                />
-              )}
-            />
-          </div>
+              },
+            }}
+            renderItem={(item) => (
+              <PaginationItem
+                {...item}
+                // Use default icons, provide text via translation
+                slots={{
+                  previous: () => <span className="px-1">{t("Previous")}</span>, // Add padding for text
+                  next: () => <span className="px-1">{t("Next")}</span>, // Add padding for text
+                }}
+              />
+            )}
+          />
+        </div>
       )}
     </div>
   );

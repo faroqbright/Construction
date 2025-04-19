@@ -9,6 +9,7 @@ import {
   IconButton,
   Pagination,
   PaginationItem,
+  Autocomplete,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { RiCloseLine } from "react-icons/ri";
@@ -30,6 +31,8 @@ export default function UsersTable() {
   const [currentUser, setCurrentUser] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
+  const [roleSearchTerm, setRoleSearchTerm] = useState("");
+  const [roleSearchTermEdit, setRoleSearchTermEdit] = useState("");
   const modalRef = useRef(null);
   const { clickedItem, setClickedItem } = useSideBar();
 
@@ -38,6 +41,7 @@ export default function UsersTable() {
   const hasUpdatePermission = RolePermissions("UsersManagement", "update");
 
   const token = useSelector((state) => state.auth.userToken);
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -51,11 +55,12 @@ export default function UsersTable() {
       setLoading(false);
     }
   }, [token]);
+
   const fetchRoles = useCallback(async () => {
     try {
       const response = await apiRequest("get", "/roles", {}, token);
       if (response.data) {
-        setRoles(response.data.data); // Assuming roles are in `data.data`
+        setRoles(response.data.data);
       }
     } catch (error) {
       console.error("Error fetching roles:", error);
@@ -72,7 +77,7 @@ export default function UsersTable() {
       setClickedItem(null);
     }
   }, [clickedItem, setClickedItem, fetchRoles]);
-  // Add a new user
+
   const addUser = async (user) => {
     try {
       const response = await apiRequest("post", "/rolesUser", user, token);
@@ -80,6 +85,7 @@ export default function UsersTable() {
         toast.success(response.data.message);
         fetchUsers();
         setOpenUser(false);
+        setRoleSearchTerm("");
       } else {
         toast.error("Failed to add user.");
       }
@@ -90,6 +96,7 @@ export default function UsersTable() {
       );
     }
   };
+
   const fetchUserById = async (userId) => {
     setOpenStates(false);
     try {
@@ -100,7 +107,6 @@ export default function UsersTable() {
         token
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data.data);
         setCurrentUser({
           userName: response.data.data.userName,
           _id: response.data.data._id,
@@ -109,6 +115,7 @@ export default function UsersTable() {
           role: response.data.data.role?._id,
           status: response.data.data.status,
         });
+        setRoleSearchTermEdit(response.data.data.role?.roleName || "");
         setOpenEdit(true);
       }
     } catch (error) {
@@ -116,9 +123,7 @@ export default function UsersTable() {
     }
   };
 
-  // Edit an existing user
   const editUser = async (userId, updatedUser) => {
-    console.log(userId, "--------------------------");
     try {
       const response = await apiRequest(
         "patch",
@@ -131,6 +136,7 @@ export default function UsersTable() {
         fetchUsers();
         setOpenEdit(false);
         setOpenStates(null);
+        setRoleSearchTermEdit("");
       } else {
         toast.error("Failed to update user.");
       }
@@ -142,7 +148,6 @@ export default function UsersTable() {
     }
   };
 
-  // Delete a user
   const deleteUser = async (userId) => {
     setOpenStates(null);
     try {
@@ -187,13 +192,15 @@ export default function UsersTable() {
   }, []);
 
   const handleOpenUser = () => setOpenUser(true);
-  const handleCloseUser = () => setOpenUser(false);
-
-  const handleOpenEdit = (user) => {
-    setCurrentUser(user);
-    setOpenEdit(true);
+  const handleCloseUser = () => {
+    setOpenUser(false);
+    setRoleSearchTerm("");
   };
-  const handleCloseEdit = () => setOpenEdit(false);
+
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+    setRoleSearchTermEdit("");
+  };
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -204,6 +211,14 @@ export default function UsersTable() {
   };
 
   const { t } = useTranslation();
+
+  const filteredRoles = roles.filter((role) =>
+    role.roleName.toLowerCase().includes(roleSearchTerm.toLowerCase())
+  );
+
+  const filteredRolesEdit = roles.filter((role) =>
+    role.roleName.toLowerCase().includes(roleSearchTermEdit.toLowerCase())
+  );
 
   return (
     <div className="px-4 py-2">
@@ -225,6 +240,7 @@ export default function UsersTable() {
             + {t("Create_New_User")}
           </Button>
         ) : null}
+        
         {/* Add User Modal */}
         <Modal open={openUser} onClose={handleCloseUser}>
           <Box
@@ -252,7 +268,7 @@ export default function UsersTable() {
                   userName: formData.get("userName"),
                   email: formData.get("email"),
                   phoneNumber: formData.get("phoneNumber"),
-                  role: formData.get("role"),
+                  role: currentUser.role,
                   password: formData.get("password"),
                   status: t("Active"),
                 };
@@ -287,21 +303,30 @@ export default function UsersTable() {
                 fullWidth
                 required
               />
-              <TextField
-                name="role"
-                label={t("Role")}
-                variant="outlined"
+              <Autocomplete
+                options={filteredRoles}
+                getOptionLabel={(option) => option.roleName}
                 fullWidth
-                select
-                SelectProps={{ native: true }}
-                required
-              >
-                {roles.map((role) => (
-                  <option key={role._id} value={role._id}>
-                    {role.roleName}
-                  </option>
-                ))}
-              </TextField>
+                onChange={(event, newValue) => {
+                  setCurrentUser((prev) => ({
+                    ...prev,
+                    role: newValue?._id || "",
+                  }));
+                }}
+                inputValue={roleSearchTerm}
+                onInputChange={(event, newInputValue) => {
+                  setRoleSearchTerm(newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    name="role"
+                    label={t("Role")}
+                    variant="outlined"
+                    required
+                  />
+                )}
+              />
               <div className="flex justify-end space-x-2">
                 <Button
                   type="submit"
@@ -462,7 +487,7 @@ export default function UsersTable() {
                 userName: formData.get("userName"),
                 email: formData.get("email"),
                 phoneNumber: formData.get("phoneNumber"),
-                role: formData.get("role"),
+                role: currentUser.role,
                 status: formData.get("status"),
               };
               editUser(currentUser._id, updatedUser);
@@ -507,25 +532,33 @@ export default function UsersTable() {
                 }))
               }
             />
-            <TextField
-              name="role"
-              label={t("Role")}
-              variant="outlined"
+            <Autocomplete
+              options={filteredRolesEdit}
+              getOptionLabel={(option) => option.roleName}
               fullWidth
-              select
-              SelectProps={{ native: true }}
-              required
-              value={currentUser.role || ""}
-              onChange={(e) =>
-                setCurrentUser((prev) => ({ ...prev, role: e.target.value }))
+              value={
+                roles.find((role) => role._id === currentUser.role) || null
               }
-            >
-              {roles.map((role) => (
-                <option key={role._id} value={role._id}>
-                  {role.roleName}
-                </option>
-              ))}
-            </TextField>
+              onChange={(event, newValue) => {
+                setCurrentUser((prev) => ({
+                  ...prev,
+                  role: newValue?._id || "",
+                }));
+              }}
+              inputValue={roleSearchTermEdit}
+              onInputChange={(event, newInputValue) => {
+                setRoleSearchTermEdit(newInputValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  name="role"
+                  label={t("Role")}
+                  variant="outlined"
+                  required
+                />
+              )}
+            />
             <div className="flex justify-end space-x-2">
               <Button
                 type="submit"
