@@ -3,12 +3,12 @@ import { Avatar, Checkbox, Pagination, PaginationItem } from "@mui/material";
 import pdf from "../../../assets/pdf.svg";
 import "react-circular-progressbar/dist/styles.css";
 import { FaUser, FaFileAlt, FaCreditCard, FaCheck } from "react-icons/fa";
+import { FaFileCircleQuestion } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import { FaFileCircleQuestion } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Slider from "react-slick";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -774,12 +774,14 @@ const ProjectDetails = () => {
         </div>
 
         <div className="flex justify-end gap-5 pr-6 pb-6">
-          <button
-            onClick={() => navigate(`/details/edit/${projectData?._id}`)}
-            className="px-5 py-2 bg-black-blacknew text-white rounded-md"
-          >
-            {t("Add_Information")}
-          </button>
+          {projectData?.fromBusinessArea === false && (
+            <button
+              onClick={() => navigate(`/details/edit/${projectData?._id}`)}
+              className="px-5 py-2 bg-black-blacknew text-white rounded-md"
+            >
+              {t("Add_Information")}
+            </button>
+          )}
           <button className="px-5 py-2 rounded-md bg-gray-100">
             {t("View_Change_Log")}
           </button>

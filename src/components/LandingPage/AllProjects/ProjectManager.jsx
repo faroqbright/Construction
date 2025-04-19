@@ -20,12 +20,10 @@ import { useNavigate } from "react-router-dom";
 import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { CiSearch } from "react-icons/ci";
-import { FaArrowLeft, FaRecordVinyl } from "react-icons/fa6";
+import { FaArrowLeft } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import RouteMiddleware from "../../../routes/RouteMIddleware";
-import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { Trash2, User, X } from "lucide-react";
@@ -594,28 +592,34 @@ const ProjectManager = () => {
                           </span>
                         </div>
                       )}
-                      <h6
-                        onClick={() =>
-                          project.status !== "Completed"
-                            ? handleEditProjectClick(project._id)
-                            : handleViewProjectClick(project._id)
-                        }
-                        className="text-blue-500 cursor-pointer pl-28 underline ml-3 text-nowrap"
-                      >
-                        {project.status !== t("Completed")
-                          ? hasProjUpdatePermission
-                            ? t("Add_Information")
-                            : t("View_Project")
-                          : t("View_Project")}
-                      </h6>
+                      {projects?.fromBusinessArea === false &&  (
+                        <>
+                          <h6
+                            onClick={() =>
+                              project.status !== "Completed"
+                                ? handleEditProjectClick(project._id)
+                                : handleViewProjectClick(project._id)
+                            }
+                            className="text-blue-500 cursor-pointer pl-28 underline ml-3 text-nowrap"
+                          >
+                            {project.status !== t("Completed")
+                              ? hasProjUpdatePermission
+                                ? t("Add_Information")
+                                : t("View_Project")
+                              : t("View_Project")}
+                          </h6>
 
-                      {hasProjDeletePermission && (
-                        <h6
-                          onClick={() => handleDeleteProjectClick(project._id)}
-                          className="text-blue-500 cursor-pointer underline ml-3 text-nowrap"
-                        >
-                          <Trash2 className="text-red-redNew" size={16} />{" "}
-                        </h6>
+                          {hasProjDeletePermission && (
+                            <h6
+                              onClick={() =>
+                                handleDeleteProjectClick(project._id)
+                              }
+                              className="text-blue-500 cursor-pointer underline ml-3 text-nowrap"
+                            >
+                              <Trash2 className="text-red-redNew" size={16} />{" "}
+                            </h6>
+                          )}
+                        </>
                       )}
                     </>
                   </div>
