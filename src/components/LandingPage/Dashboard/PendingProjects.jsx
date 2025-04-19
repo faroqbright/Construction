@@ -347,7 +347,7 @@ const PendingProjects = () => {
           <div className="h-full slider-container">
             <header className="mb-6 flex justify-between">
               <h2 className="text-2xl font-bold text-black">
-                {t("Ongoing")} {t("Projects")}
+                {t("Ongoing_Projects")}
               </h2>
               <div className="flex">
                 <button
