@@ -420,7 +420,11 @@ export default function Report() {
                       <td className="p-4 capitalize">
                         {" "}
                         {/* Use capitalize class */}
-                        {t(doc.status) || "-"}{" "}
+                        {doc.status === "approved"
+                          ? t("approved")
+                          : doc.status === "rejected"
+                          ? t("rejected")
+                          : t("No_Report")}
                         {/* Display status directly, maybe add styling/badge */}
                       </td>
                       <td className="p-4">

@@ -259,6 +259,7 @@
     "Drop_your_images_here_or": "Arraste as imagens aqui",
     "Upload": "Carregue",
     "Business_Area": "Área de Negócio",
+    "Business Area": "Área de Negócio",
     "Select_the_Business_Area": "Selecione a área de negócio",
     "Client_Company": "Cliente",
     "Select_the_Client_Company": "Selecionar a Empresa ou Cliente",
@@ -268,7 +269,7 @@
     "Add_Business_Area": "Adicionar área comercial",
     "Milestones": "Marcos",
     "No_milestones_added_yet": "Ainda não foi adicionado nenhum marco ",
-    "Ongoing_Projects": "Projectos em Curso",
+    "Ongoing_Projects": "Em Curso Projectos",
     "Enter_milestone_name": "Escreva o nome do marco",
     "Enter_milestone_description": "Escreva a descrição do marco",
     "Search_Business_Area": "Selecionar a Área de Negócio ",
@@ -276,7 +277,10 @@
     "View_Change_Log": "Ver Histórico de Alterações",
     "Pending": "Pendentes",
     "Approved": "Aprovados",
+    "All_projects": "Todos os Projetos",
+    "approved": "Aprovados",
     "Rejected": "Reprevados",
+    "rejected": "Reprevados",
     "All_Projects": "Todos os Projectos",
     "Select_month_and_year": "Selecionar mês e ano",
     "Chronological": "Cronologicamente",
@@ -284,5 +288,6 @@
     "Filename": "Nome da Factura",
     "Added_Milestones": "Marcos Adicionados ",
     "Filling": "Ficheiros",
-    "Business Area": "Área de Negócio"
+    "Business Area": "Área de Negócio",
+    "Business_Area": "Área de Negócio"
 }

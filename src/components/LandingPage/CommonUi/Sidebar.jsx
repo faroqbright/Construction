@@ -120,12 +120,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       to: "/all-clients",
       module: "CompanyManagement",
     },
-    {
-      icon: milestone,
-      label: t("Additional_Milestones"),
-      to: "/additional-milestones",
-      module: "MilestoneManagement",
-    },
+    // {
+    //   icon: milestone,
+    //   label: t("Additional_Milestones"),
+    //   to: "/additional-milestones",
+    //   module: "MilestoneManagement",
+    // },
   ];
 
   const filteredItems = Admin

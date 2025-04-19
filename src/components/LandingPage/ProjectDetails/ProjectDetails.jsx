@@ -2,7 +2,14 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, Checkbox, Pagination, PaginationItem } from "@mui/material";
 import pdf from "../../../assets/pdf.svg";
 import "react-circular-progressbar/dist/styles.css";
-import { FaUser, FaFileAlt, FaCreditCard, FaCheck } from "react-icons/fa";
+import {
+  FaUser,
+  FaFileAlt,
+  FaCreditCard,
+  FaCheck,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
 import { FaFileCircleQuestion } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
@@ -14,6 +21,19 @@ import Slider from "react-slick";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { toast } from "react-toastify";
 import logo from "../../../assets/logo1.png";
+import {
+  Button,
+  Modal,
+  Box,
+  TextField,
+  Typography,
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { RiCloseLine } from "react-icons/ri";
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
@@ -97,6 +117,114 @@ const ProjectDetails = () => {
     if (sliderRefProjects.current) {
       sliderRefProjects.current.slickPrev();
     }
+  };
+
+  const [actionMenuOpen, setActionMenuOpen] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [currentMilestone, setCurrentMilestone] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    description: "",
+    status: "pending",
+  });
+
+  const toggleActionMenu = (milestoneId) => {
+    setActionMenuOpen(actionMenuOpen === milestoneId ? null : milestoneId);
+  };
+
+  const toggleMilestoneStatus = async (milestone) => {
+    try {
+      const newStatus =
+        milestone.status === "completed" ? "pending" : "completed";
+      const updatedData = {
+        status: newStatus,
+        completedAt:
+          newStatus === "completed" ? new Date().toISOString() : null,
+      };
+
+      await apiRequest(
+        "put",
+        `/additional/milestone/update/${milestone._id}`,
+        updatedData,
+        token
+      );
+
+      // Option 1: Refetch data using your existing fetchProjects function
+      // await fetchProjects();
+
+      // Option 2: Update local state directly
+      setProjectData(prev => ({
+        ...prev,
+        additionalMilestones: prev.additionalMilestones.map(m =>
+          m._id === milestone._id ? {...m, ...updatedData} : m
+        )
+      }));
+
+      toast.success("Milestone status updated successfully.");
+    } catch (error) {
+      toast.error("Failed to update milestone status.");
+      console.error("Error:", error);
+    }
+  };
+
+  const handleEditClick = (milestone) => {
+    setCurrentMilestone(milestone);
+    setEditFormData({
+      title: milestone.title,
+      description: milestone.description,
+      status: milestone.status,
+    });
+    setEditModalOpen(true);
+    setActionMenuOpen(null);
+  };
+
+  const handleDelete = async (milestoneId) => {
+    setActionMenuOpen(null);
+    try {
+      await apiRequest(
+        "delete",
+        `/additional/milestone/delete/${milestoneId}`,
+        {},
+        token
+      );
+      await fetchProjects(); // Use your existing fetch function
+      toast.success("Milestone deleted successfully.");
+    } catch (error) {
+      toast.error("Failed to delete milestone.");
+      console.error("Error:", error);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await apiRequest(
+        "put",
+        `/additional/milestone/update/${currentMilestone._id}`,
+        editFormData,
+        token
+      );
+      await fetchProjects();
+      toast.success("Milestone updated successfully.");
+      setEditModalOpen(false);
+    } catch (error) {
+      toast.error("Failed to update milestone.");
+      console.error("Error:", error);
+    }
+  };
+
+  const modalStyles = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    borderRadius: "8px",
+    p: 4,
+    width: "400px",
+    maxHeight: "90vh",
+    overflow: "auto",
   };
 
   const handleNextClickProjects = () => {
@@ -224,7 +352,7 @@ const ProjectDetails = () => {
           <div className="flex text-sm gap-4 mt-6 ">
             <div>
               <strong className="text-black-blacknew text-base">
-                {t("Business Area")}:{" "}
+                {t("Business_Area")}:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
                 {projectData?.businessAreas}
@@ -591,28 +719,150 @@ const ProjectDetails = () => {
 
           {projectData?.additionalMilestones?.map((milestone) => (
             <div
-              key={milestone.id}
+              key={milestone._id}
               className="flex items-center justify-between py-3 border-b"
             >
               <div>
-                <h4 className="font-medium text-gray-800">
-                  {milestone.id}. {milestone.title}
-                </h4>
+                <h4 className="font-medium text-gray-800">{milestone.title}</h4>
                 <p className="text-sm text-gray-500">{milestone.description}</p>
               </div>
-              <div
-                className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
-                  milestone.status === "completed"
-                    ? "bg-black"
-                    : "border-gray-300 bg-white"
-                }`}
-              >
-                {milestone.status === "completed" && (
-                  <Check size={20} color="black" strokeWidth={4} />
-                )}
+              <div className="flex items-center gap-2">
+                {/* Action buttons */}
+                <div className="relative">
+                  <button
+                    onClick={() => toggleActionMenu(milestone._id)}
+                    className="p-1 rounded hover:bg-gray-100"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </svg>
+                  </button>
+
+                  {actionMenuOpen === milestone._id && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => handleEditClick(milestone)}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FaEdit className="mr-2" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(milestone._id)}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FaTrash className="mr-2" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Completion checkbox */}
+                <div
+                  className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors duration-200 cursor-pointer ${
+                    milestone.status === "completed"
+                      ? "bg-black"
+                      : "border-gray-300 bg-white"
+                  }`}
+                  onClick={() => toggleMilestoneStatus(milestone)}
+                >
+                  {milestone.status === "completed" && (
+                    <Check size={20} color="green" strokeWidth={4} />
+                  )}
+                </div>
               </div>
             </div>
           ))}
+
+          {/* Edit Modal */}
+          <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
+            <Box sx={modalStyles}>
+              <div className="flex justify-between items-center mb-4">
+                <Typography variant="h6">Edit Milestone</Typography>
+                <IconButton onClick={() => setEditModalOpen(false)}>
+                  <RiCloseLine />
+                </IconButton>
+              </div>
+
+              <form className="space-y-4" onSubmit={handleEditSubmit}>
+                <TextField
+                  label="Title"
+                  variant="outlined"
+                  fullWidth
+                  value={editFormData.title}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, title: e.target.value })
+                  }
+                  required
+                />
+                <TextField
+                  label="Description"
+                  variant="outlined"
+                  fullWidth
+                  value={editFormData.description}
+                  onChange={(e) =>
+                    setEditFormData({
+                      ...editFormData,
+                      description: e.target.value,
+                    })
+                  }
+                  required
+                  multiline
+                  rows={3}
+                />
+
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    label="Status"
+                    value={editFormData.status}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        status: e.target.value,
+                      })
+                    }
+                    required
+                  >
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="completed">Completed</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    sx={{
+                      backgroundColor: "black",
+                      color: "white",
+                      textTransform: "none",
+                      "&:hover": { backgroundColor: "#333333" },
+                    }}
+                  >
+                    Update
+                  </Button>
+                  <Button
+                    sx={{
+                      backgroundColor: "#E9E9E9",
+                      color: "black",
+                    }}
+                    onClick={() => setEditModalOpen(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </form>
+            </Box>
+          </Modal>
         </div>
 
         {/* Finance Status */}
