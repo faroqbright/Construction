@@ -265,23 +265,31 @@ export default function EditProject() {
   const [deletedMilestones, setDeletedMilestones] = useState([]);
 
   const onSubmit = async (formData) => {
+    if (selectedFiles.length > 3)
+      return toast.error("You can only have up to 3 banners.");
     if (
       !formData.deadline ||
       !formData.deadline.includes(" - ") ||
       formData.deadline.endsWith(" - ") ||
       formData.deadline.startsWith(" - ")
     )
-      if (selectedFiles.length > 10) {
-        {
-          toast.error("Please select both the Start Date and End Date.");
-          return; // Prevent form submission
-        }
-        toast.error("You can only have up to 10 banners.");
-        return;
-      }
+    if (formData.deadline)
+      toast.error("Please select both the Start Date and End Date.");
+    // return;
+    // if (!formData.deadline || !formData.deadline.includes(" - ")) {
+    //   toast.error("Please select both the Start Date and End Date.");
+    //   return;
+    // }
 
-    if (selectedFiles.length > 10)
-      return toast.error("You can only have up to 10 banners.");
+    // Check if dates are incomplete (starts or ends with " - ")
+    // if (
+    //   formData.deadline.endsWith(" - ") ||
+    //   formData.deadline.startsWith(" - ")
+    // ) {
+    //   toast.error("Please complete both date selections.");
+    //   return;
+    // }
+
     try {
       for (const milestoneId of deletedMilestones) {
         await apiRequest(
@@ -574,19 +582,18 @@ export default function EditProject() {
 
   const handleMilestoneDelete = async (id) => {
     const milestoneToDelete = milestones.find((m) => m.id === id);
-  
+
     if (!milestoneToDelete) return;
-  
+
     if (milestoneToDelete.apiId) {
       setDeletedMilestones((prev) => [...prev, milestoneToDelete.apiId]);
     }
-  
+
     setMilestones((prevMilestones) =>
       prevMilestones.filter((m) => m.id !== id)
     );
-  
   };
-  
+
   const handleUsersChange = (selectedOptions) => {
     const existingMembers = modalTeamMembers || [];
     const newMembers = selectedOptions.map((option) => ({
@@ -839,80 +846,87 @@ export default function EditProject() {
         </div>
 
         <div className="mb-6">
-  <h2 className="text-2xl font-bold mb-6">{t("Business_Area")}</h2>
-  <label className="block text-2xl font-semibold mb-2">
-    <span className="text-gray-700 text-sm">
-      {t("Select_the_Business_Area")}
-    </span>
-  </label>
-  <Controller
-    name="businessArea"
-    control={control}
-    render={({ field }) => {
-      const options = businessAreas.map((area) => ({
-        value: area._id,
-        label: area.businessArea,
-      }));
-      
-      // Find the initial value based on the name from API
-      const initialValue = options.find(
-        option => option.label === initialValues.businessArea
-      ) || null;
-      
-      return (
-        <Select
-          {...field}
-          options={options}
-          isSearchable
-          placeholder={t("Search_Business_Area")}
-          className="mt-1"
-          onChange={(selectedOption) => {
-            field.onChange(selectedOption?.value); // Update form value
-            setSelectedbusinessArea(selectedOption?.label); // Update state
-          }}
-          value={options.find(option => 
-            option.value === field.value || 
-            option.label === field.value
-          ) || initialValue}
-        />
-      );
-    }}
-  />
-</div>
+          <h2 className="text-2xl font-bold mb-6">{t("Business_Area")}</h2>
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">
+              {t("Select_the_Business_Area")}
+            </span>
+          </label>
+          <Controller
+            name="businessArea"
+            control={control}
+            render={({ field }) => {
+              const options = businessAreas.map((area) => ({
+                value: area._id,
+                label: area.businessArea,
+              }));
 
-<div className="mb-6">
-  <h2 className="text-2xl font-bold mb-6">{t("Client")}</h2>
-  <label className="block text-2xl font-semibold mb-2">
-    <span className="text-gray-700 text-sm">
-      {t("Select_the_Client_Company")}
-    </span>
-  </label>
-  <Controller
-    name="company"
-    control={control}
-    render={({ field }) => {
-      const options = projecto.map((company) => ({
-        value: company,
-        label: company,
-      }));
+              // Find the initial value based on the name from API
+              const initialValue =
+                options.find(
+                  (option) => option.label === initialValues.businessArea
+                ) || null;
 
-      return (
-        <Select
-          {...field}
-          options={options}
-          isSearchable
-          placeholder={t("Search_Client_Company")}
-          className="mt-1"
-          onChange={(selectedOption) => {
-            field.onChange(selectedOption?.value); // Update form value
-            setSelectedCompany(selectedOption?.value); // Update state
-          }}
-          value={options.find(option => option.value === field.value) || null}
-        />
-      );
-    }}
-  />
-</div>
+              return (
+                <Select
+                  {...field}
+                  options={options}
+                  isSearchable
+                  placeholder={t("Search_Business_Area")}
+                  className="mt-1"
+                  onChange={(selectedOption) => {
+                    field.onChange(selectedOption?.value); // Update form value
+                    setSelectedbusinessArea(selectedOption?.label); // Update state
+                  }}
+                  value={
+                    options.find(
+                      (option) =>
+                        option.value === field.value ||
+                        option.label === field.value
+                    ) || initialValue
+                  }
+                />
+              );
+            }}
+          />
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-6">{t("Client")}</h2>
+          <label className="block text-2xl font-semibold mb-2">
+            <span className="text-gray-700 text-sm">
+              {t("Select_the_Client_Company")}
+            </span>
+          </label>
+          <Controller
+            name="company"
+            control={control}
+            render={({ field }) => {
+              const options = projecto.map((company) => ({
+                value: company,
+                label: company,
+              }));
+
+              return (
+                <Select
+                  {...field}
+                  options={options}
+                  isSearchable
+                  placeholder={t("Search_Client_Company")}
+                  className="mt-1"
+                  onChange={(selectedOption) => {
+                    field.onChange(selectedOption?.value); // Update form value
+                    setSelectedCompany(selectedOption?.value); // Update state
+                  }}
+                  value={
+                    options.find((option) => option.value === field.value) ||
+                    null
+                  }
+                />
+              );
+            }}
+          />
+        </div>
 
         <h2 className="text-2xl font-bold mb-6">{t("Basic_Information")}</h2>
         <div className="mb-4">

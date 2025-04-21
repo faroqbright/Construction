@@ -751,14 +751,14 @@ const ProjectDetails = () => {
                           className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           <FaEdit className="mr-2" />
-                          Edit
+                          {t("Edit")}
                         </button>
                         <button
                           onClick={() => handleDelete(milestone._id)}
                           className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           <FaTrash className="mr-2" />
-                          Delete
+                          {t("Delete")}
                         </button>
                       </div>
                     </div>
@@ -786,7 +786,7 @@ const ProjectDetails = () => {
           <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
             <Box sx={modalStyles}>
               <div className="flex justify-between items-center mb-4">
-                <Typography variant="h6">Edit Milestone</Typography>
+                <Typography variant="h6">{t("Edit_Milestone")}</Typography>
                 <IconButton onClick={() => setEditModalOpen(false)}>
                   <RiCloseLine />
                 </IconButton>
@@ -794,7 +794,7 @@ const ProjectDetails = () => {
 
               <form className="space-y-4" onSubmit={handleEditSubmit}>
                 <TextField
-                  label="Title"
+                  label={t("Title")}
                   variant="outlined"
                   fullWidth
                   value={editFormData.title}
@@ -804,7 +804,7 @@ const ProjectDetails = () => {
                   required
                 />
                 <TextField
-                  label="Description"
+                  label={t("Description")}
                   variant="outlined"
                   fullWidth
                   value={editFormData.description}
@@ -820,9 +820,9 @@ const ProjectDetails = () => {
                 />
 
                 <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
+                  <InputLabel>{t("Status")}</InputLabel>
                   <Select
-                    label="Status"
+                    label={t("Status")}
                     value={editFormData.status}
                     onChange={(e) =>
                       setEditFormData({
@@ -832,8 +832,8 @@ const ProjectDetails = () => {
                     }
                     required
                   >
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="completed">Completed</MenuItem>
+                    <MenuItem value="pending">{t("Pending")}</MenuItem>
+                    <MenuItem value="completed">{t("Completed")}</MenuItem>
                   </Select>
                 </FormControl>
 
@@ -848,7 +848,7 @@ const ProjectDetails = () => {
                       "&:hover": { backgroundColor: "#333333" },
                     }}
                   >
-                    Update
+                    {t("Update")}
                   </Button>
                   <Button
                     sx={{
@@ -857,7 +857,7 @@ const ProjectDetails = () => {
                     }}
                     onClick={() => setEditModalOpen(false)}
                   >
-                    Close
+                    {t("Close")}
                   </Button>
                 </div>
               </form>
