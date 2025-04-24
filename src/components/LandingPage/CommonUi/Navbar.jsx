@@ -22,11 +22,39 @@ function Navbar({ toggleSidebar, isOpen }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const profileDropdownRef = useRef(null);
+  const notificationDropdownRef = useRef(null);
+
+  // Sample notification data
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      icon: <User className="w-5 h-5 text-blue-500" />,
+      title: "New message received",
+      description: "You have a new message from John Doe",
+      createdAt: "2 hours ago"
+    },
+    {
+      id: 2,
+      icon: <User className="w-5 h-5 text-green-500" />,
+      title: "Project update",
+      description: "Your project has been approved by the team",
+      createdAt: "1 day ago"
+    },
+    {
+      id: 3,
+      icon: <User className="w-5 h-5 text-yellow-500" />,
+      title: "Reminder",
+      description: "Don't forget about the meeting tomorrow",
+      createdAt: "3 days ago"
+    }
+  ]);
 
   const handleClickOutside = (event) => {
     if (
       profileDropdownRef.current &&
-      !profileDropdownRef.current.contains(event.target)
+      !profileDropdownRef.current.contains(event.target) &&
+      notificationDropdownRef.current &&
+      !notificationDropdownRef.current.contains(event.target)
     ) {
       setActiveDropdown(null);
     }
@@ -102,15 +130,17 @@ function Navbar({ toggleSidebar, isOpen }) {
                     .join(" ")
                 : "Unknown"}
             </h1>
-
-            {/* <p className="text-gray-500 text-sm sm:text-base">
-              {t("Lets_finish_your_projects_today!")}
-            </p> */}
           </div>
           <div className="flex items-center sm:space-x-4 space-x-2.5">
             <LanguageSwitcher />
-            <div className="sm:mr-4">
-              <img src={noti} alt="Notification" className="w-6 h-6" />
+            <div className="sm:mr-4 relative">
+              <img 
+                src={noti} 
+                alt="Notification" 
+                className="w-6 h-6 cursor-pointer" 
+                onClick={() => toggleDropdown("notification")}
+                ref={notificationDropdownRef}
+              />
             </div>
             <div className="cursor-pointer">
               {profileimg ? (
@@ -138,6 +168,44 @@ function Navbar({ toggleSidebar, isOpen }) {
         </header>
       </div>
 
+      {/* Notification Dropdown */}
+      {activeDropdown === "notification" && (
+        <div
+          className={`absolute top-[70px] w-96 ${
+            isOpen ? "right-56" : "right-24"
+          } bg-white shadow-lg rounded-lg border border-border z-50`}
+          ref={notificationDropdownRef}
+        >
+          <div className="p-4 border-b border-border">
+            <h3 className="font-semibold text-lg">Notifications</h3>
+          </div>
+          <ul className="max-h-80 overflow-y-auto">
+            {notifications.map((notification) => (
+              <li key={notification.id} className="border-b border-border last:border-b-0">
+                <div className="p-4 hover:bg-gray-50 cursor-pointer">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      {notification.icon}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <h4 className="text-sm font-medium">{notification.title}</h4>
+                      <p className="text-sm text-gray-500">{notification.description}</p>
+                      <p className="text-xs text-gray-400 mt-1">{notification.createdAt}</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {notifications.length === 0 && (
+            <div className="p-4 text-center text-gray-500">
+              No notifications available
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Profile Dropdown */}
       {activeDropdown === "profile" && (
         <div
           className={`absolute top-[70px] w-44 ${
@@ -170,4 +238,5 @@ function Navbar({ toggleSidebar, isOpen }) {
     </nav>
   );
 }
+
 export default Navbar;
