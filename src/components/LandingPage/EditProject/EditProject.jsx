@@ -265,7 +265,7 @@ export default function EditProject() {
   const [deletedMilestones, setDeletedMilestones] = useState([]);
 
   const onSubmit = async (formData) => {
-    if (selectedFiles.length > 3)
+    if (isCreateMode && selectedFiles.length > 3)
       return toast.error("You can only have up to 3 banners.");
     if (
       !formData.deadline ||
