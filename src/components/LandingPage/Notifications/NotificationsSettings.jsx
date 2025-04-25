@@ -34,6 +34,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
 import { removeUserInfo } from "../../../features/auth/authSlice";
+import "../../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const NotificationToggle = ({
   icon,
@@ -93,8 +95,23 @@ const NotificationSettings = () => {
   const token = useSelector((state) => state?.auth?.userToken);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const clientsToShow = 3;
+
+  const translatableTitles = {
+    "Project Reports": t("Project Reports"),
+    "Project Approval": t("Project Approval"),
+    "Project Updates": t("Project Updates"),
+    "Financial Updates": t("Financial Updates"),
+  };
+
+  const translateDescriptions = {
+    "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information": t("Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information"),
+    "Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency.": t("Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency."),
+    "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage.": t("Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage."),
+    "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects.": t("Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects.")
+  }
 
   const fetchNotifications = useCallback(async () => {
     if (!token) return;
@@ -273,6 +290,11 @@ const NotificationSettings = () => {
         );
         throw new Error("Status update failed on server");
       }
+
+      // ✅ Show success toast if backend message exists
+      if (response.data.message) {
+        toast.success(response.data.message);
+      }
     } catch (error) {
       console.error("Error updating status:", error);
 
@@ -297,6 +319,7 @@ const NotificationSettings = () => {
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
   };
+
   const handleFinanceMessageChange = (e) => {
     setFinanceMessage(e.target.value);
   };
@@ -340,11 +363,17 @@ const NotificationSettings = () => {
       );
 
       if (response.data?.data) {
-        const createdNotification = response.data.data;
         resetState();
-        toast.success(
-          `${successMessagePrefix} notification "${createdNotification.title}" sent successfully`
-        );
+
+        // ✅ Show success message from backend
+        if (response.data.message) {
+          toast.success(response.data.message);
+        } else {
+          // Fallback if message not found
+          toast.success(
+            `${successMessagePrefix} notification "${response.data.data.title}" sent successfully`
+          );
+        }
       } else {
         console.warn(
           `Notification API call succeeded but response format was unexpected for type ${type}:`,
@@ -361,7 +390,6 @@ const NotificationSettings = () => {
         error?.response?.data?.message || `Failed to send ${type} notification`
       );
 
-      // Centralized 401 handling
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
         toast.info("Session expired. Please log in again.");
@@ -369,7 +397,6 @@ const NotificationSettings = () => {
           navigate("/login");
         }
       }
-    } finally {
     }
   };
 
@@ -435,8 +462,8 @@ const NotificationSettings = () => {
                   key={notificationItem._id}
                   id={notificationItem._id}
                   icon={renderIcon()}
-                  title={notificationItem.title}
-                  description={notificationItem.description}
+                  title={translatableTitles[notificationItem.title] || notificationItem.title}
+                  description={translateDescriptions[notificationItem.description] || notificationItem.description}
                   checked={notificationItem.status}
                   onChange={() => handleToggle(notificationItem._id)}
                 />
@@ -460,10 +487,10 @@ const NotificationSettings = () => {
 
           <Box>
             <Typography variant="body1" className="font-medium">
-              Select Client
+              {t("Select_Client")}
             </Typography>
             <Typography variant="caption" className="text-gray-500">
-              Please select a client that you wish to notify
+              {t("Please_select_a_client_that_you_wish_to_notify")}
             </Typography>
           </Box>
         </Box>
@@ -472,7 +499,7 @@ const NotificationSettings = () => {
           <TextField
             fullWidth
             size="small"
-            placeholder="Search for a client..."
+            placeholder={t("Search_for_a_client...")}
             variant="outlined"
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
@@ -601,7 +628,7 @@ const NotificationSettings = () => {
             </AvatarGroup>
             {selectedUsers.length > clientsToShow && (
               <Typography variant="caption" className="text-blue-500 ml-1">
-                +{selectedUsers.length - clientsToShow} more
+                +{selectedUsers.length - clientsToShow} {t("more")}
               </Typography>
             )}
             <Link
@@ -615,7 +642,7 @@ const NotificationSettings = () => {
                 setIsEditModalOpen(true);
               }}
             >
-              Edit Selected Clients
+              {t("Edit_Selected_Clients")}
             </Link>
           </Box>
         </Box>
@@ -624,7 +651,7 @@ const NotificationSettings = () => {
           <TextField
             fullWidth
             size="small"
-            placeholder="Title here.."
+            placeholder={t("Title_here..")}
             value={clientTitle}
             onChange={(e) => setClientTitle(e.target.value)}
             sx={{
@@ -650,11 +677,11 @@ const NotificationSettings = () => {
             fullWidth
             multiline
             rows={3}
-            placeholder="Please write down your notification text here:"
+            placeholder={t("Please_write_down_your_notification_text_here")}
             value={message}
             onChange={handleMessageChange}
             sx={{
-              bgcolor: "grey.50",
+              bgcolor: "white",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "0.375rem",
                 padding: "8px 12px",
@@ -689,15 +716,15 @@ const NotificationSettings = () => {
                   backgroundColor: "grey.300",
                   color: "grey.500",
                   cursor: "not-allowed",
-                  pointerEvents: "auto", 
+                  pointerEvents: "auto",
                 },
                 textTransform: "none",
                 fontSize: "0.8125rem",
-                padding: "6px 12px",  
-                whiteSpace: "nowrap",  
+                padding: "6px 12px",
+                whiteSpace: "nowrap",
               }}
             >
-              Send
+              {t("Send")}
             </Button>
           </div>
         </Box>
@@ -706,11 +733,11 @@ const NotificationSettings = () => {
       <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
         <Box className="flex flex-col gap-3 mb-4 ">
           <Typography variant="body1" className="font-medium">
-            Finance Access Clients
+            {t("Finance_Access_Clients")}
           </Typography>
           <Select
             multiple
-            value={selectedFinanceClients}  
+            value={selectedFinanceClients}
             onChange={(e) => setSelectedFinanceClients(e.target.value)}
             displayEmpty
             fullWidth
@@ -721,11 +748,11 @@ const NotificationSettings = () => {
               if (selected.length === 0) {
                 return (
                   <Typography className="text-gray-500">
-                    Select one or more finance clients...
+                    {t("Select_one_or_more_finance_clients...")}
                   </Typography>
                 );
               }
-              const selectedNames = financeClients  
+              const selectedNames = financeClients
                 .filter((client) => selected.includes(client._id))
                 .map((client) => client.userName);
               return selectedNames.join(", ");
@@ -743,7 +770,7 @@ const NotificationSettings = () => {
               backgroundColor: "#f9fafb",
               borderRadius: "0.375rem",
             }}
-            disabled={isLoadingClients}  
+            disabled={isLoadingClients}
           >
             <ListSubheader>
               <TextField
@@ -762,7 +789,7 @@ const NotificationSettings = () => {
                 onChange={(e) => setClientSearchQuery(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => e.stopPropagation()}
-                sx={{ padding: "8px", backgroundColor: "white" }}  
+                sx={{ padding: "8px", backgroundColor: "white" }}
               />
             </ListSubheader>
 
@@ -775,8 +802,8 @@ const NotificationSettings = () => {
             {!isLoadingClients && filteredFinanceClients.length === 0 && (
               <MenuItem disabled>
                 {clientSearchQuery
-                  ? "No clients match search."
-                  : "No finance clients found."}
+                  ? t("No_clients_match_search.")
+                  : t("No_finance_clients_found.")}
               </MenuItem>
             )}
 
@@ -792,7 +819,7 @@ const NotificationSettings = () => {
         {selectedFinanceClients.length > 0 && (
           <Box className="mb-4">
             <Typography variant="body1" className="font-medium mb-2">
-              Selected Finance Clients ({selectedFinanceClients.length})
+              {t("Selected_Finance_Clients")} ({selectedFinanceClients.length})
             </Typography>
             <Box className="space-y-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
               {financeClients
@@ -836,19 +863,19 @@ const NotificationSettings = () => {
         <Box className="mt-6">
           <Box className="flex items-center gap-4 mb-4">
             <img
-              src={notification || "/placeholder.svg"} 
-              className="bg-gray-200 p-2 rounded" 
-              style={{ height: "40px", width: "40px" }}  
+              src={notification || "/placeholder.svg"}
+              className="bg-gray-200 p-2 rounded"
+              style={{ height: "40px", width: "40px" }}
               alt="Notification Icon"
             />
             <Box>
               <p className="text-black-blacknew font-medium">
                 {" "}
-                Finance Notification
+                {t("Finance_Notification")}
               </p>
               <p className="text-lightpurple-light text-sm">
                 {" "}
-                Send notifications to selected finance users.
+                {t("Send_notifications_to_selected_finance_users.")}
               </p>
             </Box>
           </Box>
@@ -856,11 +883,11 @@ const NotificationSettings = () => {
             <TextField
               fullWidth
               size="small"
-              placeholder="Title here.."
-              value={financeTitle}  
-              onChange={(e) => setFinanceTitle(e.target.value)}  
+              placeholder={t("Title_here..")}
+              value={financeTitle}
+              onChange={(e) => setFinanceTitle(e.target.value)}
               sx={{
-                maxWidth: 300,  
+                maxWidth: 300,
                 bgcolor: "white",
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "0.375rem",
@@ -879,7 +906,9 @@ const NotificationSettings = () => {
               fullWidth
               multiline
               rows={3}
-              placeholder="Please write the finance notification message..."  
+              placeholder={t(
+                "Please_write_the_finance_notification_message..."
+              )}
               value={financeMessage}
               onChange={handleFinanceMessageChange}
               sx={{
@@ -893,7 +922,7 @@ const NotificationSettings = () => {
                 },
                 "& .MuiOutlinedInput-input": {
                   fontSize: "0.875rem",
-                  padding: "0px",  
+                  padding: "0px",
                 },
               }}
             />
@@ -901,14 +930,14 @@ const NotificationSettings = () => {
               {" "}
               <Button
                 variant="contained"
-                onClick={handleFinanceSend}  
+                onClick={handleFinanceSend}
                 disabled={
                   !financeTitle.trim() ||
                   !financeMessage.trim() ||
                   selectedFinanceClients.length === 0
-                }  
+                }
                 sx={{
-                  marginTop: "0px",  
+                  marginTop: "0px",
                   color: "black",
                   backgroundColor: "#E9E9E9",
                   boxShadow: "none",
@@ -924,11 +953,11 @@ const NotificationSettings = () => {
                   },
                   textTransform: "none",
                   fontSize: "0.8125rem",
-                  padding: "6px 12px",  
+                  padding: "6px 12px",
                   whiteSpace: "nowrap",
                 }}
               >
-                Send
+                {t("Send")}
               </Button>
             </Box>
           </Box>
@@ -947,9 +976,9 @@ const NotificationSettings = () => {
           >
             <Box className="flex justify-between items-center mb-4 flex-shrink-0">
               <Typography variant="h6" className="font-medium">
-                {modalType === "edit"
-                  ? "Edit Selected Clients"
-                  : "Selected Clients"}
+                {modalType === t("edit")
+                  ? t("Edit_Selected_Clients")
+                  : t("Selected_Clients")}
               </Typography>
               <IconButton
                 onClick={() => setIsEditModalOpen(false)}
@@ -960,11 +989,11 @@ const NotificationSettings = () => {
               </IconButton>
             </Box>
 
-            {modalType === "edit" && (
+            {modalType === t("edit") && (
               <TextField
                 fullWidth
                 size="small"
-                placeholder="Search to add more clients..."
+                placeholder={t("Search_to_add_more_clients...")}
                 variant="outlined"
                 value={userSearchQuery}
                 onChange={(e) => setUserSearchQuery(e.target.value)}
@@ -1026,7 +1055,7 @@ const NotificationSettings = () => {
                     variant="body2"
                     sx={{ p: 2, textAlign: "center", color: "grey.600" }}
                   >
-                    No users match search.
+                    {t("No_users_match_search.")}
                   </Typography>
                 )}
               </Box>
@@ -1036,9 +1065,9 @@ const NotificationSettings = () => {
               variant="subtitle1"
               className="font-medium mb-2 text-base flex-shrink-0"
             >
-              {modalType === "edit"
-                ? "Currently Selected Clients"
-                : "Selected Clients"}{" "}
+              {modalType === t("edit")
+                ? t("Currently_Selected_Clients")
+                : t("Selected_Clients")}{" "}
               ({selectedUsers.length})
             </Typography>
             <Box className="flex-grow overflow-y-auto mb-4 border rounded-md p-2 bg-gray-50/50">
@@ -1047,7 +1076,7 @@ const NotificationSettings = () => {
                   variant="body2"
                   className="text-gray-500 py-4 text-center"
                 >
-                  No clients selected
+                  {t("No_clients_selected")}
                 </Typography>
               ) : (
                 selectedUsers.map((user) => (
@@ -1115,9 +1144,9 @@ const NotificationSettings = () => {
                   },
                 }}
               >
-                {modalType === "edit" ? "Cancel" : "Close"}
+                {modalType === t("edit") ? t("Cancel") : t("Close")}
               </Button>
-              {modalType === "edit" && (
+              {modalType === t("edit") && (
                 <Button
                   variant="contained"
                   onClick={() => setIsEditModalOpen(false)}
@@ -1131,7 +1160,7 @@ const NotificationSettings = () => {
                     },
                   }}
                 >
-                  Done
+                  {t("Done")}
                 </Button>
               )}
             </Box>

@@ -28,21 +28,30 @@ function Navbar({ toggleSidebar, isOpen }) {
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      icon: <User className="w-5 h-5 text-blue-500" />,
+      icon: <User
+      className="bg-slate-400 rounded-full px-1 py-2 text-white "
+      size={40}
+    />,
       title: "New message received",
       description: "You have a new message from John Doe",
       createdAt: "2 hours ago"
     },
     {
       id: 2,
-      icon: <User className="w-5 h-5 text-green-500" />,
+      icon: <User
+      className="bg-slate-400 rounded-full px-1 py-2 text-white "
+      size={40}
+    />,
       title: "Project update",
       description: "Your project has been approved by the team",
       createdAt: "1 day ago"
     },
     {
       id: 3,
-      icon: <User className="w-5 h-5 text-yellow-500" />,
+      icon: <User
+      className="bg-slate-400 rounded-full px-1 py-2 text-white "
+      size={40}
+    />,
       title: "Reminder",
       description: "Don't forget about the meeting tomorrow",
       createdAt: "3 days ago"

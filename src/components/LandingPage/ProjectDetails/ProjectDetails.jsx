@@ -1024,14 +1024,14 @@ const ProjectDetails = () => {
         </div>
 
         <div className="flex justify-end gap-5 pr-6 pb-6">
-          {!projectData?.fromBusinessArea && (
+          {projectData?.status !== "Completed" ? (
             <button
               onClick={() => navigate(`/details/edit/${projectData?._id}`)}
               className="px-5 py-2 bg-black-blacknew text-white rounded-md"
             >
               {t("Add_Information")}
             </button>
-          )}
+          ): ""}
           <button className="px-5 py-2 rounded-md bg-gray-100">
             {t("View_Change_Log")}
           </button>

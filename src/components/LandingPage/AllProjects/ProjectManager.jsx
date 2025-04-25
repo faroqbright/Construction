@@ -238,7 +238,7 @@ const ProjectManager = () => {
   }, [selectedProjectId, fetchProjectByID]);
 
   const filteredProjects = projects.filter((project) =>
-    project.projectName.toLowerCase().includes(searchQuery.toLowerCase())
+    project.projectName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
   // Handlers for Previous and Next buttons
   const handlePrevClickProjects = () => {

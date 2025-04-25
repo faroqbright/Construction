@@ -1065,10 +1065,10 @@ export default function EditProject() {
         </div>
         {!isCreateMode && FinancialExecution?.length > 0 && (
           <>
-            <h2 className="text-2xl font-bold mt-6 mb-6">Invoice</h2>
+            <h2 className="text-2xl font-bold mt-6 mb-6">{t("Invoice")}</h2>
             <div className="mb-4">
               <label className="block text-2xl font-semibold mb-2">
-                <span className="text-gray-700 text-sm">Invoice</span>
+                <span className="text-gray-700 text-sm">{t("Invoice")}</span>
               </label>
               <select
                 value={selectedInvoice}
@@ -1084,11 +1084,11 @@ export default function EditProject() {
               </select>
             </div>
 
-            <h2 className="text-2xl font-bold mt-6 mb-6">Execution</h2>
+            <h2 className="text-2xl font-bold mt-6 mb-6">{t("Execution")}</h2>
             <div className="mb-4">
               <label className="block text-2xl font-semibold mb-2">
                 <span className="text-gray-700 text-sm">
-                  Physical Execution
+                  {t("Physical_Execution")}
                 </span>
               </label>
               <input
@@ -1106,7 +1106,7 @@ export default function EditProject() {
             <div className="mb-4">
               <label className="block text-2xl font-semibold mb-2">
                 <span className="text-gray-700 text-sm">
-                  Financial Execution
+                  {t("Financial_Execution")}
                 </span>
               </label>
               <input
@@ -1754,7 +1754,7 @@ export default function EditProject() {
               {t("Cancel")}
             </button>
           </div>
-          {!isCreateMode && (
+          {isViewMode && (
             <button
               type="button"
               onClick={handleOPenButton}

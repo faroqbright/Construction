@@ -35,6 +35,7 @@ import Settings from "../pages/MainPages/Settings/settings";
 import { Bus, Milestone } from "lucide-react";
 import Milestones from "../pages/MainPages/AdditionalMilestone/MileStones";
 import BusinessAreas from "../pages/BusinessArea/BusinessArea";
+import ClientEvaluationId from "../components/LandingPage/Client/ClientEvaluationId";
 
 const App = () => {
   return (
@@ -219,6 +220,17 @@ const App = () => {
                   requiredModules={["EvaluationManagement"]}
                 >
                   <Client />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/client-evaluations/:id"
+              element={
+                <RouteMiddleware
+                  isAuthRequired={true}
+                  requiredModules={["EvaluationManagement"]}
+                >
+                  <ClientEvaluationId />
                 </RouteMiddleware>
               }
             />
