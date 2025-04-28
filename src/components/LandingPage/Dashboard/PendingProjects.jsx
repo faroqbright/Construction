@@ -1157,7 +1157,7 @@ const PendingProjects = () => {
                               openReviewModal();
                             }}
                           >
-                            Write a Review
+                            {t("Write a Review")}
                           </button>
                         </div>
                         <Modal
@@ -1191,7 +1191,7 @@ const PendingProjects = () => {
                               id="review-modal-title"
                               className="flex justify-center text-xl font-semibold text-black-blacknew mb-4"
                             >
-                              Write a Review
+                              {t("Write a Review")}
                             </h2>
 
                             <StarRating
@@ -1199,7 +1199,7 @@ const PendingProjects = () => {
                               onRatingChange={handleRatingChange}
                             />
                             <h4 className="text-xl font-medium text-black-blacknew">
-                              Write a Description
+                              {t("Write a Description")}
                             </h4>
                             <textarea
                               id="review-modal-description"
@@ -1214,13 +1214,13 @@ const PendingProjects = () => {
                                 onClick={handleSubmitReview}
                                 className="px-4 py-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
                               >
-                                Submit Review
+                                {t("Submit Review")}
                               </button>
                               <button
                                 onClick={closeReviewModal}
                                 className="px-4 py-2 mr-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
                               >
-                                Cancel
+                                {t("Cancel")}
                               </button>
                             </div>
                           </Box>
