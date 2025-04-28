@@ -35,10 +35,8 @@ const PendingProjects = () => {
   const navigate = useNavigate();
   const sliderRef = useRef(null);
   const { t } = useTranslation();
-
   const token = useSelector((state) => state.auth.userToken);
   const userId = useSelector((state) => state?.auth?.userInfo?._id);
-
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Avatar, Box, Rating, Typography } from "@mui/material";
+import { Avatar, Box, Rating, Typography, Modal } from "@mui/material";
 import img1 from "../../../assets/Image (1).svg";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
@@ -10,21 +10,102 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { useParams } from "react-router-dom";
+import { FaStar } from "react-icons/fa6";
 
 const ClientEvaluationId = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
-  const [selectedReview, setSelectedReview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [allProjects, setAllProjects] = useState([]);
-
   const { t } = useTranslation();
   const token = useSelector((state) => state.auth.userToken);
   const userName = useSelector((state) => state.auth.userInfo?.userName);
+  const userId = useSelector((state) => state?.auth?.userInfo?._id);
   const { projectId } = useParams();
   const { id } = useParams();
+  console.log("Project id is:", id);
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+
+  const openReviewModal = () => {
+    setIsReviewModalOpen(true);
+  };
+
+  const closeReviewModal = () => {
+    setIsReviewModalOpen(false);
+    setRating(0);
+    setReviewText("");
+  };
+
+  const handleRatingChange = (newRating) => {
+    setRating(newRating);
+  };
+
+  const handleReviewTextChange = (event) => {
+    setReviewText(event.target.value);
+  };
+
+  const handleSubmitReview = async () => {
+    try {
+      const payload = {
+        projectId: selectedProjectId,
+        userId: userId,
+        message: reviewText,
+        rating: rating,
+      };
+
+      const response = await apiRequest("post", "/reviews", payload, token);
+
+      if (response.status === 201) {
+        console.log("Review submitted successfully!");
+        closeReviewModal();
+        fetchReviews(); // Refresh the reviews after submission
+      } else {
+        console.error("Error submitting review:", response.data);
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
+
+  const StarRating = ({ rating, onRatingChange }) => {
+    return (
+      <div className="flex justify-center gap-2 mt-4 mb-6">
+        {[...Array(5)].map((_, index) => {
+          const starValue = index + 1;
+          return (
+            <FaStar
+              key={index}
+              color={starValue <= rating ? "#ffc107" : "#e4e5e9"}
+              onClick={() => onRatingChange(starValue)}
+              style={{
+                cursor: "pointer",
+                width: "24px",
+                height: "24px",
+              }}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 4,
+  };
+
+  console.log("Selected Project", selectedProject);
 
   const fetchReviews = useCallback(async () => {
     if (!id) return;
@@ -39,16 +120,17 @@ const ClientEvaluationId = () => {
       const projectsMap = new Map();
       const formattedReviews = reviewsData.map((review) => {
         const project = review.project || {};
-        const projectKey = project._id || 'default';
+        const projectKey = project._id || "default";
 
         if (!projectsMap.has(projectKey)) {
           projectsMap.set(projectKey, {
             projectId: project._id,
             projectName: project?.projectName || t("Unnamed_Project"),
             projectBanner: project?.projectBanner || [],
-            projectOwners: project?.projectOwners?.map((owner) => ({
-              ownerName: owner.ownerId || t("Unknown_Owner"),
-            })) || [],
+            projectOwners:
+              project?.projectOwners?.map((owner) => ({
+                ownerName: owner.ownerId || t("Unknown_Owner"),
+              })) || [],
           });
         }
 
@@ -72,7 +154,7 @@ const ClientEvaluationId = () => {
 
       let initialProject = null;
       if (projectId) {
-        initialProject = projectsArray.find(p => p.projectId === projectId);
+        initialProject = projectsArray.find((p) => p.projectId === projectId);
       }
       if (!initialProject && projectsArray.length > 0) {
         initialProject = projectsArray[0];
@@ -94,19 +176,6 @@ const ClientEvaluationId = () => {
     fetchReviews();
   }, [fetchReviews]);
 
-  const handleReviewClick = (review) => {
-    const project = allProjects.find(p => p.projectId === review.projectId);
-    if (project) {
-      setSelectedProject(project);
-    }
-    setSelectedReview(review);
-    setIsModalOpen(true);
-  };
-
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
   if (loading) {
     return <div className="p-6 min-h-screen font-raleway">Loading...</div>;
   }
@@ -117,37 +186,58 @@ const ClientEvaluationId = () => {
 
   return (
     <>
-      <div className={`relative ${isModalOpen ? "brightness-50" : ""}`}>
+      <div className={`relative brightness-50" : ""}`}>
         <div className="p-6 min-h-screen font-raleway">
           <div className="bg-white rounded-lg shadow-md overflow-hidden p-6">
-            {/* Project Banner Section */}
             {selectedProject && (
               <div className="mb-8">
                 <Swiper
                   modules={[Navigation]}
                   slidesPerView={1}
                   navigation={{
-                    nextEl: '.custom-next',
-                    prevEl: '.custom-prev',
+                    nextEl: ".custom-next",
+                    prevEl: ".custom-prev",
                   }}
                   className="w-full h-64 relative"
                 >
                   <div className="absolute top-1/2 left-4 z-10 -translate-y-1/2">
                     <button className="custom-prev bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 text-black"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
                       </svg>
                     </button>
                   </div>
-                  
+
                   <div className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                     <button className="custom-next bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 text-black"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
                       </svg>
                     </button>
                   </div>
-                
+
                   {selectedProject.projectBanner.length > 0 ? (
                     selectedProject.projectBanner.map((banner, index) => (
                       <SwiperSlide key={index}>
@@ -174,13 +264,90 @@ const ClientEvaluationId = () => {
                   </h2>
                   <p className="text-gray-600 mt-1">
                     <span className="font-semibold">{t("Project_Owner")}:</span>{" "}
-                    {selectedProject.projectOwners?.[0]?.ownerName || t("Unknown_Owner")}
+                    {selectedProject.projectOwners?.[0]?.ownerName ||
+                      t("Unknown_Owner")}
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Reviews Section */}
+            <div className="flex justify-end items-end">
+              <button
+                className="text-[#54577A] underline"
+                onClick={() => {
+                  setSelectedProjectId(id);
+                  openReviewModal();
+                }}
+              >
+                {t("Write a Review")}
+              </button>
+            </div>
+
+            <Modal
+              open={isReviewModalOpen}
+              onClose={closeReviewModal}
+              aria-labelledby="review-modal-title"
+              aria-describedby="review-modal-description"
+            >
+              <Box
+                sx={{
+                  ...modalStyle,
+                  borderRadius: "16px",
+                  height: "auto",
+                  width: "600px",
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "24px",
+                  position: "relative",
+                }}
+              >
+                <button
+                  onClick={closeReviewModal}
+                  className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl font-bold"
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+
+                <h2
+                  id="review-modal-title"
+                  className="flex justify-center text-xl font-semibold text-black-blacknew mb-4"
+                >
+                  {t("Write a Review")}
+                </h2>
+
+                <StarRating
+                  rating={rating}
+                  onRatingChange={handleRatingChange}
+                />
+                <h4 className="text-xl font-medium text-black-blacknew">
+                  {t("Write a Description")}
+                </h4>
+                <textarea
+                  id="review-modal-description"
+                  className="w-full h-32 p-2 border border-gray-300 rounded-xl mt-4"
+                  placeholder="Your review here"
+                  value={reviewText}
+                  onChange={handleReviewTextChange}
+                ></textarea>
+
+                <div className="flex justify-end mt-8 gap-2">
+                  <button
+                    onClick={handleSubmitReview}
+                    className="px-4 py-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
+                  >
+                    {t("Submit Review")}
+                  </button>
+                  <button
+                    onClick={closeReviewModal}
+                    className="px-4 py-2 mr-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+                  >
+                    {t("Cancel")}
+                  </button>
+                </div>
+              </Box>
+            </Modal>
+
             {reviews.length === 0 ? (
               <Typography variant="body1" className="p-6 text-center">
                 {t("No_Reviews_Available")}
@@ -190,7 +357,6 @@ const ClientEvaluationId = () => {
                 {reviews.map((review, index) => (
                   <Box
                     key={index}
-                    onClick={() => handleReviewClick(review)}
                     className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center mb-4">
@@ -239,59 +405,7 @@ const ClientEvaluationId = () => {
           </div>
         </div>
       </div>
-
-      {isModalOpen && (
-        <ClientModal toggleModal={toggleModal} review={selectedReview} />
-      )}
     </>
-  );
-};
-
-const ClientModal = ({ toggleModal, review }) => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
-      <div className="w-[400px] bg-white rounded-lg shadow-lg p-6 relative max-w-[90vw]">
-        <button
-          onClick={toggleModal}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
-          aria-label={t("Close")}
-        >
-          &times;
-        </button>
-
-        <div className="flex items-center space-x-4">
-          <Avatar
-            src={review?.userId?.avatar || "placeholder.svg"}
-            alt={review?.userId?.name || t("Anonymous")}
-            className="w-12 h-12"
-          />
-          <div>
-            <h2 className="text-lg font-bold">
-              {review?.userId?.name || t("Anonymous")}
-            </h2>
-            <div className="flex items-center">
-              <Rating value={review?.rating || 0} readOnly size="small" />
-              <span className="ml-2 text-sm text-gray-500">
-                ({review?.rating || 0} {t("Stars")})
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <p className="mt-4 text-gray-600 leading-relaxed">
-          {review?.message || t("No_Review_Message")}
-        </p>
-
-        <button
-          onClick={toggleModal}
-          className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition-colors"
-        >
-          {t("Close")}
-        </button>
-      </div>
-    </div>
   );
 };
 

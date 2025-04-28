@@ -36,6 +36,7 @@ import { Bus, Milestone } from "lucide-react";
 import Milestones from "../pages/MainPages/AdditionalMilestone/MileStones";
 import BusinessAreas from "../pages/BusinessArea/BusinessArea";
 import ClientEvaluationId from "../components/LandingPage/Client/ClientEvaluationId";
+import NotificationDetails from "../components/Notifications/NotificationDetails";
 
 const App = () => {
   return (
@@ -209,6 +210,14 @@ const App = () => {
               element={
                 <RouteMiddleware isAuthRequired={true}>
                   <Notifications />
+                </RouteMiddleware>
+              }
+            />
+            <Route
+              path="/notificationDetails"
+              element={
+                <RouteMiddleware isAuthRequired={true}>
+                  <NotificationDetails/>
                 </RouteMiddleware>
               }
             />

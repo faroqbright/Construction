@@ -1,0 +1,153 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Paper,
+  Grid,
+  Divider,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import img1 from "../../assets/Image (1).svg";
+
+const BannerContainer = styled(Box)(({ theme }) => ({
+  position: "relative",
+  width: "100%",
+  height: 300,
+  marginBottom: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
+}));
+
+const BannerImage = styled("img")({
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+});
+
+const BannerOverlay = styled(Box)({
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
+  padding: 24,
+});
+
+const NotificationDetails = () => {
+
+  const notification = {
+    id: "1",
+    title: "New Project Update Available",
+    date: "April 25, 2025",
+    time: "10:30 AM",
+    project: {
+      name: "Digital Marketing Campaign",
+      description:
+        "A comprehensive digital marketing strategy focused on increasing brand awareness and driving customer engagement through multiple channels including social media, email marketing, and content creation.",
+      banner: img1, // Using your existing image
+      owner: "Marketing Team",
+    },
+  };
+
+  return (
+    
+      <Paper
+        elevation={0}
+        sx={{
+          maxWidth: 5000,
+          mx: "auto",
+          borderRadius: 2,
+          overflow: "hidden",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        }}
+      >
+        <Box sx={{ p: 3, display: "flex", alignItems: "center" }}>
+          <Typography variant="h5" fontWeight="bold">
+            Notification Details
+          </Typography>
+        </Box>
+
+        <BannerContainer>
+          <BannerImage
+            src={notification.project.banner}
+            alt={notification.project.name}
+          />
+          <BannerOverlay>
+            <Typography variant="h4" color="white" fontWeight="bold">
+              {notification.project.name}
+            </Typography>
+          </BannerOverlay>
+        </BannerContainer>
+
+        <Box sx={{ p: 3 }}>
+          <Card
+            elevation={0}
+            sx={{ mb: 3, border: "1px solid rgba(0,0,0,0.08)" }}
+          >
+            <CardContent>
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="flex-start"
+              >
+                <Grid item>
+                  <Typography
+                    variant="h6"
+                    fontWeight="medium"
+                    color="text.primary"
+                  >
+                    {notification.title}
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mt: 1,
+                      color: "text.secondary",
+                    }}
+                  >
+                    <CalendarTodayIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                    <Typography variant="body2" sx={{ mr: 2 }}>
+                      {notification.date}
+                    </Typography>
+                    <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                    <Typography variant="body2">{notification.time}</Typography>
+                  </Box>
+                </Grid>
+                <Grid item></Grid>
+              </Grid>
+
+              <Divider sx={{ my: 2 }} />
+
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="medium"
+                  color="text.primary"
+                  gutterBottom
+                >
+                  Project Description
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ lineHeight: 1.6 }}
+                >
+                  {notification.project.description}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+      </Paper>
+
+  );
+};
+
+export default NotificationDetails;

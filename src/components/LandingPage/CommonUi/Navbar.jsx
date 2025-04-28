@@ -28,34 +28,40 @@ function Navbar({ toggleSidebar, isOpen }) {
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      icon: <User
-      className="bg-slate-400 rounded-full px-1 py-2 text-white "
-      size={40}
-    />,
+      icon: (
+        <User
+          className="bg-slate-400 rounded-full px-1 py-2 text-white "
+          size={40}
+        />
+      ),
       title: "New message received",
       description: "You have a new message from John Doe",
-      createdAt: "2 hours ago"
+      createdAt: "2 hours ago",
     },
     {
       id: 2,
-      icon: <User
-      className="bg-slate-400 rounded-full px-1 py-2 text-white "
-      size={40}
-    />,
+      icon: (
+        <User
+          className="bg-slate-400 rounded-full px-1 py-2 text-white "
+          size={40}
+        />
+      ),
       title: "Project update",
       description: "Your project has been approved by the team",
-      createdAt: "1 day ago"
+      createdAt: "1 day ago",
     },
     {
       id: 3,
-      icon: <User
-      className="bg-slate-400 rounded-full px-1 py-2 text-white "
-      size={40}
-    />,
+      icon: (
+        <User
+          className="bg-slate-400 rounded-full px-1 py-2 text-white "
+          size={40}
+        />
+      ),
       title: "Reminder",
       description: "Don't forget about the meeting tomorrow",
-      createdAt: "3 days ago"
-    }
+      createdAt: "3 days ago",
+    },
   ]);
 
   const handleClickOutside = (event) => {
@@ -143,10 +149,10 @@ function Navbar({ toggleSidebar, isOpen }) {
           <div className="flex items-center sm:space-x-4 space-x-2.5">
             <LanguageSwitcher />
             <div className="sm:mr-4 relative">
-              <img 
-                src={noti} 
-                alt="Notification" 
-                className="w-6 h-6 cursor-pointer" 
+              <img
+                src={noti}
+                alt="Notification"
+                className="w-6 h-6 cursor-pointer"
                 onClick={() => toggleDropdown("notification")}
                 ref={notificationDropdownRef}
               />
@@ -188,18 +194,31 @@ function Navbar({ toggleSidebar, isOpen }) {
           <div className="p-4 border-b border-border">
             <h3 className="font-semibold text-lg">Notifications</h3>
           </div>
-          <ul className="max-h-80 overflow-y-auto">
+          <ul
+            className="max-h-80 overflow-y-auto"
+            onClick={() => {
+              navigate("/notificationDetails");
+              setActiveDropdown(null); 
+            }}
+          >
             {notifications.map((notification) => (
-              <li key={notification.id} className="border-b border-border last:border-b-0">
+              <li
+                key={notification.id}
+                className="border-b border-border last:border-b-0"
+              >
                 <div className="p-4 hover:bg-gray-50 cursor-pointer">
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      {notification.icon}
-                    </div>
+                    <div className="flex-shrink-0">{notification.icon}</div>
                     <div className="flex-1 space-y-1">
-                      <h4 className="text-sm font-medium">{notification.title}</h4>
-                      <p className="text-sm text-gray-500">{notification.description}</p>
-                      <p className="text-xs text-gray-400 mt-1">{notification.createdAt}</p>
+                      <h4 className="text-sm font-medium">
+                        {notification.title}
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        {notification.description}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {notification.createdAt}
+                      </p>
                     </div>
                   </div>
                 </div>

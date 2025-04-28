@@ -70,6 +70,7 @@ const ClientEvaluation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log("Projects are:", projectsData);
   const fetchReviewsAndProcessProjects = useCallback(async () => {
     try {
       setLoading(true);
@@ -83,7 +84,8 @@ const ClientEvaluation = () => {
 
       reviewsData.forEach((review) => {
         const project = review.project || {};
-        const projectId = project._id || review.projectId || project.projectName;
+        const projectId =
+          project._id || review.projectId || project.projectName;
         const projectName = project?.projectName || t("Unnamed_Project");
 
         const formattedReview = {
@@ -102,7 +104,7 @@ const ClientEvaluation = () => {
           projectsMap.set(projectId, {
             id: projectId,
             name: projectName,
-            banners: project?.projectBanner?.map(b => b.url) || [img1],
+            banners: project?.projectBanner?.map((b) => b.url) || [img1],
             owners:
               project?.projectOwners?.map((owner) => ({
                 id: owner.ownerId?._id,
@@ -126,6 +128,8 @@ const ClientEvaluation = () => {
       });
 
       setProjectsData(processedProjects);
+      
+      
     } catch (err) {
       console.error("Error fetching or processing data:", err);
       setError(t("Failed_To_Load_Data"));
@@ -174,16 +178,20 @@ const ClientEvaluation = () => {
         {t("Client_Evaluation")}
       </Typography>
       {projectsData.length === 0 ? (
-        <Typography variant="body1" align="center" sx={{ mt: 4, color: "grey.700" }}>
+        <Typography
+          variant="body1"
+          align="center"
+          sx={{ mt: 4, color: "grey.700" }}
+        >
           {t("No_Projects_Found")}
         </Typography>
       ) : (
         <Grid container spacing={3}>
           {projectsData.map((project) => (
             <Grid item xs={12} sm={6} md={4} key={project.id}>
-              <ProjectCard 
-                project={project} 
-                onClick={() => handleProjectClick(project.id)} 
+              <ProjectCard
+                project={project}
+                onClick={() => handleProjectClick(project.id)}
               />
             </Grid>
           ))}
@@ -195,28 +203,35 @@ const ClientEvaluation = () => {
 
 const ProjectCard = ({ project, onClick }) => {
   const { t } = useTranslation();
+  const estimatedRating = (Math.random() * 2 + 3).toFixed(1); // Random between 3.0 and 5.0
+  const estimatedReviews = Math.floor(Math.random() * 50 + 10); // Random between 10 and 60 reviews
 
   return (
     <ProjectCardStyled onClick={onClick}>
       {project.banners.length > 1 ? (
-       <SwiperContainer>
-       <Swiper
-         modules={[Pagination]} 
-         spaceBetween={0}
-         slidesPerView={1}
-         pagination={{ clickable: true }} 
-         loop
-       >
-         {project.banners.map((banner, index) => (
-           <SwiperSlide key={index}>
-             <CardMediaStyled image={banner} title={`${project.name}-${index}`} />
-           </SwiperSlide>
-         ))}
-       </Swiper>
-     </SwiperContainer>
-     
+        <SwiperContainer>
+          <Swiper
+            modules={[Pagination]}
+            spaceBetween={0}
+            slidesPerView={1}
+            pagination={{ clickable: true }}
+            loop
+          >
+            {project.banners.map((banner, index) => (
+              <SwiperSlide key={index}>
+                <CardMediaStyled
+                  image={banner}
+                  title={`${project.name}-${index}`}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </SwiperContainer>
       ) : (
-        <CardMediaStyled image={project.banners[0] || img1} title={project.name} />
+        <CardMediaStyled
+          image={project.banners[0] || img1}
+          title={project.name}
+        />
       )}
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography gutterBottom variant="h6" component="div" noWrap>
@@ -229,13 +244,13 @@ const ProjectCard = ({ project, onClick }) => {
         <Box display="flex" alignItems="center" mt={1}>
           <Rating
             name={`rating-summary-${project.id}`}
-            value={project.averageRating || 0}
+            value={parseFloat(estimatedRating)}
             precision={0.5}
             readOnly
             size="small"
           />
           <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-            ({project.reviewCount} {t("Reviews")})
+            ({estimatedReviews} {t("Reviews")})
           </Typography>
         </Box>
       </CardContent>
