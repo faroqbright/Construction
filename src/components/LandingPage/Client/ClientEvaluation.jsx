@@ -11,6 +11,11 @@ import {
   Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 import img1 from "../../../assets/Image (1).svg";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
@@ -33,6 +38,20 @@ const ProjectCardStyled = styled(Card)(({ theme }) => ({
 const CardMediaStyled = styled(CardMedia)({
   height: 180,
   objectFit: "cover",
+});
+
+const SwiperContainer = styled(Box)({
+  height: 180,
+  width: "100%",
+  "& .swiper-pagination-bullet": {
+    backgroundColor: "#fff !important",
+  },
+  "& .swiper-button-next, .swiper-button-prev": {
+    color: "#fff !important",
+    "&::after": {
+      fontSize: "1.5rem",
+    },
+  },
 });
 
 const calculateAverageRating = (reviews) => {
@@ -83,7 +102,7 @@ const ClientEvaluation = () => {
           projectsMap.set(projectId, {
             id: projectId,
             name: projectName,
-            banner: project?.projectBanner?.[0]?.url || img1,
+            banners: project?.projectBanner?.map(b => b.url) || [img1],
             owners:
               project?.projectOwners?.map((owner) => ({
                 id: owner.ownerId?._id,
@@ -179,7 +198,26 @@ const ProjectCard = ({ project, onClick }) => {
 
   return (
     <ProjectCardStyled onClick={onClick}>
-      <CardMediaStyled image={project.banner || img1} title={project.name} />
+      {project.banners.length > 1 ? (
+       <SwiperContainer>
+       <Swiper
+         modules={[Pagination]} 
+         spaceBetween={0}
+         slidesPerView={1}
+         pagination={{ clickable: true }} 
+         loop
+       >
+         {project.banners.map((banner, index) => (
+           <SwiperSlide key={index}>
+             <CardMediaStyled image={banner} title={`${project.name}-${index}`} />
+           </SwiperSlide>
+         ))}
+       </Swiper>
+     </SwiperContainer>
+     
+      ) : (
+        <CardMediaStyled image={project.banners[0] || img1} title={project.name} />
+      )}
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography gutterBottom variant="h6" component="div" noWrap>
           {project.name}

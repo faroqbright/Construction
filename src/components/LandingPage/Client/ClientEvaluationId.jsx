@@ -70,7 +70,6 @@ const ClientEvaluationId = () => {
       const projectsArray = Array.from(projectsMap.values());
       setAllProjects(projectsArray);
 
-      // Set initial selected project
       let initialProject = null;
       if (projectId) {
         initialProject = projectsArray.find(p => p.projectId === projectId);
