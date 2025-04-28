@@ -108,7 +108,7 @@ export default function SubmitFinance() {
 
   useEffect(() => {
     const filtered = projects.filter((project) =>
-      project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
+      project.projectName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     if (searchTerm === "") {

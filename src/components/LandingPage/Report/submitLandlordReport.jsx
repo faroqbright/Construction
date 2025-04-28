@@ -42,7 +42,7 @@ const SubmitReport = () => {
 
   useEffect(() => {
     const filtered = projects.filter((project) =>
-      project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
+      project.projectName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   
     // Show only 6 projects initially, unless the user is searching
