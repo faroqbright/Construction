@@ -18,23 +18,40 @@ const ClientEvaluationId = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [allProjects, setAllProjects] = useState([]);
 
   const { t } = useTranslation();
   const token = useSelector((state) => state.auth.userToken);
   const userName = useSelector((state) => state.auth.userInfo?.userName);
   const { projectId } = useParams();
+  const { id } = useParams();
 
   const fetchReviews = useCallback(async () => {
+    if (!id) return;
     try {
       setLoading(true);
       setError(null);
-      const response = await apiRequest("get", `/reviews`, {}, token);
+      const response = await apiRequest("get", `/reviews/${id}`, {}, token);
       const reviewsData = Array.isArray(response?.data?.data)
         ? response.data.data
         : [];
 
+      const projectsMap = new Map();
       const formattedReviews = reviewsData.map((review) => {
         const project = review.project || {};
+        const projectKey = project._id || 'default';
+
+        if (!projectsMap.has(projectKey)) {
+          projectsMap.set(projectKey, {
+            projectId: project._id,
+            projectName: project?.projectName || t("Unnamed_Project"),
+            projectBanner: project?.projectBanner || [],
+            projectOwners: project?.projectOwners?.map((owner) => ({
+              ownerName: owner.ownerId || t("Unknown_Owner"),
+            })) || [],
+          });
+        }
+
         return {
           _id: review._id,
           userId: {
@@ -42,54 +59,52 @@ const ClientEvaluationId = () => {
             name: userName,
             avatar: null,
           },
-          projectId: project._id, // Make sure to include projectId
+          projectId: project._id,
           projectName: project?.projectName || t("Unnamed_Project"),
-          projectBanner: project?.projectBanner || [],
-          projectOwners:
-            project?.projectOwners?.map((owner) => ({
-              ownerName: owner.ownerId || t("Unknown_Owner"),
-            })) || [],
           message: review.message,
           rating: review.rating,
           createdAt: review.createdAt,
         };
       });
 
-      // Find the project matching the projectId from URL params
-      const matchingProjectReview = formattedReviews.find(
-        (r) => r.projectId === projectId
-      );
+      const projectsArray = Array.from(projectsMap.values());
+      setAllProjects(projectsArray);
 
-      if (matchingProjectReview) {
-        setSelectedProject({
-          projectId: matchingProjectReview.projectId,
-          projectName: matchingProjectReview.projectName,
-          projectBanner: matchingProjectReview.projectBanner,
-          projectOwners: matchingProjectReview.projectOwners,
-        });
+      // Set initial selected project
+      let initialProject = null;
+      if (projectId) {
+        initialProject = projectsArray.find(p => p.projectId === projectId);
       }
+      if (!initialProject && projectsArray.length > 0) {
+        initialProject = projectsArray[0];
+      }
+      setSelectedProject(initialProject);
 
-      // Filter reviews to only include those for the matching project
-      const filteredReviews = formattedReviews.filter(
-        (r) => r.projectId === projectId
-      );
-
-      setReviews(filteredReviews);
+      setReviews(formattedReviews);
     } catch (error) {
       console.error("Error fetching reviews:", error);
       setError("Failed to load reviews");
       setReviews([]);
+      setAllProjects([]);
     } finally {
       setLoading(false);
     }
-  }, [token, t, userName, projectId]);
+  }, [token, t, userName, projectId, id]);
 
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
 
-  const toggleModal = (review = null) => {
+  const handleReviewClick = (review) => {
+    const project = allProjects.find(p => p.projectId === review.projectId);
+    if (project) {
+      setSelectedProject(project);
+    }
     setSelectedReview(review);
+    setIsModalOpen(true);
+  };
+
+  const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
 
@@ -106,50 +121,64 @@ const ClientEvaluationId = () => {
       <div className={`relative ${isModalOpen ? "brightness-50" : ""}`}>
         <div className="p-6 min-h-screen font-raleway">
           <div className="bg-white rounded-lg shadow-md overflow-hidden p-6">
-            {/* Project Slider - Only show if we have a matching project */}
+            {/* Project Banner Section */}
             {selectedProject && (
-              <Swiper
-                modules={[Navigation]}
-                slidesPerView={1}
-                navigation={{
-                  nextEl: '.custom-next',
-                  prevEl: '.custom-prev',
-                }}
-                className="w-full h-64 relative"
-              >
-                <div className="absolute top-1/2 left-4 z-10 -translate-y-1/2">
-                  <button className="custom-prev bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                </div>
-                
-                <div className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
-                  <button className="custom-next bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              
-                <SwiperSlide>
-                  <img
-                    src={selectedProject.projectBanner?.[0]?.url || img1}
-                    alt="Project"
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      {selectedProject.projectName}
-                    </h2>
-                    <p className="text-gray-600 mt-1">
-                      <span className="font-semibold">{t("Project_Owner")}:</span>{" "}
-                      {selectedProject.projectOwners?.[0]?.ownerName || t("Unknown_Owner")}
-                    </p>
+              <div className="mb-8">
+                <Swiper
+                  modules={[Navigation]}
+                  slidesPerView={1}
+                  navigation={{
+                    nextEl: '.custom-next',
+                    prevEl: '.custom-prev',
+                  }}
+                  className="w-full h-64 relative"
+                >
+                  <div className="absolute top-1/2 left-4 z-10 -translate-y-1/2">
+                    <button className="custom-prev bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
                   </div>
-                </SwiperSlide>
-              </Swiper>
+                  
+                  <div className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
+                    <button className="custom-next bg-white rounded-full h-10 w-10 flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                
+                  {selectedProject.projectBanner.length > 0 ? (
+                    selectedProject.projectBanner.map((banner, index) => (
+                      <SwiperSlide key={index}>
+                        <img
+                          src={banner.url || img1}
+                          alt={`Project Banner ${index + 1}`}
+                          className="w-full h-64 object-cover"
+                        />
+                      </SwiperSlide>
+                    ))
+                  ) : (
+                    <SwiperSlide>
+                      <img
+                        src={img1}
+                        alt="Default Project Banner"
+                        className="w-full h-64 object-cover"
+                      />
+                    </SwiperSlide>
+                  )}
+                </Swiper>
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {selectedProject.projectName}
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    <span className="font-semibold">{t("Project_Owner")}:</span>{" "}
+                    {selectedProject.projectOwners?.[0]?.ownerName || t("Unknown_Owner")}
+                  </p>
+                </div>
+              </div>
             )}
 
             {/* Reviews Section */}
@@ -162,7 +191,7 @@ const ClientEvaluationId = () => {
                 {reviews.map((review, index) => (
                   <Box
                     key={index}
-                    onClick={() => toggleModal(review)}
+                    onClick={() => handleReviewClick(review)}
                     className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center mb-4">
