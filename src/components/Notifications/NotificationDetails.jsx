@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Box,
   Typography,
@@ -14,6 +13,8 @@ import { styled } from "@mui/material/styles";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import img1 from "../../assets/Image (1).svg";
+import "../../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const BannerContainer = styled(Box)(({ theme }) => ({
   position: "relative",
@@ -41,17 +42,18 @@ const BannerOverlay = styled(Box)({
 
 const NotificationDetails = () => {
 
+  const { t } = useTranslation();
   const notification = {
     id: "1",
-    title: "New Project Update Available",
+    title: t("New Project Update Available"),
     date: "April 25, 2025",
     time: "10:30 AM",
     project: {
-      name: "Digital Marketing Campaign",
+      name: t("Digital Marketing Campaign"),
       description:
-        "A comprehensive digital marketing strategy focused on increasing brand awareness and driving customer engagement through multiple channels including social media, email marketing, and content creation.",
+        t("A comprehensive digital marketing strategy focused on increasing brand awareness and driving customer engagement through multiple channels including social media, email marketing, and content creation."),
       banner: img1, // Using your existing image
-      owner: "Marketing Team",
+      owner: t("Marketing Team"),
     },
   };
 
@@ -69,7 +71,7 @@ const NotificationDetails = () => {
       >
         <Box sx={{ p: 3, display: "flex", alignItems: "center" }}>
           <Typography variant="h5" fontWeight="bold">
-            Notification Details
+            {t("Notification Details")}
           </Typography>
         </Box>
 
@@ -132,7 +134,7 @@ const NotificationDetails = () => {
                   color="text.primary"
                   gutterBottom
                 >
-                  Project Description
+                  {t("Project Description")}
                 </Typography>
                 <Typography
                   variant="body1"

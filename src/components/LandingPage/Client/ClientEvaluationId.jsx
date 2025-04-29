@@ -70,7 +70,7 @@ const ClientEvaluationId = () => {
     } catch (error) {
       console.error("Error submitting review:", error);
     }
-  };
+  };  
 
   const StarRating = ({ rating, onRatingChange }) => {
     return (
@@ -129,7 +129,7 @@ const ClientEvaluationId = () => {
             projectBanner: project?.projectBanner || [],
             projectOwners:
               project?.projectOwners?.map((owner) => ({
-                ownerName: owner.ownerId || t("Unknown_Owner"),
+                ownerName: owner.ownerName || t("Unknown_Owner"),
               })) || [],
           });
         }
