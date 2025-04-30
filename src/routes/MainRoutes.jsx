@@ -214,7 +214,7 @@ const App = () => {
               }
             />
             <Route
-              path="/notificationDetails"
+              path="/notificationDetails/:id"
               element={
                 <RouteMiddleware isAuthRequired={true}>
                   <NotificationDetails/>

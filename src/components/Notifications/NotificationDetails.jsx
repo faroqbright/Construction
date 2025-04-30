@@ -8,13 +8,16 @@ import {
   Paper,
   Grid,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import img1 from "../../assets/Image (1).svg";
-import "../../utils/i18n";
-import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; // or from "react-router-dom"
+import apiRequest from "../../utils/apiRequest"; // adapt this path to your project
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const BannerContainer = styled(Box)(({ theme }) => ({
   position: "relative",
@@ -41,114 +44,146 @@ const BannerOverlay = styled(Box)({
 });
 
 const NotificationDetails = () => {
+  const { id } = useParams(); // assumes dynamic route: /notification/[id]
+  const [notification, setNotification] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const token = useSelector((state) => state?.auth?.userToken);
 
-  const { t } = useTranslation();
-  const notification = {
-    id: "1",
-    title: t("New Project Update Available"),
-    date: "April 25, 2025",
-    time: "10:30 AM",
-    project: {
-      name: t("Digital Marketing Campaign"),
-      description:
-        t("A comprehensive digital marketing strategy focused on increasing brand awareness and driving customer engagement through multiple channels including social media, email marketing, and content creation."),
-      banner: img1, // Using your existing image
-      owner: t("Marketing Team"),
-    },
+  useEffect(() => {
+    if (id) {
+      fetchNotification(id);
+    }
+  }, [id]);
+
+  const fetchNotification = async (id) => {
+    try {
+      const response = await apiRequest(
+        "get",
+        `/shownotifications/${id}`,
+        {},
+        token
+      );
+      if (response.data?.success) {
+        setNotification(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching notification:", error);
+      toast.error("Failed to load notification details");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" mt={10}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!notification) {
+    return (
+      <Box textAlign="center" mt={10}>
+        <Typography variant="h6" color="error">
+          Notification not found.
+        </Typography>
+      </Box>
+    );
+  }
+
+  const { title, createdAt, description, projectDetails } = notification;
+
+  const bannerUrl = projectDetails?.banner?.[0]?.url ?? "/defaultBanner.jpg";
+
   return (
-    
-      <Paper
-        elevation={0}
-        sx={{
-          maxWidth: 5000,
-          mx: "auto",
-          borderRadius: 2,
-          overflow: "hidden",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-        }}
-      >
-        <Box sx={{ p: 3, display: "flex", alignItems: "center" }}>
-          <Typography variant="h5" fontWeight="bold">
-            {t("Notification Details")}
+    <Paper
+      elevation={0}
+      sx={{
+        maxWidth: 5000,
+        mx: "auto",
+        borderRadius: 2,
+        overflow: "hidden",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+      }}
+    >
+      <Box sx={{ p: 3, display: "flex", alignItems: "center" }}>
+        <Typography variant="h5" fontWeight="bold">
+          Notification Details
+        </Typography>
+      </Box>
+
+      <BannerContainer>
+        <BannerImage src={bannerUrl} alt={projectDetails?.name || "Project"} />
+        <BannerOverlay>
+          <Typography variant="h4" color="white" fontWeight="bold">
+            {projectDetails?.name}
           </Typography>
-        </Box>
+        </BannerOverlay>
+      </BannerContainer>
 
-        <BannerContainer>
-          <BannerImage
-            src={notification.project.banner}
-            alt={notification.project.name}
-          />
-          <BannerOverlay>
-            <Typography variant="h4" color="white" fontWeight="bold">
-              {notification.project.name}
-            </Typography>
-          </BannerOverlay>
-        </BannerContainer>
-
-        <Box sx={{ p: 3 }}>
-          <Card
-            elevation={0}
-            sx={{ mb: 3, border: "1px solid rgba(0,0,0,0.08)" }}
-          >
-            <CardContent>
-              <Grid
-                container
-                justifyContent="space-between"
-                alignItems="flex-start"
-              >
-                <Grid item>
-                  <Typography
-                    variant="h6"
-                    fontWeight="medium"
-                    color="text.primary"
-                  >
-                    {notification.title}
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      mt: 1,
-                      color: "text.secondary",
-                    }}
-                  >
-                    <CalendarTodayIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                    <Typography variant="body2" sx={{ mr: 2 }}>
-                      {notification.date}
-                    </Typography>
-                    <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                    <Typography variant="body2">{notification.time}</Typography>
-                  </Box>
-                </Grid>
-                <Grid item></Grid>
-              </Grid>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box>
+      <Box sx={{ p: 3 }}>
+        <Card
+          elevation={0}
+          sx={{ mb: 3, border: "1px solid rgba(0,0,0,0.08)" }}
+        >
+          <CardContent>
+            <Grid
+              container
+              justifyContent="space-between"
+              alignItems="flex-start"
+            >
+              <Grid item>
                 <Typography
-                  variant="subtitle1"
+                  variant="h6"
                   fontWeight="medium"
                   color="text.primary"
-                  gutterBottom
                 >
-                  {t("Project Description")}
+                  {title}
                 </Typography>
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ lineHeight: 1.6 }}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    mt: 1,
+                    color: "text.secondary",
+                  }}
                 >
-                  {notification.project.description}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
-      </Paper>
+                  <CalendarTodayIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                  <Typography variant="body2" sx={{ mr: 2 }}>
+                    {new Date(createdAt).toLocaleDateString()}
+                  </Typography>
+                  <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                  <Typography variant="body2">
+                    {new Date(createdAt).toLocaleTimeString()}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
 
+            <Divider sx={{ my: 2 }} />
+
+            <Box>
+              <Typography
+                variant="subtitle1"
+                fontWeight="medium"
+                color="text.primary"
+                gutterBottom
+              >
+                Description
+              </Typography>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{ lineHeight: 1.6 }}
+              >
+                {description}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    </Paper>
   );
 };
 

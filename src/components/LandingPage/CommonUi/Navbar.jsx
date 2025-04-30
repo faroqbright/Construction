@@ -18,51 +18,63 @@ function Navbar({ toggleSidebar, isOpen }) {
   const token = useSelector((state) => state?.auth?.userToken);
   const name = useSelector((state) => state?.auth?.userInfo?.userName);
   const profileimg = useSelector((state) => state?.auth?.userInfo?.avatar);
+  const userId = useSelector((state) => state?.auth?.userInfo?._id);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const profileDropdownRef = useRef(null);
   const notificationDropdownRef = useRef(null);
 
-  // Sample notification data
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      icon: (
-        <User
-          className="bg-slate-400 rounded-full px-1 py-2 text-white "
-          size={40}
-        />
-      ),
-      title: "New message received",
-      description: "You have a new message from John Doe",
-      createdAt: "2 hours ago",
-    },
-    {
-      id: 2,
-      icon: (
-        <User
-          className="bg-slate-400 rounded-full px-1 py-2 text-white "
-          size={40}
-        />
-      ),
-      title: "Project update",
-      description: "Your project has been approved by the team",
-      createdAt: "1 day ago",
-    },
-    {
-      id: 3,
-      icon: (
-        <User
-          className="bg-slate-400 rounded-full px-1 py-2 text-white "
-          size={40}
-        />
-      ),
-      title: "Reminder",
-      description: "Don't forget about the meeting tomorrow",
-      createdAt: "3 days ago",
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchNotifications = async (isInitial = false) => {
+    if (!userId) return;
+
+    if (isInitial) setLoading(true); // only show loading on first fetch
+
+    try {
+      const response = await apiRequest("get", "/shownotifications", {}, token);
+      if (response.data?.success && response.data?.data) {
+        const filteredNotifications = response.data.data.filter(
+          (notification) =>
+            notification.memberId === userId ||
+            notification.projectId === userId ||
+            notification._id === userId
+        );
+
+        const transformedNotifications = filteredNotifications.map(
+          (notification) => ({
+            id: notification._id,
+            icon: (
+              <User
+                className="bg-slate-400 rounded-full px-1 py-2 text-white"
+                size={40}
+              />
+            ),
+            title: notification.title,
+            description: notification.description,
+            createdAt: new Date(notification.createdAt).toLocaleString(),
+            isRead: notification.isRead,
+          })
+        );
+
+        // Add new ones on top and avoid duplicates
+        setNotifications((prev) => {
+          const existingIds = new Set(prev.map((n) => n.id));
+          const newOnes = transformedNotifications.filter(
+            (n) => !existingIds.has(n.id)
+          );
+          return [...newOnes, ...prev];
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      toast.error("Failed to load notifications");
+    } finally {
+      if (isInitial) setLoading(false);
+    }
+  };
 
   const handleClickOutside = (event) => {
     if (
@@ -82,7 +94,22 @@ function Navbar({ toggleSidebar, isOpen }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!userId) return;
+
+    fetchNotifications(true);
+
+    const interval = setInterval(() => {
+      fetchNotifications();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [userId]);
+
   const toggleDropdown = (dropdown) => {
+    if (dropdown === "notification" && activeDropdown !== "notification") {
+      fetchNotifications();
+    }
     setActiveDropdown((prev) => (prev === dropdown ? null : dropdown));
   };
 
@@ -156,6 +183,12 @@ function Navbar({ toggleSidebar, isOpen }) {
                 onClick={() => toggleDropdown("notification")}
                 ref={notificationDropdownRef}
               />
+              {/* Notification badge */}
+              {notifications.some((n) => !n.isRead) && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {notifications.filter((n) => !n.isRead).length}
+                </span>
+              )}
             </div>
             <div className="cursor-pointer">
               {profileimg ? (
@@ -192,43 +225,56 @@ function Navbar({ toggleSidebar, isOpen }) {
           ref={notificationDropdownRef}
         >
           <div className="p-4 border-b border-border">
-            <h3 className="font-semibold text-lg">Notifications</h3>
+            <h3 className="font-semibold text-lg">{t("Notifications")}</h3>
           </div>
-          <ul
-            className="max-h-80 overflow-y-auto"
-            onClick={() => {
-              navigate("/notificationDetails");
-              setActiveDropdown(null); 
-            }}
-          >
-            {notifications.map((notification) => (
-              <li
-                key={notification.id}
-                className="border-b border-border last:border-b-0"
-              >
-                <div className="p-4 hover:bg-gray-50 cursor-pointer">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">{notification.icon}</div>
-                    <div className="flex-1 space-y-1">
-                      <h4 className="text-sm font-medium">
-                        {notification.title}
-                      </h4>
-                      <p className="text-sm text-gray-500">
-                        {notification.description}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {notification.createdAt}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {notifications.length === 0 && (
-            <div className="p-4 text-center text-gray-500">
-              No notifications available
+          {loading ? (
+            <div className="p-4 text-center">
+              <p>Loading notifications...</p>
             </div>
+          ) : (
+            <>
+              <ul className="max-h-80 overflow-y-auto">
+                {notifications.map((notification) => (
+                  <li
+                    key={notification.id}
+                    className={`border-b border-border last:border-b-0 ${
+                      !notification.isRead ? "bg-blue-50" : ""
+                    }`}
+                    onClick={() => {
+                      navigate(`/notificationDetails/${notification.id}`, {
+                        state: { notification },
+                      });
+                      setActiveDropdown(null);
+                    }}
+                  >
+                    <div className="p-4 hover:bg-gray-50 cursor-pointer">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">{notification.icon}</div>
+                        <div className="flex-1 space-y-1">
+                          <h4 className="text-sm font-medium">
+                            {notification.title}
+                          </h4>
+                          <p className="text-sm text-gray-500">
+                            {notification.description}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {notification.createdAt}
+                          </p>
+                        </div>
+                        {!notification.isRead && (
+                          <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {notifications.length === 0 && (
+                <div className="p-4 text-center text-gray-500">
+                  {t("No notifications available")}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
