@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { FiSettings, FiLogOut } from "react-icons/fi";
 import { HiMenuAlt3 } from "react-icons/hi";
 import noti from "../../../assets/notif.svg";
-import profile from "../../../assets/Profil.svg";
 import apiRequest from "../../../utils/apiRequest";
 import { removeUserInfo } from "../../../features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,7 +30,7 @@ function Navbar({ toggleSidebar, isOpen }) {
   const fetchNotifications = async (isInitial = false) => {
     if (!userId) return;
 
-    if (isInitial) setLoading(true); // only show loading on first fetch
+    if (isInitial) setLoading(true); 
 
     try {
       const response = await apiRequest("get", "/shownotifications", {}, token);
@@ -219,7 +218,7 @@ function Navbar({ toggleSidebar, isOpen }) {
       {/* Notification Dropdown */}
       {activeDropdown === "notification" && (
         <div
-          className={`absolute top-[70px] w-96 ${
+          className={`absolute top-[60px] w-96 ${
             isOpen ? "right-56" : "right-24"
           } bg-white shadow-lg rounded-lg border border-border z-50`}
           ref={notificationDropdownRef}

@@ -14,8 +14,8 @@ import { styled } from "@mui/material/styles";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // or from "react-router-dom"
-import apiRequest from "../../utils/apiRequest"; // adapt this path to your project
+import { useParams } from "react-router-dom";
+import apiRequest from "../../utils/apiRequest";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 
@@ -44,7 +44,7 @@ const BannerOverlay = styled(Box)({
 });
 
 const NotificationDetails = () => {
-  const { id } = useParams(); // assumes dynamic route: /notification/[id]
+  const { id } = useParams();
   const [notification, setNotification] = useState(null);
   const [loading, setLoading] = useState(true);
   const token = useSelector((state) => state?.auth?.userToken);
@@ -52,6 +52,7 @@ const NotificationDetails = () => {
   useEffect(() => {
     if (id) {
       fetchNotification(id);
+      markAsRead(id);
     }
   }, [id]);
 
@@ -74,6 +75,20 @@ const NotificationDetails = () => {
     }
   };
 
+  const markAsRead = async (id) => {
+    try {
+      await apiRequest(
+        "patch",
+        `/shownotifications/${id}`,
+        { isRead: true },
+        token
+      );
+      setNotification((prev) => (prev ? { ...prev, isRead: true } : null));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" mt={10}>
@@ -92,7 +107,8 @@ const NotificationDetails = () => {
     );
   }
 
-  const { title, createdAt, description, projectDetails } = notification;
+  const { title, createdAt, description, projectDetails, isRead } =
+    notification;
 
   const bannerUrl = projectDetails?.banner?.[0]?.url ?? "/defaultBanner.jpg";
 
@@ -125,7 +141,25 @@ const NotificationDetails = () => {
       <Box sx={{ p: 3 }}>
         <Card
           elevation={0}
-          sx={{ mb: 3, border: "1px solid rgba(0,0,0,0.08)" }}
+          sx={{
+            mb: 3,
+            border: "1px solid rgba(0,0,0,0.08)",
+            backgroundColor: isRead ? "white" : "background.paper",
+            position: "relative",
+            "&::before": !isRead
+              ? {
+                  content: '""',
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 4,
+                  backgroundColor: "primary.main",
+                  borderTopLeftRadius: 4,
+                  borderBottomLeftRadius: 4,
+                }
+              : {},
+          }}
         >
           <CardContent>
             <Grid

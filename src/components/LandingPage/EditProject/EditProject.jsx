@@ -273,8 +273,8 @@ export default function EditProject() {
       formData.deadline.endsWith(" - ") ||
       formData.deadline.startsWith(" - ")
     )
-    if (formData.deadline)
-      toast.error("Please select both the Start Date and End Date.");
+      if (formData.deadline)
+        toast.error("Please select both the Start Date and End Date.");
     // return;
     // if (!formData.deadline || !formData.deadline.includes(" - ")) {
     //   toast.error("Please select both the Start Date and End Date.");
@@ -344,9 +344,9 @@ export default function EditProject() {
       if (formData.description !== initialValues.description) {
         updatedFields.description = formData.description;
       }
-      if (formData.location !== initialValues.location) {
-        updatedFields.location = formData.location;
-      }
+      // if (formData.location !== initialValues.location) {
+      //   updatedFields.location = formData.location;
+      // }
       if (SelectedbusinessArea !== initialValues.businessArea) {
         updatedFields.businessAreas = SelectedbusinessArea;
       }
@@ -979,14 +979,17 @@ export default function EditProject() {
           </label>
           <Controller
             name="location"
-            disabled={isViewMode}
-            rules={{ required: "Location is required" }}
             control={control}
+            rules={{ required: "Location is required" }}
             render={({ field }) => (
               <input
                 {...field}
                 type="text"
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                onChange={(e) => {
+                  // Ensure we're only setting a string value
+                  field.onChange(e.target.value);
+                }}
               />
             )}
           />

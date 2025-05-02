@@ -70,6 +70,7 @@ const ClientEvaluation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log("Projects are:", projectsData);
   const fetchReviewsAndProcessProjects = useCallback(async () => {
     try {
       setLoading(true);
@@ -85,6 +86,7 @@ const ClientEvaluation = () => {
         const project = review.project || {};
         const projectId =
           project._id || review.projectId || project.projectName;
+          if (!projectId) return;
         const projectName = project?.projectName || t("Unnamed_Project");
 
         const formattedReview = {
@@ -127,8 +129,6 @@ const ClientEvaluation = () => {
       });
 
       setProjectsData(processedProjects);
-      
-      
     } catch (err) {
       console.error("Error fetching or processing data:", err);
       setError(t("Failed_To_Load_Data"));
