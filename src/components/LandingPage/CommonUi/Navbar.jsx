@@ -18,11 +18,12 @@ function Navbar({ toggleSidebar, isOpen }) {
   const name = useSelector((state) => state?.auth?.userInfo?.userName);
   const profileimg = useSelector((state) => state?.auth?.userInfo?.avatar);
   const userId = useSelector((state) => state?.auth?.userInfo?._id);
+  const memberId = useSelector((state) => state?.auth?.userInfo?._id);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const profileDropdownRef = useRef(null);
-  const notificationDropdownRef = useRef(null);
+  const notificationDropdownRef = useRef(null); 
 
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ function Navbar({ toggleSidebar, isOpen }) {
   const fetchNotifications = async (isInitial = false) => {
     if (!userId) return;
 
-    if (isInitial) setLoading(true); 
+    if (isInitial) setLoading(true);
 
     try {
       const response = await apiRequest("get", "/shownotifications", {}, token);
@@ -72,6 +73,27 @@ function Navbar({ toggleSidebar, isOpen }) {
       toast.error("Failed to load notifications");
     } finally {
       if (isInitial) setLoading(false);
+    }
+  };
+
+  const handleDeleteNotifications = async () => {
+    try {
+      const response = await apiRequest(
+        "delete",
+        `/shownotifications/${memberId}`,
+        {},
+        token
+      );
+
+      if (response.data?.success) {
+        toast.success("Notifications cleared successfully.");
+        setNotifications([]); // Clear local state
+      } else {
+        toast.error("Failed to clear notifications.");
+      }
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+      toast.error("Something went wrong.");
     }
   };
 
@@ -223,8 +245,16 @@ function Navbar({ toggleSidebar, isOpen }) {
           } bg-white shadow-lg rounded-lg border border-border z-50`}
           ref={notificationDropdownRef}
         >
-          <div className="p-4 border-b border-border">
-            <h3 className="font-semibold text-lg">{t("Notifications")}</h3>
+          <div className="flex justify-between">
+            <div className="p-4 border-b border-border">
+              <h3 className="font-semibold text-lg">{t("Notifications")}</h3>
+            </div>
+            <button
+              onClick={handleDeleteNotifications}
+              className="font-semibold text-base pr-4 text-red-500 underline"
+            >
+              {t("Clear")}
+            </button>
           </div>
           {loading ? (
             <div className="p-4 text-center">

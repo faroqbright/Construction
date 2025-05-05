@@ -12,6 +12,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 import { RiCloseLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
@@ -33,6 +34,8 @@ export default function UsersTable() {
   const [usersPerPage] = useState(10);
   const [roleSearchTerm, setRoleSearchTerm] = useState("");
   const [roleSearchTermEdit, setRoleSearchTermEdit] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const modalRef = useRef(null);
   const { clickedItem, setClickedItem } = useSideBar();
 
@@ -240,7 +243,7 @@ export default function UsersTable() {
             + {t("Create_New_User")}
           </Button>
         ) : null}
-        
+
         {/* Add User Modal */}
         <Modal open={openUser} onClose={handleCloseUser}>
           <Box
@@ -299,9 +302,24 @@ export default function UsersTable() {
               <TextField
                 name="password"
                 label={t("Password")}
+                type={showPassword ? "text" : "password"}
                 variant="outlined"
                 fullWidth
                 required
+                InputProps={{
+                  endAdornment: (
+                    <IconButton
+                      onClick={togglePasswordVisibility}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      style={{ color: "#DC2626" }}
+                      edge="end"
+                    >
+                      {showPassword ? <IoEye /> : <IoEyeOff />}
+                    </IconButton>
+                  ),
+                }}
               />
               <Autocomplete
                 options={filteredRoles}
@@ -310,6 +328,7 @@ export default function UsersTable() {
                 onChange={(event, newValue) => {
                   setCurrentUser((prev) => ({
                     ...prev,
+
                     role: newValue?._id || "",
                   }));
                 }}

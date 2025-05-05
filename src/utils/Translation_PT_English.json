@@ -76,7 +76,7 @@
   "Payment": "Payment",
   "Review": "Review",
   "Previos": "Previos",
-  "View": "View",
+  "view": "View",
   "Enter_Role_Name": "Enter role name",
   "No_Role_Available": "No roles available",
   "Add_New_Client": "Add New Client",
@@ -152,10 +152,11 @@
   "Add_New_Role": "Add New Role",
   "Name": "Name",
   "Manage_Access": "Manage Access",
-  "Can_Add": "Can Add",
-  "Can_Delete": "Can Delete",
-  "Can_Edit": "Can Edit",
-  "Can_View": "Can View",
+  "Can_add": "Can Add",
+  "Can_delete": "Can Delete",
+  "Can_edit": "Can Edit",
+  "Can_view": "Can View",
+  "Can": "Can",
   "Save": "Save",
   "Add": "Add",
   "add": "Add",
@@ -324,5 +325,6 @@
   "Notification Details": "Notification Details",
   "Project Description": "Project Description",
   "No notifications available": "No notifications available",
-  "Project_Successfully_Deleted": "Project Successfully Deleted"
+  "Project_Successfully_Deleted": "Project Successfully Deleted",
+  "Clear": "Clear"
 }

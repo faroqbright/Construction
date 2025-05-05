@@ -176,10 +176,10 @@
     "Add_New_Role": "Adicionar Nova Função",
     "Name": "Nome",
     "Manage_Access": "Gerir Acesso",
-    "Can_Add": "Pode Adicionar",
-    "Can_Delete": "Pode Eliminar",
-    "Can_Edit": "Pode Editar",
-    "Can_View": "Pode Visualizar",
+    "Can_add": "Pode Adicionar",
+    "Can_delete": "Pode Eliminar",
+    "Can_edit": "Pode Editar",
+    "Can_view": "Pode Visualizar",
     "Can": "Pode",
     "Add": "Adicionar",
     "add": "Adicionar",
@@ -328,5 +328,5 @@
     "Notification Details": "Detalhes da notificação",
     "Project Description": "Descrição do projeto",
     "No notifications available": "Nenhuma notificação disponível",
-    "Project_Successfully_Deleted": ""
+    "Clear": "Claro"
 }
