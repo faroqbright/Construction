@@ -332,8 +332,9 @@ const ProjectDetails = () => {
             token
           );
           toast.success("Execution updated successfully.");
-        } catch (error) {
-          toast.error("Error updating finance execution.");
+        }
+         catch (error) {
+          // toast.error("Error updating finance execution.");
         }
       }
     }, 500);
