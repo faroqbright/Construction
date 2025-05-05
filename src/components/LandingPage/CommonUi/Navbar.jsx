@@ -46,19 +46,13 @@ function Navbar({ toggleSidebar, isOpen }) {
         const transformedNotifications = filteredNotifications.map(
           (notification) => ({
             id: notification._id,
-            icon: (
-              <User
-                className="bg-slate-400 rounded-full px-1 py-2 text-white"
-                size={40}
-              />
-            ),
+            iconType: 'user', // Instead of storing the element, store a type or identifier
             title: notification.title,
             description: notification.description,
             createdAt: new Date(notification.createdAt).toLocaleString(),
             isRead: notification.isRead,
           })
         );
-
         // Add new ones on top and avoid duplicates
         setNotifications((prev) => {
           const existingIds = new Set(prev.map((n) => n.id));
@@ -271,7 +265,12 @@ function Navbar({ toggleSidebar, isOpen }) {
                     }`}
                     onClick={() => {
                       navigate(`/notificationDetails/${notification.id}`, {
-                        state: { notification },
+                        state: { 
+                          notification: {
+                            ...notification,
+                            icon: undefined // Remove the React element
+                          } 
+                        },
                       });
                       setActiveDropdown(null);
                     }}
