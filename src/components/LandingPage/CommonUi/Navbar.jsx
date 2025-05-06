@@ -11,8 +11,6 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { User } from "lucide-react";
-import { messaging } from "../../../firebase/firebase";
-import { getToken, onMessage } from "firebase/messaging";
 
 function Navbar({ toggleSidebar, isOpen }) {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -25,7 +23,7 @@ function Navbar({ toggleSidebar, isOpen }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const profileDropdownRef = useRef(null);
-  const notificationDropdownRef = useRef(null);
+  const notificationDropdownRef = useRef(null); 
 
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -48,7 +46,7 @@ function Navbar({ toggleSidebar, isOpen }) {
         const transformedNotifications = filteredNotifications.map(
           (notification) => ({
             id: notification._id,
-            iconType: "user", // Instead of storing the element, store a type or identifier
+            iconType: 'user', // Instead of storing the element, store a type or identifier
             title: notification.title,
             description: notification.description,
             createdAt: new Date(notification.createdAt).toLocaleString(),
@@ -66,7 +64,7 @@ function Navbar({ toggleSidebar, isOpen }) {
       }
     } catch (error) {
       console.error("Error fetching notifications:", error);
-      // toast.error("Failed to load notifications");
+      toast.error("Failed to load notifications");
     } finally {
       if (isInitial) setLoading(false);
     }
@@ -85,7 +83,7 @@ function Navbar({ toggleSidebar, isOpen }) {
         toast.success("Notifications cleared successfully.");
         setNotifications([]); // Clear local state
       } else {
-        // toast.error("Failed to clear notifications.");
+        toast.error("Failed to clear notifications.");
       }
     } catch (error) {
       console.error("Error clearing notifications:", error);
@@ -120,47 +118,7 @@ function Navbar({ toggleSidebar, isOpen }) {
       fetchNotifications();
     }, 5000);
 
-    // Ask permission for push notifications
-    Notification.requestPermission()
-      .then((permission) => {
-        if (permission === "granted") {
-          return getToken(messaging, {
-            vapidKey: "1:851516675108:web:a41224ec7a9f1d15e2b4b1", 
-          });
-        }
-      })
-      .then((currentToken) => {
-        if (currentToken) {
-          console.log("FCM Token:", currentToken);
-          // Optionally send token to backend for storing
-        } else {
-          console.warn("No FCM token received.");
-        }
-      })
-      .catch((err) => {
-        console.error("FCM Error:", err);
-      });
-
-    // Foreground message listener
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("Message received. ", payload);
-
-      const newNotification = {
-        id: Date.now(),
-        title: payload.notification.title,
-        description: payload.notification.body,
-        createdAt: new Date().toLocaleString(),
-        isRead: false,
-      };
-
-      setNotifications((prev) => [newNotification, ...prev]);
-      toast.info(payload.notification.title);
-    });
-
-    return () => {
-      clearInterval(interval);
-      unsubscribe();
-    };
+    return () => clearInterval(interval);
   }, [userId]);
 
   const toggleDropdown = (dropdown) => {
@@ -307,11 +265,11 @@ function Navbar({ toggleSidebar, isOpen }) {
                     }`}
                     onClick={() => {
                       navigate(`/notificationDetails/${notification.id}`, {
-                        state: {
+                        state: { 
                           notification: {
                             ...notification,
-                            icon: undefined,
-                          },
+                            icon: undefined 
+                          } 
                         },
                       });
                       setActiveDropdown(null);
