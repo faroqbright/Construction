@@ -1202,7 +1202,7 @@ const PendingProjects = () => {
                             <textarea
                               id="review-modal-description"
                               className="w-full h-32 p-2 border border-gray-300 rounded-xl mt-4"
-                              placeholder="Your review here"
+                              placeholder={t("Your_review_here")}
                               value={reviewText}
                               onChange={handleReviewTextChange}
                             ></textarea>
