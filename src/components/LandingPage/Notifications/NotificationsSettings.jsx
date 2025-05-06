@@ -1,6 +1,5 @@
 "use client";
 
-import { useFirebaseNotifications } from "../../../hooks/useFirebaseNotifications";
 import { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -101,17 +100,26 @@ const NotificationSettings = () => {
 
   const translatableTitles = {
     "Project Reports": t("Project Reports"),
-    "Project Approval": t("Project Approval"),
+    // "Project Approval": t("Project Approval"),
     "Project Updates": t("Project Updates"),
     "Financial Updates": t("Financial Updates"),
   };
 
   const translateDescriptions = {
-    "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information": t("Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information"),
-    "Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency.": t("Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency."),
-    "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage.": t("Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage."),
-    "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects.": t("Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects.")
-  }
+    "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information":
+      t(
+        "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information"
+      ),
+    // "Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency.": t("Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency."),
+    "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage.":
+      t(
+        "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage."
+      ),
+    "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects.":
+      t(
+        "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects."
+      ),
+  };
 
   const fetchNotifications = useCallback(async () => {
     if (!token) return;
@@ -291,7 +299,6 @@ const NotificationSettings = () => {
         throw new Error("Status update failed on server");
       }
 
-      // ✅ Show success toast if backend message exists
       if (response.data.message) {
         toast.success(response.data.message);
       }
@@ -332,13 +339,11 @@ const NotificationSettings = () => {
     />
   );
 
-  useFirebaseNotifications(token);
-
   const sendNotification = async ({
     title,
     description,
     type,
-    clientIds,
+    memberId,
     selectedItems,
     resetState,
     successMessagePrefix,
@@ -350,38 +355,37 @@ const NotificationSettings = () => {
     }
 
     try {
-      const response = await apiRequest(
-        "post",
-        "/notifications/create-notifications",
-        {
-          title,
-          description,
-          type,
-          clientIds,
-        },
-        token
-      );
-
-      if (response.data?.data) {
-        resetState();
-
-        // ✅ Show success message from backend
-        if (response.data.message) {
-          toast.success(response.data.message);
-        } else {
-          // Fallback if message not found
-          toast.success(
-            `${successMessagePrefix} notification "${response.data.data.title}" sent successfully`
-          );
-        }
-      } else {
-        console.warn(
-          `Notification API call succeeded but response format was unexpected for type ${type}:`,
-          response.data
+      // Send notifications one by one
+      const results = [];
+      for (const member of selectedItems) {
+        const response = await apiRequest(
+          "post",
+          "/shownotifications",
+          {
+            title,
+            description,
+            type,
+            memberId: member._id || member, // Handle both object and ID cases
+          },
+          token
         );
+        results.push(response.data);
+      }
+
+      // Check if all notifications were successful
+      const allSuccess = results.every((result) => result?.success);
+
+      if (allSuccess) {
         resetState();
-        toast.info(
-          `${successMessagePrefix} notification sent, but confirmation response was unclear.`
+        toast.success(
+          `${successMessagePrefix} notifications sent successfully`
+        );
+      } else {
+        const failedCount = results.filter((result) => !result?.success).length;
+        toast.warning(
+          `${successMessagePrefix} notifications partially sent (${
+            selectedItems.length - failedCount
+          } succeeded, ${failedCount} failed)`
         );
       }
     } catch (error) {
@@ -419,7 +423,7 @@ const NotificationSettings = () => {
       title: clientTitle,
       description: message,
       type: "client",
-      clientIds: selectedUsers.map((user) => user._id),
+      memberId: selectedUsers.map((user) => user._id),
       selectedItems: selectedUsers,
       resetState: resetClientForm,
       successMessagePrefix: "Client",
@@ -433,7 +437,7 @@ const NotificationSettings = () => {
       title: financeTitle,
       description: financeMessage,
       type: "financial",
-      clientIds: selectedFinanceClients,
+      memberId: selectedFinanceClients,
       selectedItems: selectedFinanceClients,
       resetState: resetFinanceForm,
       successMessagePrefix: "Financial",
@@ -456,14 +460,21 @@ const NotificationSettings = () => {
             </Typography>
           ) : (
             [...notifications]
+              .filter((n) => n.title !== "Project Approval")
               .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
               .map((notificationItem) => (
                 <NotificationToggle
                   key={notificationItem._id}
                   id={notificationItem._id}
                   icon={renderIcon()}
-                  title={translatableTitles[notificationItem.title] || notificationItem.title}
-                  description={translateDescriptions[notificationItem.description] || notificationItem.description}
+                  title={
+                    translatableTitles[notificationItem.title] ||
+                    notificationItem.title
+                  }
+                  description={
+                    translateDescriptions[notificationItem.description] ||
+                    notificationItem.description
+                  }
                   checked={notificationItem.status}
                   onChange={() => handleToggle(notificationItem._id)}
                 />
