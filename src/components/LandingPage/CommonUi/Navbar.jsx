@@ -28,11 +28,53 @@ function Navbar({ toggleSidebar, isOpen }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // const fetchNotifications = async (isInitial = false) => {
+  //   if (!userId) return;
+
+  //   if (isInitial) setLoading(true);
+
+  //   try {
+  //     const response = await apiRequest("get", "/shownotifications", {}, token);
+  //     if (response.data?.success && response.data?.data) {
+  //       const filteredNotifications = response.data.data.filter(
+  //         (notification) =>
+  //           notification.memberId === userId ||
+  //           notification.projectId === userId ||
+  //           notification._id === userId
+  //       );
+
+  //       const transformedNotifications = filteredNotifications.map(
+  //         (notification) => ({
+  //           id: notification._id,
+  //           iconType: 'user', // Instead of storing the element, store a type or identifier
+  //           title: notification.title,
+  //           description: notification.description,
+  //           createdAt: new Date(notification.createdAt).toLocaleString(),
+  //           isRead: notification.isRead,
+  //         })
+  //       );
+  //       // Add new ones on top and avoid duplicates
+  //       setNotifications((prev) => {
+  //         const existingIds = new Set(prev.map((n) => n.id));
+  //         const newOnes = transformedNotifications.filter(
+  //           (n) => !existingIds.has(n.id)
+  //         );
+  //         return [...newOnes, ...prev];
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching notifications:", error);
+  //     toast.error("Failed to load notifications");
+  //   } finally {
+  //     if (isInitial) setLoading(false);
+  //   }
+  // };
+
   const fetchNotifications = async (isInitial = false) => {
     if (!userId) return;
-
+  
     if (isInitial) setLoading(true);
-
+  
     try {
       const response = await apiRequest("get", "/shownotifications", {}, token);
       if (response.data?.success && response.data?.data) {
@@ -42,18 +84,18 @@ function Navbar({ toggleSidebar, isOpen }) {
             notification.projectId === userId ||
             notification._id === userId
         );
-
+  
         const transformedNotifications = filteredNotifications.map(
           (notification) => ({
             id: notification._id,
-            iconType: 'user', // Instead of storing the element, store a type or identifier
+            iconType: 'user',
             title: notification.title,
             description: notification.description,
             createdAt: new Date(notification.createdAt).toLocaleString(),
             isRead: notification.isRead,
           })
         );
-        // Add new ones on top and avoid duplicates
+        
         setNotifications((prev) => {
           const existingIds = new Set(prev.map((n) => n.id));
           const newOnes = transformedNotifications.filter(
@@ -64,7 +106,15 @@ function Navbar({ toggleSidebar, isOpen }) {
       }
     } catch (error) {
       console.error("Error fetching notifications:", error);
-      toast.error("Failed to load notifications");
+      
+      // Check for unauthorized error
+      if (error?.response?.status === 401) {
+        toast.error("Session expired. Please log in again.");
+        dispatch(removeUserInfo());
+        navigate("/login");
+      } else {
+        toast.error("Failed to load notifications");
+      }
     } finally {
       if (isInitial) setLoading(false);
     }
@@ -116,7 +166,7 @@ function Navbar({ toggleSidebar, isOpen }) {
 
     const interval = setInterval(() => {
       fetchNotifications();
-    }, 5000);
+    }, 7000);
 
     return () => clearInterval(interval);
   }, [userId]);
