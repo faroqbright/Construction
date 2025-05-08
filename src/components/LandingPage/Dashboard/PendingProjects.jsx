@@ -1148,7 +1148,7 @@ const PendingProjects = () => {
                           >
                             {t("deliverables_attached")}
                           </button>
-                          <button
+                          {/* <button
                             className="text-[#54577A] underline"
                             onClick={() => {
                               setSelectedProjectId(project._id); 
@@ -1156,9 +1156,10 @@ const PendingProjects = () => {
                             }}
                           >
                             {t("Write a Review")}
-                          </button>
+                          </button> */}
                         </div>
-                        <Modal
+
+                        {/* <Modal
                           open={isReviewModalOpen}
                           onClose={closeReviewModal}
                           aria-labelledby="review-modal-title"
@@ -1177,7 +1178,7 @@ const PendingProjects = () => {
                             }}
                           >
                             {/* Close Icon */}
-                            <button
+                            {/* <button
                               onClick={closeReviewModal}
                               className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl font-bold"
                               aria-label="Close"
@@ -1222,7 +1223,8 @@ const PendingProjects = () => {
                               </button>
                             </div>
                           </Box>
-                        </Modal>
+                        </Modal> */}
+                         
                       </div>
                     </div>
                   ))

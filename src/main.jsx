@@ -12,7 +12,7 @@ import { SideBarProvider } from "./utils/RoleContext.jsx";
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <StrictMode>
+      {/* <StrictMode> */}
         <SideBarProvider>
           <MainRoutes />
           <ToastContainer
@@ -21,7 +21,7 @@ createRoot(document.getElementById("root")).render(
             hideProgressBar={false}
           />
         </SideBarProvider>
-      </StrictMode>
+      {/* </StrictMode> */}
     </PersistGate>
   </Provider>
 );

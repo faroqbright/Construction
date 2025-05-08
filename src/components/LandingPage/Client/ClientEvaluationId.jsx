@@ -272,7 +272,7 @@ const ClientEvaluationId = () => {
             )}
 
             <div className="flex justify-end items-end">
-              <button
+              {/* <button
                 className="text-[#54577A] underline"
                 onClick={() => {
                   setSelectedProjectId(id);
@@ -280,10 +280,10 @@ const ClientEvaluationId = () => {
                 }}
               >
                 {t("Write a Review")}
-              </button>
+              </button> */}
             </div>
 
-            <Modal
+            {/* <Modal
               open={isReviewModalOpen}
               onClose={closeReviewModal}
               aria-labelledby="review-modal-title"
@@ -346,7 +346,7 @@ const ClientEvaluationId = () => {
                   </button>
                 </div>
               </Box>
-            </Modal>
+            </Modal> */}
 
             {reviews.length === 0 ? (
               <Typography variant="body1" className="p-6 text-center">

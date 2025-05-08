@@ -335,9 +335,9 @@ export default function EditProject() {
     } else {
       const updatedFields = {};
 
-      if (formData.projectName !== initialValues.projectName) {
-        updatedFields.projectName = formData.projectName;
-      }
+      // if (formData.projectName !== initialValues.projectName) {
+      //   updatedFields.projectName = formData.projectName;
+      // }
       if (formData.title !== initialValues.title) {
         updatedFields.title = formData.title;
       }
