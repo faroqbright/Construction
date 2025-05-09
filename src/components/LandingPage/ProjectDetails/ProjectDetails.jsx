@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, Checkbox, Pagination, PaginationItem } from "@mui/material";
 import pdf from "../../../assets/pdf.svg";
 import "react-circular-progressbar/dist/styles.css";
@@ -44,6 +46,7 @@ const ProjectDetails = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [financialId, setFinancialId] = useState(null);
+  const [error, setError] = useState(null);
 
   const [milestones, setMilestones] = useState([
     {
@@ -281,8 +284,10 @@ const ProjectDetails = () => {
   useEffect(() => {
     if (projectData?.financeDocuments?.length) {
       const firstDoc = projectData.financeDocuments[0];
-      setPhysicalExecution(parseFloat(firstDoc?.physicalExecution) || 0);
-      setFinancialExecution(parseFloat(firstDoc?.financialExecution) || 0);
+      setPhysicalExecution(Number.parseFloat(firstDoc?.physicalExecution) || 0);
+      setFinancialExecution(
+        Number.parseFloat(firstDoc?.financialExecution) || 0
+      );
       setFinancialId(firstDoc?.id || null);
     } else {
       // If no finance documents, reset values and disable dragging
@@ -313,27 +318,56 @@ const ProjectDetails = () => {
     }
   };
 
+  // Add debugging to see what's happening
   const handleDragEnd = () => {
     if (!canDrag) return;
 
     setDragging(false);
     if (dragTimeout.current) clearTimeout(dragTimeout.current);
 
+    // Log values before sending to API
+    console.log(
+      "Before API call - Physical:",
+      physicalExecutionRef.current,
+      "Financial:",
+      financialExecutionRef.current
+    );
+
     dragTimeout.current = setTimeout(async () => {
       if (financialId) {
         try {
-          await apiRequest(
+          // Create the payload object
+          const payload = {
+            physicalExecution: physicalExecutionRef.current,
+            financialExecution: financialExecutionRef.current,
+          };
+
+          console.log("Sending payload to API:", payload);
+
+          // Send both values in the API call to prevent one from being reset
+          const response = await apiRequest(
             "patch",
             `/finance/${financialId}`,
-            {
-              physicalExecution: physicalExecutionRef.current,
-              financialExecution: financialExecutionRef.current,
-            },
+            payload,
             token
           );
+
+          console.log("API Response:", response);
+
+          // Update local state with the response data to ensure consistency
+          if (response?.data) {
+            setPhysicalExecution(
+              Number.parseFloat(response.data.physicalExecution) || 0
+            );
+            setFinancialExecution(
+              Number.parseFloat(response.data.financialExecution) || 0
+            );
+          }
+
           toast.success("Execution updated successfully.");
         } catch (error) {
-          // toast.error("Error updating finance execution.");
+          console.error("Error updating execution:", error);
+          toast.error("Error updating execution values.");
         }
       }
     }, 500);
@@ -406,7 +440,7 @@ const ProjectDetails = () => {
                   document.body.removeChild(link);
                 }}
               >
-                <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
+                <img src={pdf || "/placeholder.svg"} alt="PDF Icon" className="w-8 h-8" />
                 <div className="mt-1">
                   <span className="text-sm font-semibold">{doc.fileName}</span>
                   <br />
@@ -440,7 +474,11 @@ const ProjectDetails = () => {
                     document.body.removeChild(link);
                   }}
                 >
-                  <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
+                  <img
+                    src={pdf || "/placeholder.svg"}
+                    alt="PDF Icon"
+                    className="w-8 h-8"
+                  />
                   <div className="mt-1">
                     <span className="text-sm font-semibold">
                       {doc.fileName}
@@ -579,7 +617,7 @@ const ProjectDetails = () => {
                     className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2"
                   >
                     <img
-                      src={banner.url}
+                      src={banner.url || "/placeholder.svg"}
                       alt={projectData?.projectName || "Project Image"}
                       className="object-cover cursor-pointer rounded-xl w-full h-[284px]"
                       onClick={() => {
@@ -596,7 +634,7 @@ const ProjectDetails = () => {
               </Slider>
             ) : (
               <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
-                <img src={logo} alt="" />
+                <img src={logo || "/placeholder.svg"} alt="" />
                 <span className="font-semibold text-sm mt-4">
                   No Images yet.
                 </span>
@@ -634,7 +672,7 @@ const ProjectDetails = () => {
               </button>
 
               <img
-                src={selectedImage}
+                src={selectedImage || "/placeholder.svg"}
                 alt="Zoomed"
                 className="w-full h-[80%] mt-10 object-contain"
               />
