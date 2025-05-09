@@ -319,58 +319,35 @@ const ProjectDetails = () => {
   };
 
   // Add debugging to see what's happening
-  const handleDragEnd = () => {
+  const handleDragEnd = async () => {
     if (!canDrag) return;
-
+  
     setDragging(false);
     if (dragTimeout.current) clearTimeout(dragTimeout.current);
-
-    // Log values before sending to API
-    console.log(
-      "Before API call - Physical:",
-      physicalExecutionRef.current,
-      "Financial:",
-      financialExecutionRef.current
-    );
-
-    dragTimeout.current = setTimeout(async () => {
-      if (financialId) {
-        try {
-          // Create the payload object
-          const payload = {
-            physicalExecution: physicalExecutionRef.current,
-            financialExecution: financialExecutionRef.current,
-          };
-
-          console.log("Sending payload to API:", payload);
-
-          // Send both values in the API call to prevent one from being reset
-          const response = await apiRequest(
-            "patch",
-            `/finance/${financialId}`,
-            payload,
-            token
-          );
-
-          console.log("API Response:", response);
-
-          // Update local state with the response data to ensure consistency
-          if (response?.data) {
-            setPhysicalExecution(
-              Number.parseFloat(response.data.physicalExecution) || 0
-            );
-            setFinancialExecution(
-              Number.parseFloat(response.data.financialExecution) || 0
-            );
-          }
-
-          toast.success("Execution updated successfully.");
-        } catch (error) {
-          console.error("Error updating execution:", error);
-          toast.error("Error updating execution values.");
-        }
+  
+    try {
+      const response = await apiRequest(
+        "patch",
+        `/finance/${financialId}`,
+        {
+          physicalExecution: physicalExecutionRef.current,
+          financialExecution: financialExecutionRef.current
+        },
+        token
+      );
+      
+      // Update local state with the exact values returned from backend
+      if (response.data) {
+        setPhysicalExecution(response.data.physicalExecution);
+        setFinancialExecution(response.data.financialExecution);
       }
-    }, 500);
+      toast.success("Execution updated successfully");
+    } catch (error) {
+      toast.error("Error updating execution");
+      // Revert to previous values if update fails
+      setPhysicalExecution(physicalExecutionRef.current);
+      setFinancialExecution(financialExecutionRef.current);
+    }
   };
 
   return (
