@@ -29,15 +29,14 @@ const Recovery = () => {
       const response = await apiRequest("post", "/users/verify-otp", payload);
 
       if (response.data.statusCode === 200) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         navigate("/reset-password");
       } else {
-        toast.error(response.data.message || "Unexpected error occurred.");
+        toast.error(t(response.data.message));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
+      toast.error(t(
+        error.response?.data?.message)
       );
       console.error("Error:", error);
     }

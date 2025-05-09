@@ -203,7 +203,7 @@ const ClientEvaluation = () => {
 const ProjectCard = ({ project, onClick }) => {
   const { t } = useTranslation();
   const estimatedRating = (Math.random() * 2 + 3).toFixed(1); // Random between 3.0 and 5.0
-  const estimatedReviews = Math.floor(Math.random() * 50 + 10); // Random between 10 and 60 reviews
+  // const estimatedReviews = Math.floor(Math.random() * 50 + 10); 
 
   return (
     <ProjectCardStyled onClick={onClick}>
@@ -249,7 +249,7 @@ const ProjectCard = ({ project, onClick }) => {
             size="small"
           />
           <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-            ({estimatedReviews} {t("Reviews")})
+            ({project.reviewCount} {t("Reviews")})
           </Typography>
         </Box>
       </CardContent>

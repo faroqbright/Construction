@@ -40,17 +40,14 @@ const Login = () => {
       const response = await apiRequest("post", "/users/login", values);
       console.log(response);
       if (response.data.data.user.isClient === true) {
-        toast.error("You are not authorized to access the admin panel.");
+        toast.error(t("You are not authorized to access the admin panel."));
       } else if (response.data.statusCode === 200) {
         dispatch(setUserInfo(response.data.data));
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         navigate("/");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message));
       console.error("Error:", error);
     } finally {
       setLoading(false);

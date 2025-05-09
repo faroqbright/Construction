@@ -29,20 +29,17 @@ const ForgetPassword = () => {
       );
 
       if (response.status === 200) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         localStorage.setItem("submittedEmail", values.email);
         setTimeout(() => {
           localStorage.removeItem("submittedEmail");
         }, 300000);
         navigate(`/recovery`);
       } else {
-        toast.error(response.data.message || "Unexpected error occurred.");
+        toast.error(t(response.data.message));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message));
       console.error("Error:", error);
     }
   };

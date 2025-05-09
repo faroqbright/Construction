@@ -125,7 +125,7 @@ const ProjectDetails = () => {
   const [editFormData, setEditFormData] = useState({
     title: "",
     description: "",
-    status: "pending",
+    status: t("pending"),
   });
 
   const toggleActionMenu = (milestoneId) => {
@@ -135,11 +135,11 @@ const ProjectDetails = () => {
   const toggleMilestoneStatus = async (milestone) => {
     try {
       const newStatus =
-        milestone.status === "completed" ? "pending" : "completed";
+        milestone.status === t("completed") ? t("pending") : t("completed");
       const updatedData = {
         status: newStatus,
         completedAt:
-          newStatus === "completed" ? new Date().toISOString() : null,
+          newStatus === t("completed") ? new Date().toISOString() : null,
       };
 
       await apiRequest(
@@ -153,11 +153,11 @@ const ProjectDetails = () => {
       // await fetchProjects();
 
       // Option 2: Update local state directly
-      setProjectData(prev => ({
+      setProjectData((prev) => ({
         ...prev,
-        additionalMilestones: prev.additionalMilestones.map(m =>
-          m._id === milestone._id ? {...m, ...updatedData} : m
-        )
+        additionalMilestones: prev.additionalMilestones.map((m) =>
+          m._id === milestone._id ? { ...m, ...updatedData } : m
+        ),
       }));
 
       toast.success("Milestone status updated successfully.");
@@ -332,8 +332,7 @@ const ProjectDetails = () => {
             token
           );
           toast.success("Execution updated successfully.");
-        }
-         catch (error) {
+        } catch (error) {
           // toast.error("Error updating finance execution.");
         }
       }
@@ -380,7 +379,9 @@ const ProjectDetails = () => {
                 {t("Project_Status")}:
               </strong>
               <span className="text-[#54577A] font-bold text-base">
-                {projectData?.status}
+                {projectData?.status === "Ongoing"
+                  ? t("Ongoing")
+                  : projectData?.status}
               </span>
             </div>
           </div>
@@ -424,7 +425,7 @@ const ProjectDetails = () => {
           </h3>
           <div className="flex gap-3 flex-wrap">
             {projectData?.projectReports
-              ?.filter((doc) => doc.status === "approved") // Only show approved reports
+              ?.filter((doc) => doc.status === t("approved")) // Only show approved reports
               .map((doc, index) => (
                 <div
                   key={index}
@@ -471,7 +472,7 @@ const ProjectDetails = () => {
             <div className="relative w-full h-2 bg-gray-200 rounded-full">
               <div
                 className={`absolute top-0 left-0 h-2 rounded-full ${
-                  projectData?.status === "Completed"
+                  projectData?.status === t("Completed")
                     ? "bg-red-500"
                     : "bg-red-500"
                 }`}
@@ -769,13 +770,13 @@ const ProjectDetails = () => {
                 {/* Completion checkbox */}
                 <div
                   className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors duration-200 cursor-pointer ${
-                    milestone.status === "completed"
+                    milestone.status === t("completed")
                       ? "bg-black"
                       : "border-gray-300 bg-white"
                   }`}
                   onClick={() => toggleMilestoneStatus(milestone)}
                 >
-                  {milestone.status === "completed" && (
+                  {milestone.status === t("completed") && (
                     <Check size={20} color="green" strokeWidth={4} />
                   )}
                 </div>
@@ -1025,14 +1026,16 @@ const ProjectDetails = () => {
         </div>
 
         <div className="flex justify-end gap-5 pr-6 pb-6">
-          {projectData?.status !== "Completed" ? (
+          {projectData?.status !== t("Completed") ? (
             <button
               onClick={() => navigate(`/details/edit/${projectData?._id}`)}
               className="px-5 py-2 bg-black-blacknew text-white rounded-md"
             >
               {t("Add_Information")}
             </button>
-          ): ""}
+          ) : (
+            ""
+          )}
           <button className="px-5 py-2 rounded-md bg-gray-100">
             {t("View_Change_Log")}
           </button>
