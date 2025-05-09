@@ -273,82 +273,86 @@ const ProjectDetails = () => {
   };
 
   // Initialize as numbers (0 instead of "0%")
-  const [physicalExecution, setPhysicalExecution] = useState(0);
-  const [financialExecution, setFinancialExecution] = useState(0);
+  const [execution, setExecution] = useState({
+    physical: 0,
+    financial: 0,
+  });
+  const executionRef = useRef({ physical: 0, financial: 0 }); // Add this ref
   const [dragging, setDragging] = useState(false);
   const dragTimeout = useRef(null);
 
-  const physicalExecutionRef = useRef(physicalExecution);
-  const financialExecutionRef = useRef(financialExecution);
-
-  useEffect(() => {
-    if (projectData?.financeDocuments?.length) {
-      const firstDoc = projectData.financeDocuments[0];
-      setPhysicalExecution(Number.parseFloat(firstDoc?.physicalExecution) || 0);
-      setFinancialExecution(
-        Number.parseFloat(firstDoc?.financialExecution) || 0
-      );
-      setFinancialId(firstDoc?.id || null);
-    } else {
-      // If no finance documents, reset values and disable dragging
-      setPhysicalExecution(0);
-      setFinancialExecution(0);
-      setFinancialId(null);
-    }
-  }, [projectData]);
-
-  // Check if dragging should be enabled
+  // const physicalExecutionRef = useRef(physicalExecution);
+  // const financialExecutionRef = useRef(financialExecution);
   const canDrag = projectData?.financeDocuments?.length > 0;
 
-  const handleDrag = (e, type) => {
-    if (!canDrag) return;
+useEffect(() => {
+  if (projectData?.financeDocuments?.length) {
+    const firstDoc = projectData.financeDocuments[0];
+    const newValues = {
+      physical: Number.parseFloat(firstDoc?.physicalExecution) || 0,
+      financial: Number.parseFloat(firstDoc?.financialExecution) || 0
+    };
+    setExecution(newValues);
+    executionRef.current = newValues; // Sync the ref
+    setFinancialId(firstDoc?.id || null);
+  } else {
+    const newValues = { physical: 0, financial: 0 };
+    setExecution(newValues);
+    executionRef.current = newValues; // Sync the ref
+    setFinancialId(null);
+  }
+}, [projectData]);
 
-    setDragging(true);
-    const rect = e.target.parentElement.getBoundingClientRect();
-    let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    newValue = Math.max(0, Math.min(100, newValue));
+const handleDrag = (e, type) => {
+  if (!canDrag) return;
 
-    if (type === "physical") {
-      setPhysicalExecution(newValue);
-      physicalExecutionRef.current = newValue;
-    }
-    if (type === "financial") {
-      setFinancialExecution(newValue);
-      financialExecutionRef.current = newValue;
-    }
-  };
+  setDragging(true);
+  const rect = e.target.parentElement.getBoundingClientRect();
+  let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+  newValue = Math.max(0, Math.min(100, newValue));
 
-  // Add debugging to see what's happening
-  const handleDragEnd = async () => {
-    if (!canDrag) return;
-  
-    setDragging(false);
-    if (dragTimeout.current) clearTimeout(dragTimeout.current);
-  
-    try {
-      const response = await apiRequest(
-        "patch",
-        `/finance/${financialId}`,
-        {
-          physicalExecution: physicalExecutionRef.current,
-          financialExecution: financialExecutionRef.current
-        },
-        token
-      );
-      
-      // Update local state with the exact values returned from backend
-      if (response.data) {
-        setPhysicalExecution(response.data.physicalExecution);
-        setFinancialExecution(response.data.financialExecution);
-      }
-      toast.success("Execution updated successfully");
-    } catch (error) {
-      toast.error("Error updating execution");
-      // Revert to previous values if update fails
-      setPhysicalExecution(physicalExecutionRef.current);
-      setFinancialExecution(financialExecutionRef.current);
+  // Update both state and ref
+  const newExecution = { ...executionRef.current, [type]: newValue };
+  setExecution(newExecution);
+  executionRef.current = newExecution;
+};
+
+const handleDragEnd = async () => {
+  if (!canDrag) return;
+
+  setDragging(false);
+  if (dragTimeout.current) clearTimeout(dragTimeout.current);
+
+  try {
+    // Use the ref value which is always up-to-date
+    const payload = {
+      physicalExecution: executionRef.current.physical,
+      financialExecution: executionRef.current.financial
+    };
+
+    console.log("Final Payload:", payload);
+
+    const response = await apiRequest(
+      "patch",
+      `/finance/${financialId}`,
+      payload,
+      token
+    );
+
+    if (response.data) {
+      const newValues = {
+        physical: response.data.physicalExecution,
+        financial: response.data.financialExecution
+      };
+      setExecution(newValues);
+      executionRef.current = newValues;
     }
-  };
+    toast.success("Execution updated successfully");
+  } catch (error) {
+    toast.error("Error updating execution");
+    console.error("Error:", error);
+  }
+};
 
   return (
     <>
@@ -480,20 +484,13 @@ const ProjectDetails = () => {
                 {t("Physical_Execution")}
               </p>
               <h6 className="text-gray-800 font-semibold">
-                {physicalExecution}%
+                {execution.physical}%
               </h6>
             </div>
-
             <div className="relative w-full h-2 bg-gray-200 rounded-full">
               <div
-                className={`absolute top-0 left-0 h-2 rounded-full ${
-                  projectData?.status === t("Completed")
-                    ? "bg-red-500"
-                    : "bg-red-500"
-                }`}
-                style={{
-                  width: `${physicalExecution}%`,
-                }}
+                className="absolute top-0 left-0 h-2 rounded-full bg-red-500"
+                style={{ width: `${execution.physical}%` }}
               ></div>
               <div
                 className={`absolute w-5 h-5 rounded-full border-2 ${
@@ -502,7 +499,7 @@ const ProjectDetails = () => {
                     : "bg-gray-400 border-gray-400 cursor-not-allowed"
                 }`}
                 style={{
-                  left: `calc(${physicalExecution}% - 10px)`,
+                  left: `calc(${execution.physical}% - 10px)`,
                   top: "-6px",
                 }}
                 onMouseDown={
@@ -525,14 +522,12 @@ const ProjectDetails = () => {
           <div className="mb-4 mt-2 relative">
             <div className="flex justify-between">
               <p className="black text-sm mb-1">{t("Financial_Execution")}</p>
-              <h6 className="text-red-500">{financialExecution}%</h6>
+              <h6 className="text-red-500">{execution.financial}%</h6>
             </div>
             <div className="w-full bg-gray-200 h-2 rounded-full relative">
               <div
                 className="bg-red-500 h-2 rounded-full"
-                style={{
-                  width: `${financialExecution}%`,
-                }}
+                style={{ width: `${execution.financial}%` }}
               ></div>
               <div
                 className={`w-5 h-5 rounded-full absolute top-1/2 -translate-y-1/2 ${
@@ -540,7 +535,7 @@ const ProjectDetails = () => {
                     ? "bg-red-500 cursor-pointer"
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
-                style={{ left: `calc(${financialExecution}% - 10px)` }}
+                style={{ left: `calc(${execution.financial}% - 10px)` }}
                 onMouseDown={
                   canDrag
                     ? (e) => {
