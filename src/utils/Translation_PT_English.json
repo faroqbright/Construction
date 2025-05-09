@@ -465,8 +465,24 @@
   "Project retrieved successfully": "Project retrieved successfully",
   "Failed to retrieve project": "Failed to retrieve project",
   "Project not found or already deleted during operation.": "Project not found or already deleted during operation.",
-  "Project deleted successfully": "Project deleted successfully"
-
-
+  "Project deleted successfully": "Project deleted successfully",
+  "Business Area added successfully": "Business Area added successfully",
+  "Business Area updated successfully": "Business Area updated successfully",
+  "Company not found. Please enter a valid company name.": "Company not found. Please enter a valid company name.",
+  "Invalid userType.": "Invalid userType.",
+  "Company not found.": "Company not found.",
+  "Company name is required.":"Company name is required.",
+  "Company Name already exists": "Company Name already exists",
+  "Company created successfully": "Company created successfully",
+  "All companies fetched successfully": "All companies fetched successfully",
+  "Company updated successfully": "Company updated successfully",
+  "Company and associated data updated successfully": "Company and associated data updated successfully",
+  "Email is missing. Please try again.": "Email is missing. Please try again.",
+  "You have been logged out.": "You have been logged out.",
+  "All fields are required.": "All fields are required.",
+  "Failed to add milestone": "Failed to add milestone",
+  "Milestone deleted successfully.": "Milestone deleted successfully.",
+  "Milestone updated successfully.": "Milestone updated successfully.",
+  "Company deleted successfully.": "Company deleted successfully."
   
 }

@@ -34,7 +34,7 @@ const ResetPassword = () => {
       const email = localStorage.getItem("submittedEmail");
 
       if (!email) {
-        toast.error("Email is missing. Please try again.");
+        toast.error(t("Email is missing. Please try again."));
         navigate("/login");
       }
 
@@ -50,17 +50,15 @@ const ResetPassword = () => {
       );
 
       if (response.data.statusCode === 200) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
+        toast.success(t(response.data.message));
         localStorage.removeItem("submittedEmail");
         navigate("/login");
       } else {
-        toast.error(response.data.message || "Unexpected error occurred.");
+        toast.error(t(response.data.message));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message));
       console.error("Error:", error);
     }
   };

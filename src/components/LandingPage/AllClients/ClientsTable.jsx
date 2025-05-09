@@ -58,7 +58,7 @@ const ClientsTable = () => {
     } catch (error) {
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
       } else {
         console.error("Error:", error);
@@ -111,7 +111,7 @@ const ClientsTable = () => {
       !formData.email.trim() ||
       !formData.number.trim()
     ) {
-      toast.error("All fields are required.");
+      toast.error(t("All fields are required."));
       return;
     }
     try {
@@ -126,18 +126,14 @@ const ClientsTable = () => {
       );
 
       if (response.data.statusCode === 201) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         fetchUsers();
         handleClose();
       } else {
-        toast.error("Failed to add user.");
+        // toast.error("Failed to add user.");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message) || t(error.message));
       console.error("Error:", error);
     }
   };
@@ -145,10 +141,9 @@ const ClientsTable = () => {
   const handleDelete = async (userId) => {
     try {
       await apiRequest("delete", `/companies/${userId}`, {}, token);
-      toast.success("Company deleted successfully.");
+      toast.success(t("Company deleted successfully."));
       fetchUsers();
     } catch (error) {
-      toast.error("Failed to delete user.");
       console.error("Error:", error);
     }
   };
@@ -162,11 +157,10 @@ const ClientsTable = () => {
       };
       await apiRequest("patch", `/companies/${editData._id}`, updatedData, token);
 
-      toast.success("Comapny updated successfully.");
+      toast.success(t("Company updated successfully"));
       fetchUsers();
       handleClose();
     } catch (error) {
-      toast.error("Failed to update user.");
       console.error("Error:", error);
     }
   };

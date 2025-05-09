@@ -24,7 +24,6 @@ import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
-import { Milestone } from "lucide-react";
 
 const MilestoneTable = () => {
   const [openStates, setOpenStates] = useState({});
@@ -86,7 +85,7 @@ const MilestoneTable = () => {
     } catch (error) {
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
       } else {
         console.error("Error:", error);
@@ -168,7 +167,7 @@ const MilestoneTable = () => {
       !formData.status.trim() ||
       !formData.projectId.trim()
     ) {
-      toast.error("All fields are required.");
+      toast.error(t("All fields are required."));
       return;
     }
     try {
@@ -196,18 +195,14 @@ const MilestoneTable = () => {
       console.log("API Response:", response.data);
 
       if (response.status === 200 || response.status === 201) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         fetchMilestones();
         handleClose();
       } else {
-        toast.error("Failed to add milestone.");
+        toast.error(t("Failed to add milestone."));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message) || t(error.message));
       console.error("Error:", error);
     }
   };
@@ -220,10 +215,9 @@ const MilestoneTable = () => {
         {},
         token
       );
-      toast.success("Milestone deleted successfully.");
+      toast.success(t("Milestone deleted successfully."));
       fetchMilestones();
     } catch (error) {
-      toast.error("Failed to delete milestone.");
       console.error("Error:", error);
     }
   };
@@ -248,11 +242,10 @@ const MilestoneTable = () => {
         token
       );
 
-      toast.success("Milestone updated successfully.");
+      toast.success(t("Milestone updated successfully."));
       fetchMilestones();
       handleClose();
     } catch (error) {
-      toast.error("Failed to update milestone.");
       console.error("Error:", error);
     }
   };

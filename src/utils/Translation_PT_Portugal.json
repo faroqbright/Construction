@@ -337,6 +337,7 @@
     "Milestone not found": "Marco não encontrado",
     "Milestone deleted and notifications sent successfully": "Marco eliminado e notificação enviada com sucesso",
     "Business Area is required": "Área de Negócio é um campo obrigatório",
+    "Business Area updated successfully": "Área de Negócios atualizada com sucesso.",
     "Business Area not found": "Área de Negócio não encontrada",
     "Business Area deleted successfully": "Área de Negócio eliminada com sucesso",
     "No file uploaded": "Nenhum ficheiro carregado",
@@ -431,7 +432,10 @@
     "No notifications found to delete": "Nenhuma notificação encontrada para eliminar",
     "All notifications cleared successfully": "Todas as notificações foram apagadas com sucesso",
     "email already exists": "O e-mail já existe",
+    "Company Name already exists": "Nome de empresa já cadastrado.",
     "Role does not exists": "A função não existe",
+    "Company not found.":"Empresa não encontrada.",
+    "Company name is required.":"Nome da empresa é obrigatório.",
     "New User created successfully": "Novo utilizador criado com sucesso",
     "Email already exists": "O e-mail já existe",
     "Role does not exist": "A função não existe",
@@ -466,7 +470,20 @@
     "Project retrieved successfully": "Projeto recuperado com sucesso",
     "Failed to retrieve project": "Falha ao recuperar o projeto",
     "Project not found or already deleted during operation.": "Projeto não encontrado ou já eliminado durante a operação.",
-    "Project deleted successfully": "Projeto eliminado com sucesso"
-
+    "Project deleted successfully": "Projeto eliminado com sucesso",
+    "Business Area added successfully": "Área de Negócios adicionada com sucesso.",
+    "Company not found. Please enter a valid company name.": "Empresa não encontrada. Por favor, insira um nome de empresa válido.",
+    "Invalid userType.": "Tipo de usuário inválido.",
+    "Company created successfully": "Empresa criada com sucesso.",
+    "All companies fetched successfully": "Todas as empresas buscadas com sucesso.",
+    "Company updated successfully": "Empresa atualizada com sucesso.",
+    "Company and associated data updated successfully": "Empresa e dados associados atualizados com sucesso.",
+    "Email is missing. Please try again.": "O email está faltando. Por favor, tente novamente.",
+    "You have been logged out.": "Você foi desconectado(a).",
+    "All fields are required.": "Todos os campos são obrigatórios.",
+    "Failed to add milestone": "Erro ao adicionar o marco.",
+    "Milestone deleted successfully.": "Marco excluído com sucesso.",
+    "Milestone updated successfully.": "Marco atualizado com sucesso.",
+    "Company deleted successfully.": "Empresa excluída com sucesso."
 
 }

@@ -410,7 +410,6 @@ export default function EditProject() {
         "title",
         "description",
         "location",
-        "deadline",
       ];
 
       requiredFields.forEach((field) => {
