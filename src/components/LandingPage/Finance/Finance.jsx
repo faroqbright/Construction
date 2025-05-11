@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Checkbox,
@@ -28,8 +28,6 @@ export default function Finance() {
   const [editData, setEditData] = useState(null);
   const [formData, setFormData] = useState({
     projName: "",
-    // financialExecution: "",
-    // physicalExecution: "",
     reference: "",
     fileName: "",
     file: null,
@@ -66,10 +64,8 @@ export default function Finance() {
     } catch (error) {
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
     }
   }, [token, dispatch, navigate, page]);
@@ -79,8 +75,6 @@ export default function Finance() {
     if (user) {
       setFormData({
         projName: user.projName,
-        // financialExecution: user.financialExecution,
-        // physicalExecution: user.physicalExecution,
         reference: user.reference,
         fileName: user.fileName,
         file: user.file,
@@ -90,8 +84,6 @@ export default function Finance() {
     } else {
       setFormData({
         projName: "",
-        // financialExecution: "",
-        // physicalExecution: "",
         reference: "",
         fileName: "",
         file: null,
@@ -122,11 +114,10 @@ export default function Finance() {
   const handleDelete = async (userId) => {
     try {
       await apiRequest("delete", `/finance/${userId}`, {}, token);
-      toast.success("User deleted successfully.");
+      toast.success(t("User deleted successfully."));
       fetchUsers();
     } catch (error) {
-      toast.error("Failed to delete user.");
-      console.error("Error:", error);
+      toast.error(t("Failed to delete user."));
     }
   };
 
@@ -139,7 +130,6 @@ export default function Finance() {
           setProjecto(response?.data?.data?.projects || []);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -150,28 +140,16 @@ export default function Finance() {
 
   const handleEditSubmit = async () => {
     try {
-      // Create a FormData object
       const formDataPayload = new FormData();
 
-      // Append the file if it exists
       if (selectedFile) {
         formDataPayload.append("file", selectedFile);
       }
 
-      // Append other fields
       formDataPayload.append("projName", selectedProject);
-      // formDataPayload.append(
-      //   "financialExecution",
-      //   formData.financialExecution || ""
-      // ); // Ensure it's not undefined
-      // formDataPayload.append(
-      //   "physicalExecution",
-      //   formData.physicalExecution || ""
-      // ); // Ensure it's not undefined
-      formDataPayload.append("reference", formData.reference || ""); // Ensure it's not undefined
-      formDataPayload.append("fileName", formData.fileName || ""); // Ensure it's not undefined
+      formDataPayload.append("reference", formData.reference || "");
+      formDataPayload.append("fileName", formData.fileName || "");
 
-      // Send the request with FormData
       await apiRequest(
         "patch",
         `/finance/${editData._id}`,
@@ -179,17 +157,16 @@ export default function Finance() {
         token,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Ensure the correct content type
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      toast.success("User updated successfully.");
+      toast.success(t("User updated successfully."));
       fetchUsers();
       handleClose();
     } catch (error) {
-      toast.error("Failed to update user.");
-      console.error("Error:", error);
+      toast.error(t("Failed to update user."));
     }
   };
 
@@ -250,8 +227,6 @@ export default function Finance() {
                 <th className="p-4 border-b">{t("Reference")}</th>
                 <th className="p-4 border-b">{t("Invoice_Name")}</th>
                 <th className="p-4 border-b">{t("Uploaded_By")}</th>
-                {/* <th className="p-4 border-b">{t("Financial_Execution")}</th>
-                <th className="p-4 border-b">{t("Physical_Execution")}</th> */}
                 <th className="p-4 border-b">{t("Date")}</th>
                 <th className="p-4 border-b">{t("Actions")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
@@ -296,8 +271,6 @@ export default function Finance() {
                           )
                           .join(" ")}
                       </td>
-                      {/* <td className="p-4">{user.financialExecution ? `${user.financialExecution}%` : "-"}</td>
-                  <td className="p-4">{user.physicalExecution ? `${user.physicalExecution}%` : "-"}</td> */}
                       <td className="p-4">
                         {new Date(user.uploadedAt).toLocaleDateString()}
                       </td>
@@ -371,7 +344,6 @@ export default function Finance() {
 
         <div className="flex justify-end mt-4">
           <Pagination
-            // count={totalPages}
             page={page}
             onChange={handlePageChange}
             sx={{
@@ -456,26 +428,6 @@ export default function Finance() {
                 }}
               />
             </div>
-
-            {/* <TextField
-              label="Financial Execution"
-              value={formData.financialExecution}
-              onChange={(e) =>
-                setFormData({ ...formData, financialExecution: e.target.value })
-              }
-              fullWidth
-              margin="normal"
-            />
-
-            <TextField
-              label="Physical Execution"
-              value={formData.physicalExecution}
-              onChange={(e) =>
-                setFormData({ ...formData, physicalExecution: e.target.value })
-              }
-              fullWidth
-              margin="normal"
-            /> */}
 
             <TextField
               label="Reference"

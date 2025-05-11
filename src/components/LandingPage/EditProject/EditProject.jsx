@@ -1,19 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useParams,
   useNavigate,
   useLocation,
-  Navigate,
 } from "react-router-dom";
-import { useForm, Controller, set } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ChangeLogModal from "../../ChangeLog/ChangeLog";
-import { Modal, Box, FormControl, InputLabel, MenuItem } from "@mui/material";
+import { Modal, Box } from "@mui/material";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { Trash2, User } from "lucide-react";
@@ -57,13 +56,11 @@ export default function EditProject() {
   const userId = useSelector((state) => state?.auth?.userInfo?._id);
   const [selectedCompany, setSelectedCompany] = useState("");
   const dispatch = useDispatch();
-  const values = getValues(); // from useForm()
 
   useEffect(() => {
     const fetchBusinessAreas = async () => {
       try {
         const response = await apiRequest("get", `/businessArea`, {}, token);
-        console.log(response.data.data);
 
         if (response.data && Array.isArray(response.data.data)) {
           setBusinessAreas(response.data.data);
@@ -71,10 +68,8 @@ export default function EditProject() {
       } catch (error) {
         if (error?.response?.status === 401) {
           dispatch(removeUserInfo());
-          toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
           navigate("/login");
-        } else {
-          console.error("Error:", error);
         }
       }
     };
@@ -87,20 +82,16 @@ export default function EditProject() {
       setLoading(true);
       try {
         const response = await apiRequest("get", "/companies", {}, token);
-        console.log(response);
 
         if (response?.data?.statusCode === 200 && response?.data?.data) {
-          // Map over the array of company objects and extract the name
           const comapanyName = response.data.data.map(
             (company) => company.name
           );
           setProjecto(comapanyName);
         } else {
-          // Handle cases where data or statusCode is not as expected
-          setProjecto([]); // Set to empty array if no data or incorrect status
+          setProjecto([]);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -108,8 +99,6 @@ export default function EditProject() {
 
     fetchProjecto();
   }, [token]);
-
-  console.log("The companies are:", projecto);
 
   useEffect(() => {
     if (initialValues?.projectBanner) {
@@ -157,7 +146,6 @@ export default function EditProject() {
         const data = response?.data?.data;
 
         setProjectData(data);
-        console.log("Project data is:", data);
 
         const financeResponse = await apiRequest("get", "/finance", {}, token);
         if (financeResponse?.status === 200) {
@@ -180,11 +168,10 @@ export default function EditProject() {
           logs: data.logs,
           financeDocuments: data.financeDocuments,
           additionalMilestones: data.additionalMilestones,
-          businessArea: data.businessAreas, // Add this line
-          company: data.comapanyName, // Add this line (note the typo in the API response)
+          businessArea: data.businessAreas,
+          company: data.comapanyName,
         });
 
-        // Set form values
         setValue("projectName", data.projectName);
         setValue("title", data.title);
         setValue("description", data.description);
@@ -192,10 +179,9 @@ export default function EditProject() {
         setValue("status", data.status);
         setValue("projectBanner", data.projectBanner);
         setValue("deadline", data.deadline);
-        setValue("businessArea", data.businessAreas); // Add this line
-        setValue("company", data.comapanyName); // Add this line
+        setValue("businessArea", data.businessAreas);
+        setValue("company", data.comapanyName);
 
-        // Set state variables
         setSelectedbusinessArea(data.businessAreas);
         setSelectedCompany(data.comapanyName);
 
@@ -214,15 +200,11 @@ export default function EditProject() {
         setFinancialExecution(data.financeDocuments);
         setFileName(data.financeDocuments);
         setlogs(data.logs);
-      } else {
-        setError("Project not found.");
       }
     } catch (error) {
-      setError("Error fetching project data");
+      setError(t("Error fetching project data"));
     }
   }, [id, token, isCreateMode, setValue]);
-
-  console.log("Projects data is:", projectsData);
 
   useEffect(() => {
     fetchProjects();
@@ -233,11 +215,9 @@ export default function EditProject() {
       const response = await apiRequest("get", "/clients", {}, token);
       if (response?.data?.statusCode === 200) {
         setOwners(response?.data?.data);
-      } else {
-        setError("Owners not found.");
       }
     } catch (error) {
-      setError("Error fetching owners");
+      setError(t("Error fetching project data"));
     }
   }, [token, isCreateMode]);
 
@@ -251,11 +231,9 @@ export default function EditProject() {
       const response = await apiRequest("get", "/rolesUser", {}, token);
       if (response?.data?.statusCode === 200) {
         setUsers(response?.data?.data);
-      } else {
-        setError("Users not found.");
       }
     } catch (error) {
-      setError("Error fetching Users");
+      setError(t("Error fetching project data"));
     }
   }, [token, isViewMode]);
 
@@ -266,7 +244,7 @@ export default function EditProject() {
 
   const onSubmit = async (formData) => {
     if (isCreateMode && selectedFiles.length > 3)
-      return toast.error("You can only have up to 3 banners.");
+      return toast.error(t("You can only have up to 3 banners."));
     if (
       !formData.deadline ||
       !formData.deadline.includes(" - ") ||
@@ -274,21 +252,7 @@ export default function EditProject() {
       formData.deadline.startsWith(" - ")
     )
       if (formData.deadline)
-        toast.error("Please select both the Start Date and End Date.");
-    // return;
-    // if (!formData.deadline || !formData.deadline.includes(" - ")) {
-    //   toast.error("Please select both the Start Date and End Date.");
-    //   return;
-    // }
-
-    // Check if dates are incomplete (starts or ends with " - ")
-    // if (
-    //   formData.deadline.endsWith(" - ") ||
-    //   formData.deadline.startsWith(" - ")
-    // ) {
-    //   toast.error("Please complete both date selections.");
-    //   return;
-    // }
+        toast.error(t("Please select both the Start Date and End Date."));
 
     try {
       for (const milestoneId of deletedMilestones) {
@@ -301,8 +265,6 @@ export default function EditProject() {
       }
       setDeletedMilestones([]);
     } catch (error) {
-      toast.error("Failed to delete some milestones");
-      console.error("Error deleting milestones:", error);
     }
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
@@ -334,19 +296,12 @@ export default function EditProject() {
       requestData = data;
     } else {
       const updatedFields = {};
-
-      // if (formData.projectName !== initialValues.projectName) {
-      //   updatedFields.projectName = formData.projectName;
-      // }
       if (formData.title !== initialValues.title) {
         updatedFields.title = formData.title;
       }
       if (formData.description !== initialValues.description) {
         updatedFields.description = formData.description;
       }
-      // if (formData.location !== initialValues.location) {
-      //   updatedFields.location = formData.location;
-      // }
       if (SelectedbusinessArea !== initialValues.businessArea) {
         updatedFields.businessAreas = SelectedbusinessArea;
       }
@@ -404,7 +359,6 @@ export default function EditProject() {
       }
       const data = new FormData();
 
-      // Ensure required fields are present in FormData
       const requiredFields = [
         "projectName",
         "title",
@@ -416,7 +370,6 @@ export default function EditProject() {
         data.append(field, formData[field]);
       });
 
-      // Then add other fields conditionally
       Object.keys(updatedFields).forEach((key) => {
         if (
           key !== "projectBanner" &&
@@ -480,10 +433,7 @@ export default function EditProject() {
           }
 
           setMilestones([]);
-          // toast.success("Milestones saved successfully!");
         } catch (error) {
-          toast.error("Failed to save milestones.");
-          console.error(error);
         }
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
@@ -498,7 +448,7 @@ export default function EditProject() {
               token
             );
           } catch (error) {
-            toast.error("Error updating finance execution.");
+            toast.error(t("Error updating finance execution."));
           }
         }
 
@@ -507,12 +457,7 @@ export default function EditProject() {
         const projectName = formData.projectName || initialValues.projectName;
 
         if (!projectName) {
-          toast.error("Project name is required");
-          return;
-        }
-
-        if (!userId) {
-          toast.error("User information not found");
+          toast.error(t("Project name is required"));
           return;
         }
 
@@ -533,16 +478,13 @@ export default function EditProject() {
               updateResponse?.data?.statusCode === 200
             ) {
               navigate("/project-management");
-              toast.success(updateResponse?.data?.message);
-            } else {
-              toast.error("Error updating users.");
+              toast.success(t(updateResponse?.data?.message));
             }
           } catch (error) {
-            toast.error("Error updating project members.");
           }
         } else {
           navigate("/project-management");
-          toast.success(response?.data?.message);
+          toast.success(t(response?.data?.message));
         }
 
         if (
@@ -551,30 +493,20 @@ export default function EditProject() {
           !formData.status.trim() ||
           !formData.projectId.trim()
         ) {
-          toast.error("All fields are required.");
+          toast.error(t("All fields are required."));
           return;
         }
         try {
-          if (!token) {
-            throw new Error("No token found");
-          }
 
           if (response.status === 200 || response.status === 201) {
             toast.success(response.data.message);
-          } else {
-            toast.error("Failed to add milestone.");
           }
         } catch (error) {
-          toast.error(
-            error.response?.data?.message ||
-              error.message ||
-              "Something went wrong. Please try again."
-          );
-          console.error("Error:", error);
+          toast.error(t(error.response?.data?.message) ||t(error.message) );
         }
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message);
+      toast.error(t(error?.response?.data?.message));
     }
     navigate("/");
   };
@@ -614,14 +546,12 @@ export default function EditProject() {
   const handleClientUsersChange = (selectedOptions) => {
     const existingMember = modalClientMembers || [];
 
-    // Map new selections to the expected structure
     const newMember = selectedOptions.map((option) => ({
       _id: option.value,
       userName: option.label,
       avatar: option.avatar,
     }));
 
-    // Merge new and existing members, ensuring uniqueness
     const mergedMember = [
       ...existingMember.filter((member) =>
         newMember.every((newM) => newM._id !== member._id)
@@ -695,13 +625,12 @@ export default function EditProject() {
     }));
 
     setSelectedFiles((prevFiles) => {
-      // Check for duplicates by name or file reference
       const existingFileNames = new Set(prevFiles.map((f) => f.name));
 
       const uniqueNewFiles = newFiles.filter((file) => {
         if (existingFileNames.has(file.name)) {
-          toast.error("This file is already selected.");
-          return false; // Exclude duplicate
+          toast.error(t("This file is already selected."));
+          return false;
         }
         return true;
       });
@@ -796,9 +725,7 @@ export default function EditProject() {
                       );
 
                       if (!isValid) {
-                        toast.error(
-                          "Selected file should not be greater than 5MB."
-                        );
+                        toast.error(t("Selected file should not be greater than 5MB."));
                         e.target.value = "";
                         return;
                       }
@@ -860,7 +787,6 @@ export default function EditProject() {
                 label: area.businessArea,
               }));
 
-              // Find the initial value based on the name from API
               const initialValue =
                 options.find(
                   (option) => option.label === initialValues.businessArea
@@ -946,7 +872,7 @@ export default function EditProject() {
             )}
           />
           {errors.projectName && (
-            <span className="text-red-600">{errors.projectName.message}</span>
+            <span className="text-red-600">{t(errors.projectName.message)}</span>
           )}
         </div>
         <div className="mb-4">
@@ -967,7 +893,7 @@ export default function EditProject() {
             )}
           />
           {errors.description && (
-            <span className="text-red-600">{errors.description.message}</span>
+            <span className="text-red-600">{t(errors.description.message)}</span>
           )}
         </div>
 
@@ -986,14 +912,13 @@ export default function EditProject() {
                 type="text"
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                 onChange={(e) => {
-                  // Ensure we're only setting a string value
                   field.onChange(e.target.value);
                 }}
               />
             )}
           />
           {errors.location && (
-            <span className="text-red-600">{errors.location.message}</span>
+            <span className="text-red-600">{t(errors.location.message)}</span>
           )}
         </div>
         {!isCreateMode && (
@@ -1005,7 +930,7 @@ export default function EditProject() {
               name="status"
               control={control}
               rules={{ required: "Status is required" }}
-              defaultValue="Pending"
+              defaultValue="Ongoing"
               render={({ field }) => (
                 <select
                   {...field}
@@ -1019,7 +944,7 @@ export default function EditProject() {
               )}
             />
             {errors.status && (
-              <span className="text-red-600">{errors.status.message}</span>
+              <span className="text-red-600">{t(errors.status.message)}</span>
             )}
           </div>
         )}
@@ -1055,7 +980,6 @@ export default function EditProject() {
                     dateFormat="MM/dd/yyyy"
                     placeholderText="Select start and end date"
                     wrapperClassName="w-full"
-                    // minDate={new Date()}
                   />
                 </div>
               );
@@ -1063,7 +987,7 @@ export default function EditProject() {
           />
 
           {errors.deadline && (
-            <span className="text-red-600">{errors.deadline.message}</span>
+            <span className="text-red-600">{t(errors.deadline.message)}</span>
           )}
         </div>
         {!isCreateMode && FinancialExecution?.length > 0 && (
@@ -1301,7 +1225,7 @@ export default function EditProject() {
               />
               {errors.teamMembers && (
                 <span className="text-red-600">
-                  {errors.teamMembers.message}
+                  {t(errors.teamMembers.message)}
                 </span>
               )}
             </>
@@ -1386,7 +1310,7 @@ export default function EditProject() {
                   />
                   {errors.teamMembers && (
                     <span className="text-red-600">
-                      {errors.teamMembers.message}
+                      {t(errors.teamMembers.message)}
                     </span>
                   )}
                 </>
@@ -1538,7 +1462,7 @@ export default function EditProject() {
               />
               {errors.clientMembers && (
                 <span className="text-red-600">
-                  {errors.clientMembers.message}
+                  {t(errors.clientMembers.message)}
                 </span>
               )}
             </>
@@ -1646,7 +1570,7 @@ export default function EditProject() {
 
                   {errors.clientMembers && (
                     <span className="text-red-600">
-                      {errors.clientMembers.message}
+                      {t(errors.clientMembers.message)}
                     </span>
                   )}
                 </>

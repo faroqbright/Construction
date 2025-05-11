@@ -1,4 +1,3 @@
-import React from "react";
 import RolesTable from "./RolesTable";
 import UsersTable from "./UsersTable";
 import RolePermissions from "../../../utils/RolePermissions";

@@ -11,15 +11,14 @@ import {
   Chip,
   FormControl,
 } from "@mui/material";
-// import { GrFormNext, GrFormPrevious } from "react-icons/gr"; // Not used in renderItem, can be removed
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../../../utils/i18n"; // Ensure this path is correct
+import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useSelector } from "react-redux";
-import apiRequest from "../../../utils/apiRequest"; // Ensure this path is correct
+import apiRequest from "../../../utils/apiRequest";
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
@@ -29,7 +28,7 @@ export default function Report() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const activeTab = queryParams.get("tab") || "All Projects";
-  const [selectedTab, setSelectedTab] = useState("All Projects"); // Used for filtering logic
+  const [selectedTab, setSelectedTab] = useState("All Projects");
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -37,21 +36,12 @@ export default function Report() {
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState("Chronological");
   const token = useSelector((state) => state.auth.userToken);
-  // FIX 1: Initialize selectedMonth with null for DatePicker compatibility
   const [selectedMonth, setSelectedMonth] = useState(null);
-  // const currentYear = new Date().getFullYear(); // Not actively used, can be removed if not needed elsewhere
-
-  // const months = [ ... ]; // Not actively used, can be removed if not needed elsewhere
-
-  // Sync selectedTab state with URL param on initial load or URL change
   useEffect(() => {
     const currentTabInUrl = queryParams.get("tab") || "All Projects";
     setSelectedTab(currentTabInUrl);
-    // If using selectedTabTwo for UI, sync it as well if needed:
     setSelectedTabTwo(currentTabInUrl);
-    // Reset page if tab changes via URL potentially
-    // setPage(1); // Uncomment if resetting page on URL-driven tab change is desired
-  }, [location.search]); // Depend on location.search to react to URL changes
+  }, [location.search]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -62,30 +52,25 @@ export default function Report() {
         if (response?.status === 200) {
           setDocuments(response?.data || []);
         } else {
-          console.error("Failed to fetch documents:", response);
-          setDocuments([]); // Clear documents on failure
+          setDocuments([]);
         }
       } catch (error) {
-        console.error("Error fetching documents:", error);
-        toast.error("Error fetching reports."); // Basic error toast
-        setDocuments([]); // Clear documents on error
+        setDocuments([])
       } finally {
         setLoading(false);
       }
     };
 
     if (token) {
-      // Only fetch if token exists
       fetchProjects();
     }
-  }, [token]); // Re-fetch only when token changes
+  }, [token]);
 
   const handleOpenFile = (fileUrl) => {
     if (!fileUrl) {
       toast.error("File URL not available!");
       return;
     }
-    // Added rel="noopener noreferrer" for security
     window.open(fileUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -109,86 +94,67 @@ export default function Report() {
     [TAB_KEYS.REJECTED]: "Rejected",
   };
 
-  // This state controls the visual appearance of the tabs
   const [selectedTabTwo, setSelectedTabTwo] = useState(() => {
-    return queryParams.get("tab") || TAB_KEYS.ALL; // Initialize based on URL
+    return queryParams.get("tab") || TAB_KEYS.ALL;
   });
 
   const handleTabChange = (tabKey) => {
     setPage(1);
-    setSelectedTabTwo(tabKey); // Update visual state
-    setSelectedTab(tabKey); // Update filter state
-    // Update URL without full page reload
+    setSelectedTabTwo(tabKey);
+    setSelectedTab(tabKey);
     navigate(`/report?tab=${encodeURIComponent(tabKey)}`, { replace: true });
   };
 
   const sortDocuments = (docs) => {
-    // Create a mutable copy before sorting
     const sortedDocs = [...docs];
     if (sortOption === "Alphabetical") {
-      // Add safety checks for projName
       return sortedDocs.sort((a, b) =>
         (a.projName || "").localeCompare(b.projName || "")
       );
     } else {
-      // Chronological (assuming newest first)
-      // Add safety checks for uploadedAt
       return sortedDocs.sort(
         (a, b) => (new Date(b.uploadedAt) || 0) - (new Date(a.uploadedAt) || 0)
       );
     }
   };
 
-  // FIX 2: Corrected filtering logic
   const filteredDocuments = Array.isArray(documents)
     ? sortDocuments(
-        // Apply sorting *after* filtering
         documents.filter((doc) => {
-          if (!doc || !doc.status || !doc.uploadedAt) return false; // Basic safety check for required fields
-
-          // --- Tab Filter (uses selectedTab synced from URL/click) ---
+          if (!doc || !doc.status || !doc.uploadedAt) return false;
           const matchesTab =
-            selectedTab === TAB_KEYS.ALL || // Compare with the state variable used for filtering
+            selectedTab === TAB_KEYS.ALL ||
             doc.status.toLowerCase() === selectedTab.toLowerCase();
 
-          // --- Month Filter ---
-          let matchesMonth = true; // Default to true (don't filter by month if none selected)
+          let matchesMonth = true;
           if (selectedMonth instanceof Date && !isNaN(selectedMonth)) {
-            // Check if selectedMonth is a valid Date
             try {
               const docDate = new Date(doc.uploadedAt);
               if (!isNaN(docDate)) {
-                // Check if docDate is valid
                 matchesMonth =
                   docDate.getMonth() === selectedMonth.getMonth() &&
                   docDate.getFullYear() === selectedMonth.getFullYear();
               } else {
-                matchesMonth = false; // Invalid document date
+                matchesMonth = false;
               }
             } catch (e) {
-              matchesMonth = false; // Error parsing date
+              matchesMonth = false;
             }
           }
-          // If selectedMonth is null or invalid, matchesMonth remains true
-
-          // Combine filters
           return matchesTab && matchesMonth;
         })
       )
     : [];
 
   const startIndex = (page - 1) * recordsPerPage;
-  // Use optional chaining on filteredDocuments as it might be undefined briefly
   const paginatedDocuments = filteredDocuments?.slice(
     startIndex,
     startIndex + recordsPerPage
   );
 
   const handleStatusUpdate = async (docId, newStatus) => {
-    // Basic check
     if (!docId || !newStatus) return;
 
-    // Optimistic UI update (optional, but good UX)
     const originalDocuments = [...documents];
     setDocuments((prevDocs) =>
       prevDocs.map((doc) =>
@@ -204,31 +170,21 @@ export default function Report() {
         token
       );
 
-      // Check specifically for success status codes
       if (response?.status === 200 || response?.status === 201) {
-        toast.success(`Status changed to ${newStatus} successfully!`);
-        // Data already updated optimistically, or could re-fetch here if needed
+        toast.success(t("Status changed successfully!"));
       } else {
-        toast.error("Status update failed. Please try again.");
-        setDocuments(originalDocuments); // Revert optimistic update on failure
+        setDocuments(originalDocuments);
       }
     } catch (error) {
-      console.error("Status update error:", error);
-      toast.error("An error occurred while updating status.");
-      setDocuments(originalDocuments); // Revert optimistic update on error
+      setDocuments(originalDocuments);
     }
   };
 
   const handleSortChange = (event) => {
     setSortOption(event.target.value);
-    setPage(1); // Reset to first page when sorting changes
+    setPage(1);
   };
 
-  // FIX 3: Remove the unused function and state variable
-  // const filterDocumentsByMonth = (documents, selectedDate) => { ... }; // REMOVED
-  // const filteredDocumentsTwo = filterDocumentsByMonth(documents, selectedMonth); // REMOVED
-
-  // --- JSX Structure (Identical to your original code) ---
   return (
     <div className="min-h-screen px-4 py-2">
       <div className="flex items-center space-x-3 mb-10">
@@ -249,7 +205,6 @@ export default function Report() {
                 value={sortOption}
                 onChange={handleSortChange}
                 className="rounded-lg border-none focus:ring-0"
-                // Add displayEmpty and renderValue for better placeholder behavior if needed
               >
                 <MenuItem value="Chronological">
                   {t("Sort")}: {t("Chronological")}
@@ -259,7 +214,6 @@ export default function Report() {
             </FormControl>
           </div>
 
-          {/* Date Select */}
           <div className="bg-white rounded-lg border border-gray-300 p-2">
             <DatePicker
               selected={selectedMonth} // Use the state variable (now initialized to null)
@@ -277,14 +231,12 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Search Field  */}
         <div className="bg-white rounded-lg border border-gray-300 ml-auto">
           <TextField
             placeholder={t("Write_Your_Message")} // Consider changing placeholder to "Search..."
             size="small"
             className="w-[24rem]"
             variant="outlined"
-            // Add value and onChange handlers here if you intend to implement search
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -295,7 +247,6 @@ export default function Report() {
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "0.5rem", // Tailwind's rounded-lg equivalent
-                // Remove internal border if DatePicker/Select don't have it
                 "& .MuiOutlinedInput-notchedOutline": { border: "none" },
               },
             }}
@@ -316,7 +267,6 @@ export default function Report() {
               py: 3,
               px: 3,
               borderRadius: "9999px",
-              // Use selectedTabTwo for visual styling consistency
               backgroundColor: selectedTabTwo === tabKey ? "#B91724" : "white",
               color: selectedTabTwo === tabKey ? "white" : "black",
               fontWeight: selectedTabTwo === tabKey ? "bold" : "normal",
@@ -337,7 +287,6 @@ export default function Report() {
         </h2>
         <div className="w-full flex justify-end p-4">
           {" "}
-          {/* Might overlap with title, adjust layout if needed */}
           <Button
             variant="contained"
             sx={{
@@ -354,13 +303,11 @@ export default function Report() {
           </Button>
         </div>
       </div>
-      {/* Table */}
       <div className="bg-white rounded-lg shadow-md p-4 mt-4">
         <div className="overflow-x-auto">
           <table className="min-w-full text-black-blacknew border-gray-200 text-sm">
             <thead className="text-black-blacknew font-semibold">
               <tr className="bg-white">
-                {/* Consider removing checkbox if not used for bulk actions */}
                 <th className="pr-10">
                   <input type="checkbox" />
                 </th>
@@ -375,7 +322,6 @@ export default function Report() {
               </tr>
             </thead>
             <tbody>
-              {/* Add Loading State Display */}
               {loading ? (
                 <tr>
                   <td colSpan="7" className="p-4 text-center text-gray-500">
@@ -385,23 +331,20 @@ export default function Report() {
               ) : paginatedDocuments && paginatedDocuments.length > 0 ? ( // Check paginatedDocuments directly
                 paginatedDocuments.map(
                   (
-                    doc // Use doc._id if available and unique, otherwise index is fallback
+                    doc
                   ) => (
                     <tr
                       key={doc._id || index}
                       className="hover:bg-gray-50 border-b"
                     >
                       {" "}
-                      {/* Use unique key, add border */}
                       <td className="p-5">
-                        {/* Ensure checkbox has associated state if selection is needed */}
                         <input type="checkbox" />
                       </td>
                       <td className="p-4 font-semibold">
                         {doc.projName || "-"}
                       </td>
                       <td className="p-4 font-normal">
-                        {/* Improved filename display */}
                         {doc.fileName ? (
                           doc.fileName.length > 20 ? (
                             `${doc.fileName.substring(
@@ -419,16 +362,13 @@ export default function Report() {
                       </td>
                       <td className="p-4 capitalize">
                         {" "}
-                        {/* Use capitalize class */}
                         {doc.status === "approved"
                           ? t("approved")
                           : doc.status === "rejected"
                           ? t("rejected")
                           : t("No_Report")}
-                        {/* Display status directly, maybe add styling/badge */}
                       </td>
                       <td className="p-4">
-                        {/* Capitalize name */}
                         {doc.user
                           ? doc.user
                               .split(" ")
@@ -440,18 +380,12 @@ export default function Report() {
                           : "-"}
                       </td>{" "}
                       <td className="p-4 font-normal">
-                        {/* Format date consistently */}
                         {doc.uploadedAt
                           ? new Date(doc.uploadedAt).toLocaleDateString()
                           : "-"}
                       </td>
                       <td className="p-4">
-                        {" "}
-                        {/* Adjusted padding */}
-                        {/* Action Buttons */}
                         <div className="flex items-center justify-start gap-x-2 pl-8">
-                          {" "}
-                          {/* Align actions better */}
                           <Button
                             startIcon={<MdOutlineFileDownload />}
                             sx={{
@@ -499,10 +433,8 @@ export default function Report() {
                 )
               ) : (
                 <tr>
-                  {/* Adjust colspan if checkbox column is removed */}
                   <td colSpan="7" className="p-6 text-center text-gray-500">
                     {" "}
-                    {/* Increased padding */}
                     {t("No_Data_Available")}
                   </td>
                 </tr>
@@ -512,8 +444,6 @@ export default function Report() {
         </div>
       </div>
 
-      {/* Pagination */}
-      {/* Only render pagination if there are documents to paginate */}
       {filteredDocuments && filteredDocuments.length > recordsPerPage && (
         <div className="flex justify-end items-center mt-4">
           <Pagination
@@ -541,7 +471,6 @@ export default function Report() {
                 backgroundColor: "transparent",
                 color: "black",
                 "&.Mui-disabled": {
-                  // Style disabled arrows
                   opacity: 0.5,
                 },
               },
@@ -549,7 +478,6 @@ export default function Report() {
             renderItem={(item) => (
               <PaginationItem
                 {...item}
-                // Use default icons, provide text via translation
                 slots={{
                   previous: () => <span className="px-1">{t("Previous")}</span>, // Add padding for text
                   next: () => <span className="px-1">{t("Next")}</span>, // Add padding for text

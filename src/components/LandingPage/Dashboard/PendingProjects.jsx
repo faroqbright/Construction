@@ -1,9 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import noti from "../../../assets/notif.svg";
-import profile from "../../../assets/Profil.svg";
-import project from "../../../assets/Image (1).svg";
-import report from "../../../assets/Image.svg";
-import time from "../../../assets/Time Circle.svg";
+import { useEffect, useRef, useState, useCallback } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-circular-progressbar/dist/styles.css";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
@@ -17,7 +12,7 @@ import Slider from "react-slick";
 import { useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { Clock, Clock1 } from "lucide-react";
+import { Clock1 } from "lucide-react";
 import "../../../utils/i18n";
 import { Button } from "@mui/material";
 import apiRequest from "../../../utils/apiRequest";
@@ -26,82 +21,14 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FaRecordVinyl } from "react-icons/fa6";
 import { MdOutlineFileDownload } from "react-icons/md";
-import { FaStar } from "react-icons/fa";
 
 const PendingProjects = () => {
   const [datas, setDatas] = useState([]);
   const [completed, setcompleted] = useState([]);
   const [documents, setDocuments] = useState([]);
   const navigate = useNavigate();
-  const sliderRef = useRef(null);
   const { t } = useTranslation();
   const token = useSelector((state) => state.auth.userToken);
-  const userId = useSelector((state) => state?.auth?.userInfo?._id);
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [reviewText, setReviewText] = useState("");
-
-  const openReviewModal = () => {
-    setIsReviewModalOpen(true);
-  };
-
-  const closeReviewModal = () => {
-    setIsReviewModalOpen(false);
-  };
-
-  const handleRatingChange = (newRating) => {
-    setRating(newRating);
-  };
-
-  const handleReviewTextChange = (event) => {
-    setReviewText(event.target.value);
-  };
-
-  const handleSubmitReview = async () => {
-    console.log("id", selectedProjectId);
-
-    try {
-      const payload = {
-        projectId: selectedProjectId,
-        userId: userId,
-        message: reviewText,
-        rating: rating,
-      };
-
-      const response = await apiRequest("post", "/reviews", payload, token);
-
-      if (response.status === 201) {
-        console.log("Review submitted successfully!");
-        closeReviewModal();
-      } else {
-        console.error("Error submitting review:", response.data);
-      }
-    } catch (error) {
-      console.error("Error submitting review:", error);
-    }
-  };
-
-  const StarRating = ({ rating, onRatingChange }) => {
-    return (
-      <div className="flex justify-center gap-2 mt-4 mb-6">
-        {[...Array(5)].map((_, index) => {
-          const starValue = index + 1;
-          return (
-            <FaStar
-              key={index}
-              color={starValue <= rating ? "#ffc107" : "#e4e5e9"}
-              onClick={() => onRatingChange(starValue)}
-              style={{
-                cursor: "pointer",
-                width: "24px",
-                height: "24px",
-              }}
-            />
-          );
-        })}
-      </div>
-    );
-  };
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -121,7 +48,6 @@ const PendingProjects = () => {
         setDatas(response.data.data.projects);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error);
     }
   }, [token]);
 
@@ -136,7 +62,6 @@ const PendingProjects = () => {
         setDocuments(approvedDocuments);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error);
     }
   }, [token]);
 
@@ -158,7 +83,6 @@ const PendingProjects = () => {
         setcompleted(response.data.data.projects);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error);
     }
   }, [token]);
 
@@ -182,7 +106,6 @@ const PendingProjects = () => {
         setongoing(response.data.data.projects);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error);
     }
   }, [token]);
 
@@ -281,7 +204,6 @@ const PendingProjects = () => {
     navigate(`/details/${id}`);
   };
 
-  // State to manage modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [modalDocuments, setModalDocuments] = useState([]);
@@ -307,9 +229,6 @@ const PendingProjects = () => {
         if (response?.data?.statusCode === 200) {
           const data = response?.data?.data;
           setModalDocuments(data.documents);
-          console.log("Data is:", modalDocuments);
-        } else {
-          setError("Project not found.");
         }
       } catch (error) {
         setError("Error fetching project data");
@@ -338,9 +257,7 @@ const PendingProjects = () => {
   return (
     <>
       <div className="px-4 py-6 pl-8">
-        {/* Header */}
 
-        {/* Pending Projects */}
         <div className="w-full max-w-7xl ">
           <div className="h-full slider-container">
             <header className="mb-6 flex justify-between">
@@ -366,7 +283,6 @@ const PendingProjects = () => {
               </div>
             </header>
 
-            {/* Slider Section */}
             <div className="slider-container  ">
               <Slider ref={sliderRefProjects} {...settings}>
                 {ongoing.length > 0 ? (
@@ -376,7 +292,6 @@ const PendingProjects = () => {
                       className="bg-white rounded-lg justify-between w-full p-4 flex flex-col"
                       style={{ marginLeft: project ? "50px" : "0px" }}
                     >
-                      {/* Image */}
                       {project.projectBanner?.length > 0 ? (
                         <Swiper
                           spaceBetween={10}
@@ -396,13 +311,11 @@ const PendingProjects = () => {
                         </Swiper>
                       ) : (
                         <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
-                          {/* <FaRecordVinyl className="w-8 h-8 text-gray-500" /> */}
                           <p className="text-gray-500 text-sm mt-1">
                             <img src={logo} alt="" />
                           </p>
                         </div>
                       )}
-                      {/* Content */}
                       <div>
                         <div
                           onClick={() => handleViewProjectClick(project._id)}
@@ -433,7 +346,6 @@ const PendingProjects = () => {
                             </span>
                           </div>
 
-                          {/* Progress Bars */}
                           <div className="mt-3 space-y-2">
                             <div className="flex items-center justify-between">
                               <p className="text-black font-medium text-sm">
@@ -478,7 +390,6 @@ const PendingProjects = () => {
                               </h6>
                             </div>
                             <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                              {/* Progress Bar - Gray when 0%, Red when >0% */}
                               <div
                                 className={`h-2 rounded-full transition-all ${
                                   project?.financeDocuments?.[0]
@@ -491,7 +402,6 @@ const PendingProjects = () => {
                                 }}
                               ></div>
 
-                              {/* Indicator Circle - Always Red */}
                               <div
                                 className="w-5 h-5 bg-red-500 rounded-full absolute top-1/2 -translate-y-1/2 
                                 flex items-center justify-center shadow-md cursor-pointer transition-all"
@@ -505,7 +415,6 @@ const PendingProjects = () => {
                           </div>
                         </div>
                         <div>
-                          {/* Button to open the modal */}
                           <button
                             className="text-[#54577A] underline"
                             onClick={() => openModal(project._id)}
@@ -513,7 +422,6 @@ const PendingProjects = () => {
                             {t("deliverables_attached")}
                           </button>
 
-                          {/* Modal */}
                           <Modal
                             open={isModalOpen}
                             onClose={closeModal}
@@ -553,7 +461,6 @@ const PendingProjects = () => {
                                         key={index}
                                         className="flex items-start bg-gray-100 p-3 rounded-lg"
                                       >
-                                        {/* PDF Icon */}
                                         <div className="w-14 h-14 flex items-center justify-center bg-gray-200 rounded-lg">
                                           <img
                                             src={pdf}
@@ -561,7 +468,6 @@ const PendingProjects = () => {
                                             className="w-10 h-10"
                                           />
                                         </div>
-                                        {/* File Details */}
                                         <div className="ml-3 flex-1">
                                           <p className="text-sm font-semibold text-gray-700">
                                             {file.fileName}
@@ -570,7 +476,6 @@ const PendingProjects = () => {
                                             Uploaded by: {file.user}
                                           </p>
                                         </div>
-                                        {/* Download Button (Optional) */}
                                         <a
                                           href={file.fileUrl}
                                           target="_blank"
@@ -719,7 +624,6 @@ const PendingProjects = () => {
               </div>
             </header>
 
-            {/* Slider Section */}
             <div className="slider-container  ">
               <Slider ref={sliderRefProjects} {...settings}>
                 {datas.length > 0 ? (
@@ -729,7 +633,6 @@ const PendingProjects = () => {
                       className="bg-white rounded-lg justify-between w-full p-4 flex flex-col"
                       style={{ marginLeft: project ? "50px" : "0px" }}
                     >
-                      {/* Image */}
                       {project.projectBanner?.length > 0 ? (
                         <Swiper
                           spaceBetween={10}
@@ -749,13 +652,11 @@ const PendingProjects = () => {
                         </Swiper>
                       ) : (
                         <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
-                          {/* <FaRecordVinyl className="w-8 h-8 text-gray-500" /> */}
                           <p className="text-gray-500 text-sm mt-1">
                             <img src={logo} alt="" />
                           </p>
                         </div>
                       )}
-                      {/* Content */}
                       <div>
                         <div
                           onClick={() => handleViewProjectClick(project._id)}
@@ -786,7 +687,6 @@ const PendingProjects = () => {
                             </span>
                           </div>
 
-                          {/* Progress Bars */}
                           <div className="mt-3 space-y-2">
                             <div className="flex items-center justify-between">
                               <p className="text-black font-medium text-sm">
@@ -831,7 +731,6 @@ const PendingProjects = () => {
                               </h6>
                             </div>
                             <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                              {/* Progress Bar - Gray when 0%, Red when >0% */}
                               <div
                                 className={`h-2 rounded-full transition-all ${
                                   project?.financeDocuments?.[0]
@@ -844,7 +743,6 @@ const PendingProjects = () => {
                                 }}
                               ></div>
 
-                              {/* Indicator Circle - Always Red */}
                               <div
                                 className="w-5 h-5 bg-red-500 rounded-full absolute top-1/2 -translate-y-1/2 
                                 flex items-center justify-center shadow-md cursor-pointer transition-all"
@@ -858,7 +756,6 @@ const PendingProjects = () => {
                           </div>
                         </div>
                         <div>
-                          {/* Button to open the modal */}
                           <button
                             className="text-[#54577A] underline"
                             onClick={() => openModal(project._id)}
@@ -906,7 +803,6 @@ const PendingProjects = () => {
                                         key={index}
                                         className="flex items-start bg-gray-100 p-3 rounded-lg"
                                       >
-                                        {/* PDF Icon */}
                                         <div className="w-14 h-14 flex items-center justify-center bg-gray-200 rounded-lg">
                                           <img
                                             src={pdf}
@@ -914,7 +810,6 @@ const PendingProjects = () => {
                                             className="w-10 h-10"
                                           />
                                         </div>
-                                        {/* File Details */}
                                         <div className="ml-3 flex-1">
                                           <p className="text-sm font-semibold text-gray-700">
                                             {file.fileName}
@@ -923,7 +818,6 @@ const PendingProjects = () => {
                                             Uploaded by: {file.user}
                                           </p>
                                         </div>
-                                        {/* Download Button (Optional) */}
                                         <a
                                           href={file.fileUrl}
                                           target="_blank"
@@ -999,7 +893,6 @@ const PendingProjects = () => {
               </div>
             </header>
 
-            {/* Slider Section */}
             <div className="slider-container ">
               <Slider ref={sliderRefReportsThree} {...settings}>
                 {completed.length > 0 ? (
@@ -1008,7 +901,6 @@ const PendingProjects = () => {
                       key={project._id}
                       className="bg-white rounded-lg cursor-pointer shadow-lg p-4 flex flex-col "
                     >
-                      {/* Image */}
                       {project.projectBanner?.length > 0 ? (
                         <Swiper
                           spaceBetween={10}
@@ -1037,7 +929,6 @@ const PendingProjects = () => {
                           </p>
                         </div>
                       )}
-                      {/* Content */}
                       <div>
                         <div
                           className="cursor-pointer"
@@ -1068,7 +959,6 @@ const PendingProjects = () => {
                             </span>
                           </div>
 
-                          {/* Progress Bars */}
                           <div className="mt-3 space-y-2">
                             <div className="flex items-center justify-between">
                               <p className="text-black font-medium text-sm">
@@ -1114,7 +1004,6 @@ const PendingProjects = () => {
                                 </h6>
                               </div>
                               <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                                {/* Progress Bar - Gray when 0%, Red when >0% */}
                                 <div
                                   className={`h-2 rounded-full transition-all ${
                                     project?.financeDocuments?.[0]
@@ -1127,7 +1016,6 @@ const PendingProjects = () => {
                                   }}
                                 ></div>
 
-                                {/* Indicator Circle - Always Red */}
                                 <div
                                   className="w-5 h-5 bg-red-500 rounded-full absolute top-1/2 -translate-y-1/2 
       flex items-center justify-center shadow-md cursor-pointer transition-all"
@@ -1148,83 +1036,7 @@ const PendingProjects = () => {
                           >
                             {t("deliverables_attached")}
                           </button>
-                          {/* <button
-                            className="text-[#54577A] underline"
-                            onClick={() => {
-                              setSelectedProjectId(project._id); 
-                              openReviewModal();
-                            }}
-                          >
-                            {t("Write a Review")}
-                          </button> */}
                         </div>
-
-                        {/* <Modal
-                          open={isReviewModalOpen}
-                          onClose={closeReviewModal}
-                          aria-labelledby="review-modal-title"
-                          aria-describedby="review-modal-description"
-                        >
-                          <Box
-                            sx={{
-                              ...modalStyle,
-                              borderRadius: "16px",
-                              height: "auto",
-                              width: "600px",
-                              display: "flex",
-                              flexDirection: "column",
-                              padding: "24px",
-                              position: "relative", // needed for absolute positioning of the close button
-                            }}
-                          >
-                            {/* Close Icon */}
-                            {/* <button
-                              onClick={closeReviewModal}
-                              className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl font-bold"
-                              aria-label="Close"
-                            >
-                              ×
-                            </button>
-
-                            <h2
-                              id="review-modal-title"
-                              className="flex justify-center text-xl font-semibold text-black-blacknew mb-4"
-                            >
-                              {t("Write a Review")}
-                            </h2>
-
-                            <StarRating
-                              rating={rating}
-                              onRatingChange={handleRatingChange}
-                            />
-                            <h4 className="text-xl font-medium text-black-blacknew">
-                              {t("Write a Description")}
-                            </h4>
-                            <textarea
-                              id="review-modal-description"
-                              className="w-full h-32 p-2 border border-gray-300 rounded-xl mt-4"
-                              placeholder={t("Your_review_here")}
-                              value={reviewText}
-                              onChange={handleReviewTextChange}
-                            ></textarea>
-
-                            <div className="flex justify-end mt-8 gap-2">
-                              <button
-                                onClick={handleSubmitReview}
-                                className="px-4 py-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
-                              >
-                                {t("Submit Review")}
-                              </button>
-                              <button
-                                onClick={closeReviewModal}
-                                className="px-4 py-2 mr-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
-                              >
-                                {t("Cancel")}
-                              </button>
-                            </div>
-                          </Box>
-                        </Modal> */}
-                         
                       </div>
                     </div>
                   ))

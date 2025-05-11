@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Box, Typography, Checkbox, Button } from "@mui/material";
 import apiRequest from "../../../utils/apiRequest";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import socket from "../../../websockets/socket";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
 
 export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
-  console.log(roleData);
 
   const token = useSelector((state) => state?.auth?.userToken);
   const { t } = useTranslation();
@@ -123,14 +122,11 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
         token
       );
       if (response.status === 200) {
-        toast.success("Access updated successfully.");
+        toast.success(t("Access updated successfully."));
         onClose();
-      } else {
-        toast.error("Failed to update access.");
       }
     } catch (error) {
-      console.error("Error updating access:", error);
-      toast.error(error.message || "Something went wrong.");
+      toast.error(t(error.message));
     }
   };
 
@@ -152,19 +148,6 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
 
   const resetAccess = () => {
     setAccess(initialAccess);
-  };
-
-  const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "90%",
-    maxWidth: "500px",
-    bgcolor: "background.paper",
-    boxShadow: 24,
-    borderRadius: "8px",
-    p: 4,
   };
 
   return (
@@ -191,12 +174,10 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
         }}
         className="shadow-lg"
       >
-        {/* Heading - Stays Fixed */}
         <Typography variant="h6" className="text-lg font-semibold mb-6">
           {t("Manage_Access")}
         </Typography>
 
-        {/* Scrollable Div for Access Buttons */}
         <div className="max-h-[300px] scrollbar-custom overflow-y-auto px-2">
           {["add", "edit", "delete", "view"].map((action) => (
             <div key={action} className="mb-4">
@@ -215,7 +196,6 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
                   { key: "evaluation", label: t("Evaluation") },
                   { key: "users", label: t("Users") },
                   { key: "finance", label: t("Billing") },
-                  // { key: "document", label:  t("Document") },
                   { key: "company", label: t("Company") },
                   ...(action === "view"
                     ? [{ key: "history", label: t("History") }]
@@ -238,7 +218,6 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
           ))}
         </div>
 
-        {/* Buttons - Stays Fixed */}
         <div className="flex justify-end gap-4 mt-4">
           <Button
             variant="contained"

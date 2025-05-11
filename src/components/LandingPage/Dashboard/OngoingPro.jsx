@@ -1,11 +1,8 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import time from "../../../assets/Time Circle.svg";
-import student from "../../../assets/Student.svg";
+import { useEffect, useState, useCallback } from "react";
 import Notification from "../../../assets/Photo 4.svg";
 import student2 from "../../../assets/Photo 2.svg";
 import student3 from "../../../assets/Photo 3.svg";
 import logo from "../../../assets/logo1.png";
-import ongoing from "../../../assets/Image (2).svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-circular-progressbar/dist/styles.css";
@@ -18,12 +15,10 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { FaRecordVinyl } from "react-icons/fa6";
 
 const OngoingPro = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [datas, setDatas] = useState([]);
-  const sliderRef = useRef(null);
   const { t } = useTranslation();
 
   const token = useSelector((state) => state.auth.userToken);
@@ -45,7 +40,6 @@ const OngoingPro = () => {
         setDatas(response.data.data.projects);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error);
     }
   }, [token]);
 
@@ -62,7 +56,7 @@ const OngoingPro = () => {
     <div className="flex flex-col w-full max-w-4xl space-y-1 items-center overflow-x-hidden">
       <DatePicker
         selected={selectedDate}
-        onChange={() => {}} // Prevents any change in date
+        onChange={() => {}}
         inline
         calendarClassName="custom-calendar"
         className="w-[360px]"

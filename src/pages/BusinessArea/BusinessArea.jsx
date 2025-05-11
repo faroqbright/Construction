@@ -1,4 +1,3 @@
-import React from 'react'
 import BusinessArea from '../../components/LandingPage/BusinessArea/BusinessArea'
 
 export default function BusinessAreas() {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Rating,
@@ -70,7 +70,6 @@ const ClientEvaluation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log("Projects are:", projectsData);
   const fetchReviewsAndProcessProjects = useCallback(async () => {
     try {
       setLoading(true);
@@ -130,7 +129,6 @@ const ClientEvaluation = () => {
 
       setProjectsData(processedProjects);
     } catch (err) {
-      console.error("Error fetching or processing data:", err);
       setError(t("Failed_To_Load_Data"));
       setProjectsData([]);
     } finally {
@@ -202,8 +200,7 @@ const ClientEvaluation = () => {
 
 const ProjectCard = ({ project, onClick }) => {
   const { t } = useTranslation();
-  const estimatedRating = (Math.random() * 2 + 3).toFixed(1); // Random between 3.0 and 5.0
-  // const estimatedReviews = Math.floor(Math.random() * 50 + 10); 
+  const estimatedRating = (Math.random() * 2 + 3).toFixed(1);
 
   return (
     <ProjectCardStyled onClick={onClick}>

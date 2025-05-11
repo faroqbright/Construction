@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiSettings, FiLogOut } from "react-icons/fi";
 import { HiMenuAlt3 } from "react-icons/hi";
 import noti from "../../../assets/notif.svg";
@@ -15,10 +15,11 @@ import { User } from "lucide-react";
 function Navbar({ toggleSidebar, isOpen }) {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const token = useSelector((state) => state?.auth?.userToken);
-  const name = useSelector((state) => state?.auth?.userInfo?.userName);
-  const profileimg = useSelector((state) => state?.auth?.userInfo?.avatar);
-  const userId = useSelector((state) => state?.auth?.userInfo?._id);
-  const memberId = useSelector((state) => state?.auth?.userInfo?._id);
+  const userInfo = useSelector((state) => state?.auth?.userInfo);
+  const name = userInfo?.userName;
+  const profileimg = userInfo?.avatar;
+  const userId = userInfo?._id;
+  
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -28,47 +29,35 @@ function Navbar({ toggleSidebar, isOpen }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // const fetchNotifications = async (isInitial = false) => {
-  //   if (!userId) return;
+  const handleApiLanguageChange = async (languageCode) => {
+    if (!userId || !token) {
+      return;
+    }
 
-  //   if (isInitial) setLoading(true);
+    let languageSelectedForApi;
+    if (languageCode && languageCode.toLowerCase().startsWith("pt")) {
+      languageSelectedForApi = "portuguese";
+    } else if (languageCode && languageCode.toLowerCase().startsWith("en")) {
+      languageSelectedForApi = "english";
+    } else {
+      return; 
+    }
 
-  //   try {
-  //     const response = await apiRequest("get", "/shownotifications", {}, token);
-  //     if (response.data?.success && response.data?.data) {
-  //       const filteredNotifications = response.data.data.filter(
-  //         (notification) =>
-  //           notification.memberId === userId ||
-  //           notification.projectId === userId ||
-  //           notification._id === userId
-  //       );
+    const endpoint = `/language/${userId}`;
+    const payload = {
+      languageSelected: languageSelectedForApi,
+    };
 
-  //       const transformedNotifications = filteredNotifications.map(
-  //         (notification) => ({
-  //           id: notification._id,
-  //           iconType: 'user', // Instead of storing the element, store a type or identifier
-  //           title: notification.title,
-  //           description: notification.description,
-  //           createdAt: new Date(notification.createdAt).toLocaleString(),
-  //           isRead: notification.isRead,
-  //         })
-  //       );
-  //       // Add new ones on top and avoid duplicates
-  //       setNotifications((prev) => {
-  //         const existingIds = new Set(prev.map((n) => n.id));
-  //         const newOnes = transformedNotifications.filter(
-  //           (n) => !existingIds.has(n.id)
-  //         );
-  //         return [...newOnes, ...prev];
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching notifications:", error);
-  //     toast.error("Failed to load notifications");
-  //   } finally {
-  //     if (isInitial) setLoading(false);
-  //   }
-  // };
+    try {
+      await apiRequest("put", endpoint, payload, token);
+    } catch (error) {
+      if (error?.response?.status === 401) {
+        toast.error(t("Session expired. Please log in again.")); 
+        dispatch(removeUserInfo());
+        navigate("/login");
+      }
+    }
+  };
 
   const fetchNotifications = async (isInitial = false) => {
     if (!userId) return;
@@ -101,19 +90,15 @@ function Navbar({ toggleSidebar, isOpen }) {
           const newOnes = transformedNotifications.filter(
             (n) => !existingIds.has(n.id)
           );
-          return [...newOnes, ...prev];
+          const currentNonNew = prev.filter(p => !newOnes.find(n => n.id === p.id));
+          return [...newOnes, ...currentNonNew];
         });
       }
     } catch (error) {
-      console.error("Error fetching notifications:", error);
-      
-      // Check for unauthorized error
       if (error?.response?.status === 401) {
-        toast.error("Session expired. Please log in again.");
+        toast.success(t("You have been logged out."));
         dispatch(removeUserInfo());
         navigate("/login");
-      } else {
-        toast.error("Failed to load notifications");
       }
     } finally {
       if (isInitial) setLoading(false);
@@ -124,43 +109,47 @@ function Navbar({ toggleSidebar, isOpen }) {
     try {
       const response = await apiRequest(
         "delete",
-        `/shownotifications/${memberId}`,
+        `/shownotifications/${userId}`,
         {},
         token
       );
 
       if (response.data?.success) {
         toast.success("Notifications cleared successfully.");
-        setNotifications([]); // Clear local state
-      } else {
-        toast.error("Failed to clear notifications.");
+        setNotifications([]);
       }
     } catch (error) {
-      console.error("Error clearing notifications:", error);
-      toast.error("Something went wrong.");
+      toast.error(t("Failed to clear notifications."));
     }
   };
 
   const handleClickOutside = (event) => {
     if (
+      activeDropdown === "profile" &&
       profileDropdownRef.current &&
-      !profileDropdownRef.current.contains(event.target) &&
+      !profileDropdownRef.current.contains(event.target)
+    ) {
+      setActiveDropdown(null);
+    }
+    if (
+      activeDropdown === "notification" &&
       notificationDropdownRef.current &&
       !notificationDropdownRef.current.contains(event.target)
     ) {
       setActiveDropdown(null);
     }
   };
+  
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [activeDropdown]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !token) return;
 
     fetchNotifications(true);
 
@@ -169,7 +158,7 @@ function Navbar({ toggleSidebar, isOpen }) {
     }, 7000);
 
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [userId, token]);
 
   const toggleDropdown = (dropdown) => {
     if (dropdown === "notification" && activeDropdown !== "notification") {
@@ -180,9 +169,6 @@ function Navbar({ toggleSidebar, isOpen }) {
 
   const handleLogout = async () => {
     try {
-      if (!token) {
-        throw new Error("No token found");
-      }
       const response = await apiRequest("post", "/users/logout", {}, token);
 
       if (response.data.statusCode === 200) {
@@ -192,12 +178,9 @@ function Navbar({ toggleSidebar, isOpen }) {
     } catch (error) {
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
-      console.error("Error:", error);
     }
   };
 
@@ -235,20 +218,19 @@ function Navbar({ toggleSidebar, isOpen }) {
                     .split(" ")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(" ")
-                : "Unknown"}
+                : t("User")}
             </h1>
           </div>
           <div className="flex items-center sm:space-x-4 space-x-2.5">
-            <LanguageSwitcher />
+            <LanguageSwitcher onLanguageChange={handleApiLanguageChange} /> 
+            
             <div className="sm:mr-4 relative">
               <img
                 src={noti}
                 alt="Notification"
                 className="w-6 h-6 cursor-pointer"
                 onClick={() => toggleDropdown("notification")}
-                ref={notificationDropdownRef}
               />
-              {/* Notification badge */}
               {notifications.some((n) => !n.isRead) && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {notifications.filter((n) => !n.isRead).length}
@@ -262,13 +244,11 @@ function Navbar({ toggleSidebar, isOpen }) {
                   alt="Profile"
                   className="w-10 h-10 rounded-full"
                   onClick={() => toggleDropdown("profile")}
-                  ref={profileDropdownRef}
                 />
               ) : (
                 <div
                   className="rounded-full"
                   onClick={() => toggleDropdown("profile")}
-                  ref={profileDropdownRef}
                 >
                   <User
                     className="bg-slate-400 rounded-full px-1 py-2 text-white "
@@ -281,13 +261,12 @@ function Navbar({ toggleSidebar, isOpen }) {
         </header>
       </div>
 
-      {/* Notification Dropdown */}
       {activeDropdown === "notification" && (
         <div
           className={`absolute top-[60px] w-96 ${
-            isOpen ? "right-56" : "right-24"
+            isOpen && typeof window !== 'undefined' && window.innerWidth >= 1024 ? "right-[280px]" : "right-[100px]"
           } bg-white shadow-lg rounded-lg border border-border z-50`}
-          ref={notificationDropdownRef}
+          ref={notificationDropdownRef} 
         >
           <div className="flex justify-between">
             <div className="p-4 border-b border-border">
@@ -302,7 +281,7 @@ function Navbar({ toggleSidebar, isOpen }) {
           </div>
           {loading ? (
             <div className="p-4 text-center">
-              <p>Loading notifications...</p>
+              <p>{t("Loading notifications...")}</p>
             </div>
           ) : (
             <>
@@ -327,7 +306,9 @@ function Navbar({ toggleSidebar, isOpen }) {
                   >
                     <div className="p-4 hover:bg-gray-50 cursor-pointer">
                       <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">{notification.icon}</div>
+                        <div className="flex-shrink-0">
+                          {notification.iconType === 'user' ? <User size={20} className="text-gray-400" /> : (notification.icon || <User size={20} className="text-gray-400" />)}
+                        </div>
                         <div className="flex-1 space-y-1">
                           <h4 className="text-sm font-medium">
                             {notification.title}
@@ -357,11 +338,10 @@ function Navbar({ toggleSidebar, isOpen }) {
         </div>
       )}
 
-      {/* Profile Dropdown */}
       {activeDropdown === "profile" && (
         <div
           className={`absolute top-[70px] w-44 ${
-            isOpen ? "right-56" : "right-11"
+             isOpen && typeof window !== 'undefined' && window.innerWidth >= 1024 ? "right-[224px]" : "right-[44px]"
           } bg-white shadow-lg rounded-lg border border-border z-50`}
           ref={profileDropdownRef}
         >

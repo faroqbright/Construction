@@ -1,73 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
-
-const ProgressGauge = ({
-  percentage,
-  color,
-  label,
-  onIncrease,
-  onDecrease,
-}) => {
-  return (
-    <div className="flex flex-col items-center m-4 relative">
-      <RadialBarChart
-        width={300}
-        height={300}
-        cx={150}
-        cy={150}
-        innerRadius="80%"
-        outerRadius="100%"
-        barSize={20}
-        data={[{ value: percentage }]}
-        startAngle={180}
-        endAngle={0}
-      >
-        <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-        <RadialBar
-          background={{ fill: "#f0f0f0" }}
-          dataKey="value"
-          fill={color}
-          cornerRadius={5}
-          isAnimationActive={false}
-        />
-      </RadialBarChart>
-
-      <div
-        className="absolute top-[110px] left-[110px] flex items-center justify-center w-16 h-16 rounded-full text-white font-semibold text-lg z-10"
-        style={{ backgroundColor: color }}
-      >
-        {percentage}%
-      </div>
-
-      <div className="flex items-center -mt-10 z-20">
-        <button
-          onClick={() => {
-            console.log(`Increasing ${label}`);
-            onIncrease();
-          }}
-          className="px-3 py-1 bg-green-600 text-white rounded-lg"
-        >
-          +
-        </button>
-        <p className="mx-4 text-black font-semibold">{label}</p>
-        <button
-          onClick={() => {
-            console.log(`Decreasing ${label}`);
-            onDecrease();
-          }}
-          className="px-3 py-1 bg-red-600 text-white rounded-lg"
-        >
-          -
-        </button>
-      </div>
-    </div>
-  );
-};
 
 export default function SubmitFinance() {
   const fileInputRef = useRef(null);
@@ -94,10 +30,9 @@ export default function SubmitFinance() {
         if (response?.data?.statusCode === 200) {
           const projectsData = response?.data?.data?.projects || [];
           setProjects(projectsData);
-          setFilteredProjects(projectsData.slice(0, 6)); // Initialize with first 6 projects
+          setFilteredProjects(projectsData.slice(0, 6)); 
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -124,12 +59,12 @@ export default function SubmitFinance() {
 
     if (file) {
       if (file.type !== "application/pdf") {
-        toast.error("Only PDF files are allowed!");
+        toast.error(t("Only PDF files are allowed!"));
         return;
       }
 
       if (file.size > maxSize) {
-        toast.error("File size cannot be greater than 5MB!");
+        toast.error(t("Selected file should not be greater than 5MB."));
         return;
       }
 
@@ -139,16 +74,16 @@ export default function SubmitFinance() {
 
   const handleUpload = async () => {
     if (!selectedFile || !selectedProject) {
-      toast.info("Please select a project and upload a PDF file.");
+      toast.info(t("Please select a project and upload a PDF file."));
       return;
     }
 
     if (!fileName) {
-      toast.info("Please enter a filename.");
+      toast.info(t("Please enter a filename."));
       return;
     }
     if (!reference) {
-      toast.info("Please enter a Reference No.");
+      toast.info(t("Please enter a Reference No."));
       return;
     }
 
@@ -168,18 +103,15 @@ export default function SubmitFinance() {
       console.log(response);
 
       if (response?.status === 200 || response?.status === 201) {
-        toast.success("File uploaded successfully!");
+        toast.success(t("File uploaded successfully!"));
         setSelectedFile(null);
         setSelectedProject("");
         setFileName("");
         setreference("");
         navigate("/finance");
-      } else {
-        toast.error("Upload failed. Please try again.");
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(error.response.data.error);
+      toast.error(t(error.response.data.error));
     } finally {
       setUploading(false);
     }

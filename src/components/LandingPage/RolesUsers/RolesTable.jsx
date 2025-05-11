@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Checkbox,
@@ -60,10 +60,8 @@ export default function RolesTable() {
     } catch (error) {
       if (error && error?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
     } finally {
       setLoading(false);
@@ -83,19 +81,15 @@ export default function RolesTable() {
         fetchRoles();
       }
     } catch (error) {
-      console.error("Error:", error);
     }
   };
 
   const handleAdd = async () => {
     if (!roleName.trim()) {
-      toast.error("Role name is required.");
+      toast.error(t("Role name is required."));
       return;
     }
     try {
-      if (!token) {
-        throw new Error("No token found");
-      }
       const response = await apiRequest(
         "post",
         "/roles",
@@ -113,22 +107,15 @@ export default function RolesTable() {
         setStatus("Active");
         handleCloses();
         setClickedItem(true)
-      } else {
-        toast.error("Failed to add role.");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
-      console.error("Error:", error);
+      toast.error(t(error.response?.data?.message) || t(error.message));
     }
   };
 
   const handleEdit = async () => {
     if (!roleEdit.trim()) {
-      toast.error("Role name is required.");
+      toast.error(t("Role name is required."));
       return;
     }
     try {
@@ -139,18 +126,12 @@ export default function RolesTable() {
         token
       );
       if (response.status === 200) {
-        toast.success("Role updated successfully.");
+        toast.success(t("Role updated successfully."));
         fetchRoles();
         setEdit(false);
-      } else {
-        toast.error("Failed to update role.");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message) || t(error.message));
     }
   };
 
@@ -207,16 +188,13 @@ export default function RolesTable() {
       const response = await apiRequest("get", `/roles/${id}`, {}, token);
       if (response && response.status === 200) {
         setRoleData(response.data.data);
-      } else {
-        toast.error("Failed to fetch role data.");
       }
+      
     } catch (error) {
       if (error && error?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
     }
   };

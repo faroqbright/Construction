@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, Checkbox, Pagination, PaginationItem } from "@mui/material";
 import pdf from "../../../assets/pdf.svg";
@@ -48,47 +46,17 @@ const ProjectDetails = () => {
   const [financialId, setFinancialId] = useState(null);
   const [error, setError] = useState(null);
 
-  const [milestones, setMilestones] = useState([
-    {
-      id: 1,
-      title: "Project Kickoff",
-      description: "Initial meeting and requirements gathering",
-      checked: false,
-    },
-    {
-      id: 2,
-      title: "Design Approval",
-      description: "Review and finalize UI/UX designs",
-      checked: false,
-    },
-    {
-      id: 3,
-      title: "Final Delivery",
-      description: "Project completion and handover",
-      checked: false,
-    },
-  ]);
-
-  const toggleCheck = (id) => {
-    setMilestones(
-      milestones.map((milestone) =>
-        milestone.id === id
-          ? { ...milestone, checked: !milestone.checked }
-          : milestone
-      )
-    );
-  };
-
   const fetchProjects = useCallback(async () => {
     try {
       const response = await apiRequest("get", `/projects/${id}`, {}, token);
       if (response?.data?.statusCode === 200) {
         setProjectData(response?.data?.data);
+        setError(null);
       } else {
-        setError("Project not found.");
+        setProjectData(null);
       }
-    } catch (error) {
-      setError("Error fetching project data");
+    } catch (err) {
+      setProjectData(null);
     }
   }, [id, token]);
 
@@ -109,6 +77,7 @@ const ProjectDetails = () => {
   );
 
   const capitalizeWords = (str) => {
+    if (!str) return "";
     return str
       ?.split(" ")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -140,7 +109,7 @@ const ProjectDetails = () => {
       const newStatus =
         milestone.status === t("completed") ? t("pending") : t("completed");
       const updatedData = {
-        status: newStatus,
+        status: newStatus.charAt(0).toLowerCase() + newStatus.slice(1),
         completedAt:
           newStatus === t("completed") ? new Date().toISOString() : null,
       };
@@ -152,10 +121,6 @@ const ProjectDetails = () => {
         token
       );
 
-      // Option 1: Refetch data using your existing fetchProjects function
-      // await fetchProjects();
-
-      // Option 2: Update local state directly
       setProjectData((prev) => ({
         ...prev,
         additionalMilestones: prev.additionalMilestones.map((m) =>
@@ -163,10 +128,9 @@ const ProjectDetails = () => {
         ),
       }));
 
-      toast.success("Milestone status updated successfully.");
-    } catch (error) {
-      toast.error("Failed to update milestone status.");
-      console.error("Error:", error);
+      toast.success(t("Milestone updated successfully."));
+    } catch (err) {
+      toast.error(t("Failed to update milestone status."));
     }
   };
 
@@ -190,11 +154,10 @@ const ProjectDetails = () => {
         {},
         token
       );
-      await fetchProjects(); // Use your existing fetch function
-      toast.success("Milestone deleted successfully.");
-    } catch (error) {
-      toast.error("Failed to delete milestone.");
-      console.error("Error:", error);
+      await fetchProjects();
+      toast.success(t("Milestone deleted successfully."));
+    } catch (err) {
+      toast.error(t("Failed to delete milestone."));
     }
   };
 
@@ -208,11 +171,10 @@ const ProjectDetails = () => {
         token
       );
       await fetchProjects();
-      toast.success("Milestone updated successfully.");
+      toast.success(t("Milestone updated successfully."));
       setEditModalOpen(false);
-    } catch (error) {
-      toast.error("Failed to update milestone.");
-      console.error("Error:", error);
+    } catch (err) {
+      toast.error(t("Failed to update milestone."));
     }
   };
 
@@ -272,87 +234,87 @@ const ProjectDetails = () => {
     ],
   };
 
-  // Initialize as numbers (0 instead of "0%")
-  const [execution, setExecution] = useState({
-    physical: 0,
-    financial: 0,
-  });
-  const executionRef = useRef({ physical: 0, financial: 0 }); // Add this ref
-  const [dragging, setDragging] = useState(false);
+  const [physicalExecution, setPhysicalExecution] = useState(0);
+  const [financialExecution, setFinancialExecution] = useState(0);
   const dragTimeout = useRef(null);
 
-  // const physicalExecutionRef = useRef(physicalExecution);
-  // const financialExecutionRef = useRef(financialExecution);
+  const physicalExecutionRef = useRef(physicalExecution);
+  const financialExecutionRef = useRef(financialExecution);
+
+  useEffect(() => {
+    if (projectData?.financeDocuments?.length) {
+      const firstDoc = projectData.financeDocuments[0];
+      const newPhysical = parseFloat(firstDoc?.physicalExecution) || 0;
+      const newFinancial = parseFloat(firstDoc?.financialExecution) || 0;
+
+      setPhysicalExecution(newPhysical);
+      setFinancialExecution(newFinancial);
+      physicalExecutionRef.current = newPhysical;
+      financialExecutionRef.current = newFinancial;
+
+      setFinancialId(firstDoc?.id || null);
+    } else {
+      setPhysicalExecution(0);
+      setFinancialExecution(0);
+      physicalExecutionRef.current = 0;
+      financialExecutionRef.current = 0;
+      setFinancialId(null);
+    }
+  }, [projectData]);
+
   const canDrag = projectData?.financeDocuments?.length > 0;
 
-useEffect(() => {
-  if (projectData?.financeDocuments?.length) {
-    const firstDoc = projectData.financeDocuments[0];
-    const newValues = {
-      physical: Number.parseFloat(firstDoc?.physicalExecution) || 0,
-      financial: Number.parseFloat(firstDoc?.financialExecution) || 0
-    };
-    setExecution(newValues);
-    executionRef.current = newValues; // Sync the ref
-    setFinancialId(firstDoc?.id || null);
-  } else {
-    const newValues = { physical: 0, financial: 0 };
-    setExecution(newValues);
-    executionRef.current = newValues; // Sync the ref
-    setFinancialId(null);
-  }
-}, [projectData]);
+  const handleDrag = (e, type) => {
+    if (!canDrag) return;
 
-const handleDrag = (e, type) => {
-  if (!canDrag) return;
+    const trackElement = e.target.parentElement;
+    if (!trackElement) return;
 
-  setDragging(true);
-  const rect = e.target.parentElement.getBoundingClientRect();
-  let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-  newValue = Math.max(0, Math.min(100, newValue));
+    const rect = trackElement.getBoundingClientRect();
+    let newValue = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    newValue = Math.max(0, Math.min(100, newValue));
 
-  // Update both state and ref
-  const newExecution = { ...executionRef.current, [type]: newValue };
-  setExecution(newExecution);
-  executionRef.current = newExecution;
-};
-
-const handleDragEnd = async () => {
-  if (!canDrag) return;
-
-  setDragging(false);
-  if (dragTimeout.current) clearTimeout(dragTimeout.current);
-
-  try {
-    // Use the ref value which is always up-to-date
-    const payload = {
-      physicalExecution: executionRef.current.physical,
-      financialExecution: executionRef.current.financial
-    };
-
-    console.log("Final Payload:", payload);
-
-    const response = await apiRequest(
-      "patch",
-      `/finance/${financialId}`,
-      payload,
-      token
-    );
-
-    if (response.data) {
-      const newValues = {
-        physical: response.data.physicalExecution,
-        financial: response.data.financialExecution
-      };
-      setExecution(newValues);
-      executionRef.current = newValues;
+    if (type === "physical") {
+      setPhysicalExecution(newValue);
+      physicalExecutionRef.current = newValue;
     }
-    toast.success("Execution updated successfully");
-  } catch (error) {
-    toast.error("Error updating execution");
-    console.error("Error:", error);
+    if (type === "financial") {
+      setFinancialExecution(newValue);
+      financialExecutionRef.current = newValue;
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (!canDrag) return;
+
+    if (dragTimeout.current) clearTimeout(dragTimeout.current);
+
+    dragTimeout.current = setTimeout(async () => {
+      if (financialId) {
+        try {
+          await apiRequest(
+            "patch",
+            `/finance/${financialId}`,
+            {
+              physicalExecution: physicalExecutionRef.current,
+              financialExecution: financialExecutionRef.current,
+            },
+            token
+          );
+          toast.success(t("Execution updated successfully."));
+        } catch (err) {
+          toast.error(t("Error updating finance execution."));
+        }
+      }
+    }, 500);
+  };
+
+  if (error) {
+    return <div className="p-6 text-red-500">{error}</div>;
   }
-};
+  if (!projectData) {
+    return <div className="p-6">Loading project details...</div>;
+  }
 
   return (
     <>
@@ -402,45 +364,13 @@ const handleDragEnd = async () => {
           </div>
         </div>
 
-        {/* <div className="p-6">
-          <h3 className="text-md font-semibold text-gray-800">
-            {t("Project_Deliverables")}:
-          </h3>
-          <div className="flex gap-3 flex-wrap">
-            {projectData?.documents?.map((doc, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 border px-1 rounded-lg transition-all duration-300 cursor-pointer"
-                onClick={() => {
-                  const link = document.createElement("a");
-                  link.href = doc.fileUrl;
-                  link.setAttribute("download", doc.fileUrl.split("/").pop()); // Force download
-                  link.setAttribute("target", "_blank"); // Open in a new tab
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
-              >
-                <img src={pdf || "/placeholder.svg"} alt="PDF Icon" className="w-8 h-8" />
-                <div className="mt-1">
-                  <span className="text-sm font-semibold">{doc.fileName}</span>
-                  <br />
-                  <span className="text-xs text-lightpurple-light text-nowrap mt-1">
-                    {t("Submitted_By")}:{" "}
-                    <span className="text-lightpurple-light">{doc.user}</span>
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div> */}
         <div className="p-6">
           <h3 className="text-md font-semibold text-gray-800">
             {t("Project_Reports")}:
           </h3>
           <div className="flex gap-3 flex-wrap">
             {projectData?.projectReports
-              ?.filter((doc) => doc.status === t("approved")) // Only show approved reports
+              ?.filter((doc) => doc.status === t("approved"))
               .map((doc, index) => (
                 <div
                   key={index}
@@ -448,18 +378,14 @@ const handleDragEnd = async () => {
                   onClick={() => {
                     const link = document.createElement("a");
                     link.href = doc.fileUrl;
-                    link.setAttribute("download", doc.fileUrl.split("/").pop()); // Force download
-                    link.setAttribute("target", "_blank"); // Open in a new tab
+                    link.setAttribute("download", doc.fileUrl.split("/").pop());
+                    link.setAttribute("target", "_blank");
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
                   }}
                 >
-                  <img
-                    src={pdf || "/placeholder.svg"}
-                    alt="PDF Icon"
-                    className="w-8 h-8"
-                  />
+                  <img src={pdf} alt="PDF Icon" className="w-8 h-8" />
                   <div className="mt-1">
                     <span className="text-sm font-semibold">
                       {doc.fileName}
@@ -475,22 +401,27 @@ const handleDragEnd = async () => {
           </div>
         </div>
 
-        {/* Progress Bar */}
         <div className="mt-6 p-6">
-          {/* Physical Execution */}
           <div className="mt-3 space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-black font-medium text-sm">
                 {t("Physical_Execution")}
               </p>
               <h6 className="text-gray-800 font-semibold">
-                {execution.physical}%
+                {physicalExecution}%
               </h6>
             </div>
+
             <div className="relative w-full h-2 bg-gray-200 rounded-full">
               <div
-                className="absolute top-0 left-0 h-2 rounded-full bg-red-500"
-                style={{ width: `${execution.physical}%` }}
+                className={`absolute top-0 left-0 h-2 rounded-full ${
+                  projectData?.status === t("Completed")
+                    ? "bg-red-500"
+                    : "bg-red-500"
+                }`}
+                style={{
+                  width: `${physicalExecution}%`,
+                }}
               ></div>
               <div
                 className={`absolute w-5 h-5 rounded-full border-2 ${
@@ -499,16 +430,18 @@ const handleDragEnd = async () => {
                     : "bg-gray-400 border-gray-400 cursor-not-allowed"
                 }`}
                 style={{
-                  left: `calc(${execution.physical}% - 10px)`,
+                  left: `calc(${physicalExecution}% - 10px)`,
                   top: "-6px",
                 }}
                 onMouseDown={
                   canDrag
                     ? (e) => {
+                        e.preventDefault();
                         document.onmousemove = (ev) =>
                           handleDrag(ev, "physical");
                         document.onmouseup = () => {
                           document.onmousemove = null;
+                          document.onmouseup = null;
                           handleDragEnd();
                         };
                       }
@@ -518,16 +451,17 @@ const handleDragEnd = async () => {
             </div>
           </div>
 
-          {/* Financial Execution */}
           <div className="mb-4 mt-2 relative">
             <div className="flex justify-between">
               <p className="black text-sm mb-1">{t("Financial_Execution")}</p>
-              <h6 className="text-red-500">{execution.financial}%</h6>
+              <h6 className="text-red-500">{financialExecution}%</h6>
             </div>
             <div className="w-full bg-gray-200 h-2 rounded-full relative">
               <div
                 className="bg-red-500 h-2 rounded-full"
-                style={{ width: `${execution.financial}%` }}
+                style={{
+                  width: `${financialExecution}%`,
+                }}
               ></div>
               <div
                 className={`w-5 h-5 rounded-full absolute top-1/2 -translate-y-1/2 ${
@@ -535,14 +469,16 @@ const handleDragEnd = async () => {
                     ? "bg-red-500 cursor-pointer"
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
-                style={{ left: `calc(${execution.financial}% - 10px)` }}
+                style={{ left: `calc(${financialExecution}% - 10px)` }}
                 onMouseDown={
                   canDrag
                     ? (e) => {
+                        e.preventDefault();
                         document.onmousemove = (ev) =>
                           handleDrag(ev, "financial");
                         document.onmouseup = () => {
                           document.onmousemove = null;
+                          document.onmouseup = null;
                           handleDragEnd();
                         };
                       }
@@ -553,7 +489,6 @@ const handleDragEnd = async () => {
           </div>
         </div>
 
-        {/* Images Container */}
         <div className="">
           <div className="p-6">
             <div className="h-full slider-container">
@@ -589,12 +524,12 @@ const handleDragEnd = async () => {
                     className="border-[#B5C0CD] border flex flex-col items-center justify-center rounded-lg w-fit p-2"
                   >
                     <img
-                      src={banner.url || "/placeholder.svg"}
+                      src={banner.url}
                       alt={projectData?.projectName || "Project Image"}
                       className="object-cover cursor-pointer rounded-xl w-full h-[284px]"
                       onClick={() => {
                         setSelectedImage(banner.url);
-                        setSelectedImageIndex(index); // Use the correct index here
+                        setSelectedImageIndex(index);
                       }}
                     />
                     <div className="flex justify-between w-full p-2">
@@ -606,7 +541,7 @@ const handleDragEnd = async () => {
               </Slider>
             ) : (
               <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
-                <img src={logo || "/placeholder.svg"} alt="" />
+                <img src={logo} alt="" />
                 <span className="font-semibold text-sm mt-4">
                   No Images yet.
                 </span>
@@ -644,7 +579,7 @@ const handleDragEnd = async () => {
               </button>
 
               <img
-                src={selectedImage || "/placeholder.svg"}
+                src={selectedImage}
                 alt="Zoomed"
                 className="w-full h-[80%] mt-10 object-contain"
               />
@@ -666,7 +601,6 @@ const handleDragEnd = async () => {
           </div>
         )}
 
-        {/* Project MileStone */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-gray-800">
             {t("Project_Milestones")}
@@ -739,7 +673,6 @@ const handleDragEnd = async () => {
                 <p className="text-sm text-gray-500">{milestone.description}</p>
               </div>
               <div className="flex items-center gap-2">
-                {/* Action buttons */}
                 <div className="relative">
                   <button
                     onClick={() => toggleActionMenu(milestone._id)}
@@ -777,7 +710,6 @@ const handleDragEnd = async () => {
                   )}
                 </div>
 
-                {/* Completion checkbox */}
                 <div
                   className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors duration-200 cursor-pointer ${
                     milestone.status === t("completed")
@@ -794,7 +726,6 @@ const handleDragEnd = async () => {
             </div>
           ))}
 
-          {/* Edit Modal */}
           <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
             <Box sx={modalStyles}>
               <div className="flex justify-between items-center mb-4">
@@ -877,7 +808,6 @@ const handleDragEnd = async () => {
           </Modal>
         </div>
 
-        {/* Finance Status */}
         <div className="mt-14 justify-between w-full p-6">
           <h3 className="text-md font-semibold text-gray-800">
             {t("Additional_Invoice")}:
@@ -954,12 +884,11 @@ const handleDragEnd = async () => {
               </tbody>
             </table>
 
-            {/* Pagination */}
             <div className="flex justify-end mt-4">
               <Pagination
                 count={Math.ceil(
-                  projectData?.financeDocuments?.length / itemsPerPage
-                )} // Total number of pages
+                  (projectData?.financeDocuments?.length || 0) / itemsPerPage
+                )}
                 page={page}
                 onChange={handlePageChange}
                 sx={{
@@ -989,7 +918,6 @@ const handleDragEnd = async () => {
           </div>
         </div>
 
-        {/* Client Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
             {t("Company_Team")}
@@ -1012,7 +940,6 @@ const handleDragEnd = async () => {
           </div>
         </div>
 
-        {/* Team Members */}
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-black-blacknew">
             {t("Soapro_Team")}

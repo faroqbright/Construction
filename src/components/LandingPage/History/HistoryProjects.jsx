@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import apiRequest from "../../../utils/apiRequest";
 import { useSelector } from "react-redux";
 import Skeleton from "@mui/material/Skeleton";
 import { useNavigate } from "react-router-dom";
-import { t } from "i18next";
-import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { User } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -39,7 +37,6 @@ const HistoryProjects = () => {
           setTotalPages(response?.data?.data?.totalPages || 1);
         }
       } catch (error) {
-        console.error("Error:", error);
       } finally {
         setLoading(false);
       }
@@ -120,79 +117,6 @@ const HistoryProjects = () => {
               key={project._id}
               className="max-w-md h-[26rem] md:h-[24rem] rounded overflow-hidden shadow-lg bg-white p-5 text-[0.7rem]"
             >
-              {/* <div onClick={() => handleProjectClick(project._id)}>
-                <img
-                  className="w-full h-40 object-cover rounded"
-                  src={
-                    project?.projectBanner?
-                    .url || "https://via.placeholder.com/150"
-                  }
-                  alt={project.projectName || "Project"}
-                />
-                <div className="flex justify-between py-2">
-                  <div
-                    className="font-semibold truncate w-2/4"
-                    title={project.projectName}
-                  >
-                    {project.projectName}
-                  </div>
-                </div>
-                <div className="font-bold">
-                  {t("Deadline")} <span>{project.deadline}</span>
-                </div>
-                <div className="mt-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-gray-700 text-sm">
-                      {t("Physical_Execution")}
-                    </p>
-                    <h6 className="text-gray-800 font-semibold">
-                      {project.physicalEducationRange}%
-                    </h6>
-                  </div>
-                  <div className="relative w-full h-2 bg-gray-200 rounded-full">
-                    <div
-                      className="absolute top-0 left-0 h-2 rounded-full bg-green-500"
-                      style={{ width: `${project.physicalEducationRange}%` }}
-                    ></div>
-                    <div
-                      className="w-5 h-5 bg-green-500 rounded-full absolute top-1/2 -translate-y-1/2 
-                 flex items-center justify-center shadow-md cursor-pointer transition-all"
-                      style={{
-                        left: `calc(${project.physicalEducationRange}% - 10px)`,
-                      }}
-                    >
-                      <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mb-5 mt-2 relative">
-                  <div className="flex justify-between">
-                    <p className="black text-sm mb-1">
-                      {t("Financial_Execution")}
-                    </p>
-                    <h6 className="text-red-redNew">
-                      {project.physicalEducationRange}%
-                    </h6>
-                  </div>
-                  <div className="w-full bg-gray-200 h-2 rounded-full relative">
-                    <div
-                      className="bg-red-redNew h-2 rounded-full"
-                      style={{
-                        width: `${project.physicalEducationRange}%`,
-                      }}
-                    ></div>
-                    <div
-                      className="w-5 h-5 bg-red-redNew rounded-full absolute top-1/2 -translate-y-1/2 
-                 flex items-center justify-center shadow-md cursor-pointer transition-all"
-                      style={{
-                        left: `calc(${project.physicalEducationRange}% - 10px)`,
-                      }}
-                    >
-                      <span className="w-2 h-2 bg-red-redNew rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
 
               <div
                 className="cursor-pointer"

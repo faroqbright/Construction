@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Stack,
   Chip,
@@ -76,7 +76,6 @@ const ProjectManager = () => {
         toast.error(t("Failed_to_delete_project"));
       }
     } catch (error) {
-      console.error("Error deleting project:", error);
       toast.error(t("Error_deleting_project"));
     } finally {
       setDeleteModalOpen(false);
@@ -121,10 +120,8 @@ const ProjectManager = () => {
       } catch (error) {
         if (error && error?.status === 401) {
           dispatch(removeUserInfo());
-          toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
           navigate("/login");
-        } else {
-          console.error("Error:", error);
         }
       } finally {
         setLoading(false);
@@ -151,21 +148,6 @@ const ProjectManager = () => {
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
-    fetchProjects(page);
-  };
-
-  const removeDuplicates = (projects) => {
-    const uniqueProjects = [];
-    const seenIds = new Set();
-
-    projects.forEach((project) => {
-      if (!seenIds.has(project._id)) {
-        uniqueProjects.push(project);
-        seenIds.add(project._id);
-      }
-    });
-
-    return uniqueProjects;
   };
 
   const handleProjectClick = (id) => {
@@ -222,10 +204,10 @@ const ProjectManager = () => {
           const data = response?.data?.data;
           setModalTeamMembers(data.members);
         } else {
-          setError("Project not found.");
+          setError(t("Project not found."));
         }
       } catch (error) {
-        setError("Error fetching project data");
+        setError(t("Error fetching project data"));
       }
     },
     [token]
@@ -240,7 +222,6 @@ const ProjectManager = () => {
   const filteredProjects = projects.filter((project) =>
     project.projectName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  // Handlers for Previous and Next buttons
   const handlePrevClickProjects = () => {
     if (sliderRefProjects.current) {
       sliderRefProjects.current.slickPrev();
@@ -250,18 +231,6 @@ const ProjectManager = () => {
   const handleNextClickProjects = () => {
     if (sliderRefProjects.current) {
       sliderRefProjects.current.slickNext();
-    }
-  };
-
-  const handlePrevClickReports = () => {
-    if (sliderRefReports.current) {
-      sliderRefReports.current.slickPrev();
-    }
-  };
-
-  const handleNextClickReports = () => {
-    if (sliderRefReports.current) {
-      sliderRefReports.current.slickNext();
     }
   };
 

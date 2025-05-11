@@ -49,7 +49,6 @@ const MilestoneTable = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const modalRef = useRef(null);
-  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   const _id = useSelector((state) => state?.auth?.userInfo?._id);
 
@@ -87,8 +86,6 @@ const MilestoneTable = () => {
         dispatch(removeUserInfo());
         toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
     }
   }, [token, dispatch, navigate, page, _id]);
@@ -102,7 +99,6 @@ const MilestoneTable = () => {
           setProjects(response?.data?.data?.projects || []);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -171,10 +167,6 @@ const MilestoneTable = () => {
       return;
     }
     try {
-      if (!token) {
-        throw new Error("No token found");
-      }
-
       const payload = {
         title: formData.title,
         description: formData.description,
@@ -192,8 +184,6 @@ const MilestoneTable = () => {
         token
       );
 
-      console.log("API Response:", response.data);
-
       if (response.status === 200 || response.status === 201) {
         toast.success(t(response.data.message));
         fetchMilestones();
@@ -203,7 +193,6 @@ const MilestoneTable = () => {
       }
     } catch (error) {
       toast.error(t(error.response?.data?.message) || t(error.message));
-      console.error("Error:", error);
     }
   };
 
@@ -218,7 +207,6 @@ const MilestoneTable = () => {
       toast.success(t("Milestone deleted successfully."));
       fetchMilestones();
     } catch (error) {
-      console.error("Error:", error);
     }
   };
 
@@ -246,7 +234,6 @@ const MilestoneTable = () => {
       fetchMilestones();
       handleClose();
     } catch (error) {
-      console.error("Error:", error);
     }
   };
 
@@ -522,7 +509,6 @@ const MilestoneTable = () => {
               />
             )}
 
-            {/* Project Selection Dropdown */}
             <div className="relative">
               {!editData && (
                 <div

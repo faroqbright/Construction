@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import arrow from "../../../assets/arrow.svg";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
@@ -26,7 +26,6 @@ const DocumentList = () => {
           setDocuments(response?.data || []);
         }
       } catch (error) {
-        console.error("Error:", error);
       } finally {
         setLoading(false);
       }
@@ -40,18 +39,16 @@ const DocumentList = () => {
       .then((response) => {
         if (response?.status === 200) {
           setDocuments(documents.filter((doc) => doc._id !== id));
-          toast.success("Document deleted successfully");
+          toast.success(t("Document deleted successfully!"));
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
       });
   };
 
   return (
     <>
       <div className="flex justify-between items-center w-full h-auto md:h-14 px-4 my-4">
-        {/* Left Section */}
         <div className="flex items-center w-auto">
           <div className="bg-white px-2 py-2 text-center rounded-full">
             <img src={arrow} alt="Back" className="w-3 h-3" />
@@ -61,7 +58,6 @@ const DocumentList = () => {
           </span>
         </div>
 
-        {/* Right Section */}
         <div className="w-full flex justify-end p-4">
           <Button
             variant="contained"
@@ -93,7 +89,6 @@ const DocumentList = () => {
                 key={index}
                 className="flex items-center justify-between bg-white shadow-md rounded-md py-3 px-4"
               >
-                {/* Left Section: Document Info */}
                 <div className="flex items-center space-x-4">
                   <img
                     src="document-text.svg"
@@ -111,7 +106,6 @@ const DocumentList = () => {
                   </div>
                 </div>
 
-                {/* Right Section: Status Badge & Delete Button */}
                 <div className="flex flex-col items-end gap-1">
                   <MdDeleteOutline
                     size={20}

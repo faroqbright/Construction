@@ -59,7 +59,6 @@ const ResetPassword = () => {
       }
     } catch (error) {
       toast.error(t(error.response?.data?.message));
-      console.error("Error:", error);
     }
   };
 
@@ -96,7 +95,7 @@ const ResetPassword = () => {
                   <InputAdornment position="end">
                     <IconButton
                       onClick={togglePasswordVisibility}
-                      style={{ color: "#DC2626" }} // Red icon color
+                      style={{ color: "#DC2626" }}
                     >
                       {showPassword ? <IoEye /> : <IoEyeOff />}
                     </IconButton>
@@ -104,18 +103,18 @@ const ResetPassword = () => {
                 ),
               }}
               sx={{
-                "& label": { color: "black" }, // Label remains black
-                "& label.Mui-focused": { color: "black" }, // Label stays black on focus
+                "& label": { color: "black" },
+                "& label.Mui-focused": { color: "black" },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px", // Rounded corners
+                  borderRadius: "12px",
                   "& fieldset": {
-                    borderColor: "grey", // Default border color
+                    borderColor: "grey",
                   },
                   "&:hover fieldset": {
-                    borderColor: "grey", // Border turns grey on hover
+                    borderColor: "grey",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "black", // Border turns black on focus
+                    borderColor: "black",
                   },
                 },
               }}
@@ -146,7 +145,7 @@ const ResetPassword = () => {
                   <InputAdornment position="end">
                     <IconButton
                       onClick={toggleConfirmPasswordVisibility}
-                      style={{ color: "#DC2626" }} // Red icon color
+                      style={{ color: "#DC2626" }}
                     >
                       {showConfirmPassword ? <IoEye /> : <IoEyeOff />}
                     </IconButton>

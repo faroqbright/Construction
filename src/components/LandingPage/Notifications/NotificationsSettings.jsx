@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -25,14 +23,13 @@ import {
 } from "@mui/icons-material";
 import notification from "../../../assets/notifications.svg";
 import magicPen from "../../../assets/magicpen.svg";
-import { t } from "i18next";
 import { Trash2 } from "lucide-react";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
 import { removeUserInfo } from "../../../features/auth/authSlice";
+import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 
@@ -100,7 +97,6 @@ const NotificationSettings = () => {
 
   const translatableTitles = {
     "Project Reports": t("Project Reports"),
-    // "Project Approval": t("Project Approval"),
     "Project Updates": t("Project Updates"),
     "Financial Updates": t("Financial Updates"),
   };
@@ -110,7 +106,6 @@ const NotificationSettings = () => {
       t(
         "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information"
       ),
-    // "Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency.": t("Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency."),
     "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage.":
       t(
         "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage."
@@ -136,29 +131,17 @@ const NotificationSettings = () => {
       if (response.data && Array.isArray(response.data.data)) {
         setNotifications(response.data.data);
       } else {
-        console.warn(
-          "Unexpected data format from notifications API:",
-          response.data
-        );
         setNotifications([]);
       }
     } catch (error) {
-      console.error("Error fetching notifications:", error);
       setNotifications([]);
 
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.info("Session expired. Please log in again.");
-
-        if (navigate) {
-          navigate("/login");
-        } else {
-          console.error("Navigate function is not available.");
-        }
+        toast.success(t("You have been logged out."));
+        navigate("/login");
       } else {
-        toast.error(
-          error?.response?.data?.message || "Failed to fetch notifications."
-        );
+        toast.error(t(error?.response?.data?.message));
       }
     } finally {
       setIsLoadingNotifications(false);
@@ -183,27 +166,14 @@ const NotificationSettings = () => {
         );
         setFinanceClients(financeTypeClients);
       } else {
-        console.warn(
-          "Received unexpected data structure for clients:",
-          response.data
-        );
         setFinanceClients([]);
       }
     } catch (error) {
-      console.error("Error fetching clients:", error);
       setFinanceClients([]);
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.info("Session expired. Please log in again.");
-        if (navigate) {
-          navigate("/login");
-        } else {
-          console.error("Navigate function is not available.");
-        }
-      } else {
-        toast.error(
-          error?.response?.data?.message || "Failed to fetch finance clients."
-        );
+        toast.success(t("You have been logged out."));
+        navigate("/login");
       }
     } finally {
       setIsLoadingClients(false);
@@ -221,23 +191,16 @@ const NotificationSettings = () => {
       if (response.data && response.data.data) {
         setUsers(response.data.data);
       } else {
-        console.warn(
-          "Received unexpected data structure for users:",
-          response.data
-        );
         setUsers([]);
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
       setUsers([]);
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.info("Session expired. Please log in again.");
-        if (navigate) {
+        toast.success(t("You have been logged out."));
           navigate("/login");
-        }
       } else {
-        toast.error(error?.response?.data?.message || "Failed to fetch users");
+        toast.error(t(error?.response?.data?.message));
       }
     } finally {
       setLoading(false);
@@ -291,19 +254,10 @@ const NotificationSettings = () => {
         token
       );
 
-      if (!response?.data?.success) {
-        console.warn(
-          "Server indicated status update might not have succeeded:",
-          response?.data
-        );
-        throw new Error("Status update failed on server");
-      }
-
       if (response.data.message) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
       }
     } catch (error) {
-      console.error("Error updating status:", error);
 
       updatedNotifications[notificationIndex] = {
         ...currentNotification,
@@ -311,14 +265,12 @@ const NotificationSettings = () => {
       };
       setNotifications(updatedNotifications);
 
-      toast.error(
-        error?.response?.data?.message || "Failed to update notification status"
-      );
+      toast.error(t(error?.response?.data?.message));
 
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.info("Session expired. Please log in again.");
-        if (navigate) navigate("/login");
+        toast.success(t("You have been logged out."));
+        navigate("/login");
       }
     }
   };
@@ -343,19 +295,16 @@ const NotificationSettings = () => {
     title,
     description,
     type,
-    memberId,
     selectedItems,
     resetState,
-    successMessagePrefix,
     validationErrorMessage,
   }) => {
     if (!title.trim() || !description.trim() || selectedItems.length === 0) {
-      toast.error(validationErrorMessage);
+      toast.error(t(validationErrorMessage));
       return;
     }
 
     try {
-      // Send notifications one by one
       const results = [];
       for (const member of selectedItems) {
         const response = await apiRequest(
@@ -365,41 +314,26 @@ const NotificationSettings = () => {
             title,
             description,
             type,
-            memberId: member._id || member, // Handle both object and ID cases
+            memberId: member._id || member,
           },
           token
         );
         results.push(response.data);
       }
 
-      // Check if all notifications were successful
       const allSuccess = results.every((result) => result?.success);
 
       if (allSuccess) {
         resetState();
-        toast.success(
-          `${successMessagePrefix} notifications sent successfully`
-        );
-      } else {
-        const failedCount = results.filter((result) => !result?.success).length;
-        toast.warning(
-          `${successMessagePrefix} notifications partially sent (${
-            selectedItems.length - failedCount
-          } succeeded, ${failedCount} failed)`
-        );
+        toast.success(t('notifications sent successfully'));
       }
     } catch (error) {
-      console.error(`Error sending ${type} notification:`, error);
-      toast.error(
-        error?.response?.data?.message || `Failed to send ${type} notification`
-      );
+      toast.error(t(error?.response?.data?.message));
 
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.info("Session expired. Please log in again.");
-        if (navigate) {
+        toast.success(t("You have been logged out."));
           navigate("/login");
-        }
       }
     }
   };

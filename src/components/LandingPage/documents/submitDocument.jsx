@@ -16,7 +16,7 @@ const SubmitDocument = () => {
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [searchTerm, setSearchTerm] = useState(""); // Initialize the searchTerm states
+  const [searchTerm, setSearchTerm] = useState("");
   const filteredProjects = projects.filter((project) =>
     project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -30,7 +30,6 @@ const SubmitDocument = () => {
           setProjects(response?.data?.data?.projects || []);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -44,7 +43,7 @@ const SubmitDocument = () => {
 
     if (file) {
       if (file.type !== "application/pdf") {
-        toast.error("Only PDF files are allowed!");
+        toast.error(t("Only PDF files are allowed!"));
         return;
       }
       setSelectedFile(file);
@@ -53,7 +52,7 @@ const SubmitDocument = () => {
 
   const handleUpload = async () => {
     if (!selectedFile || !selectedProject) {
-      toast.info("Please select a project and upload a PDF file.");
+      toast.info(t("Please select a project and upload a PDF file."));
       return;
     }
 
@@ -77,17 +76,13 @@ const SubmitDocument = () => {
       console.log(response);
 
       if (response?.status === 200 || response?.status === 201) {
-        toast.success("File uploaded successfully!");
+        toast.success(t("File uploaded successfully!"));
         setSelectedFile(null);
         setSelectedProject("");
 
         navigate("/documents");
-      } else {
-        toast.error("Upload failed. Please try again.");
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("An error occurred while uploading.");
     } finally {
       setUploading(false);
     }
@@ -111,7 +106,7 @@ const SubmitDocument = () => {
               placeholder="Search projects..."
               className="p-2 border-b border-gray-300 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm on change
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
             <div className="max-h-60 overflow-y-auto">
               {loading ? (
@@ -123,7 +118,7 @@ const SubmitDocument = () => {
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                     onClick={() => {
                       setSelectedProject(project.projectName);
-                      setSearchTerm(""); // Clear the search term after selection
+                      setSearchTerm("");
                     }}
                   >
                     {project.projectName}

@@ -9,7 +9,6 @@ import apiRequest from "../../../utils/apiRequest";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
 
-
 const ForgetPassword = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -40,7 +39,6 @@ const ForgetPassword = () => {
       }
     } catch (error) {
       toast.error(t(error.response?.data?.message));
-      console.error("Error:", error);
     }
   };
 
@@ -70,18 +68,18 @@ const ForgetPassword = () => {
               error={!!errors.email}
               helperText={errors.email?.message}
               sx={{
-                "& label": { color: "black" }, // Make label text black
-                "& label.Mui-focused": { color: "black" }, // Label turns gray when focused
+                "& label": { color: "black" },
+                "& label.Mui-focused": { color: "black" },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px", // Rounded corners
+                  borderRadius: "12px",
                   "& fieldset": {
-                    borderColor: "grey", // Default border color
+                    borderColor: "grey",
                   },
                   "&:hover fieldset": {
-                    borderColor: "black", // Border turns black on hover
+                    borderColor: "black",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "black", // Border turns black on focus
+                    borderColor: "black",
                   },
                 },
               }}

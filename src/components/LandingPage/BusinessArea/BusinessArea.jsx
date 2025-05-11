@@ -40,8 +40,6 @@ const BusinessAreaTable = () => {
   const navigate = useNavigate();
   const modalRef = useRef(null);
 
-  const _id = useSelector((state) => state?.auth?.userInfo?._id);
-
   const handleClickOutside = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setOpenStates({});
@@ -62,7 +60,6 @@ const BusinessAreaTable = () => {
         setRoles(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching roles:", error);
     }
   }, [token]);
 
@@ -76,10 +73,8 @@ const BusinessAreaTable = () => {
     } catch (error) {
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
     }
   }, [token, dispatch, navigate, page]);
@@ -124,13 +119,10 @@ const BusinessAreaTable = () => {
 
   const handleAdd = async () => {
     if (!formData.businessArea.trim() || !formData.role.trim()) {
-      toast.error("All fields are required.");
+      toast.error(t("All fields are required."));
       return;
     }
     try {
-      if (!token) {
-        throw new Error("No token found");
-      }
 
       const payload = {
         businessArea: formData.businessArea,
@@ -149,26 +141,20 @@ const BusinessAreaTable = () => {
         fetchBusinessAreas();
         handleClose();
       } else {
-        toast.error("Failed to add business area.");
+        toast.error(t("Failed to add business area."));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
-      console.error("Error:", error);
+      toast.error(t(error.response?.data?.message) || t(error.message));
     }
   };
 
   const handleDelete = async (businessAreaId) => {
     try {
       await apiRequest("delete", `/businessArea/${businessAreaId}`, {}, token);
-      toast.success("Business area deleted successfully.");
+      toast.success(t("Business area deleted successfully."));
       fetchBusinessAreas();
     } catch (error) {
-      toast.error("Failed to delete business area.");
-      console.error("Error:", error);
+      toast.error(t("Failed to delete business area."));
     }
   };
 
@@ -186,12 +172,11 @@ const BusinessAreaTable = () => {
         token
       );
 
-      toast.success("Business area updated successfully.");
+      toast.success(t("Business area updated successfully."));
       fetchBusinessAreas();
       handleClose();
     } catch (error) {
-      toast.error("Failed to update business area.");
-      console.error("Error:", error);
+      toast.error(t("Failed to update business area."));
     }
   };
 

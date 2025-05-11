@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Checkbox,
@@ -53,7 +53,6 @@ export default function UsersTable() {
         setUsers(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
     } finally {
       setLoading(false);
     }
@@ -66,7 +65,6 @@ export default function UsersTable() {
         setRoles(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching roles:", error);
     }
   }, [token]);
 
@@ -89,14 +87,9 @@ export default function UsersTable() {
         fetchUsers();
         setOpenUser(false);
         setRoleSearchTerm("");
-      } else {
-        toast.error("Failed to add user.");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message));
     }
   };
 
@@ -122,7 +115,6 @@ export default function UsersTable() {
         setOpenEdit(true);
       }
     } catch (error) {
-      toast.error("Failed to fetch user details.");
     }
   };
 
@@ -135,19 +127,14 @@ export default function UsersTable() {
         token
       );
       if (response.status === 200) {
-        toast.success("User updated successfully.");
+        toast.success(t("User updated successfully."));
         fetchUsers();
         setOpenEdit(false);
         setOpenStates(null);
         setRoleSearchTermEdit("");
-      } else {
-        toast.error("Failed to update user.");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
-      );
+      toast.error(t(error.response?.data?.message));
     }
   };
 
@@ -161,13 +148,10 @@ export default function UsersTable() {
         token
       );
       if (response.status === 200) {
-        toast.success("User deleted successfully.");
+        toast.success(t("User deleted successfully."));
         fetchUsers();
-      } else {
-        toast.error("Failed to delete user.");
       }
     } catch (error) {
-      console.error("Error deleting user:", error);
     }
   };
 
@@ -244,7 +228,6 @@ export default function UsersTable() {
           </Button>
         ) : null}
 
-        {/* Add User Modal */}
         <Modal open={openUser} onClose={handleCloseUser}>
           <Box
             sx={{
@@ -371,7 +354,6 @@ export default function UsersTable() {
         </Modal>
       </div>
 
-      {/* Users Table */}
       <div className="bg-white rounded-lg shadow ">
         <table className="min-w-full text-sm text-left border border-gray-200">
           <thead>
@@ -479,7 +461,6 @@ export default function UsersTable() {
         </table>
       </div>
 
-      {/* Edit User Modal */}
       <Modal open={openEdit} onClose={handleCloseEdit}>
         <Box
           sx={{
@@ -602,7 +583,6 @@ export default function UsersTable() {
         </Box>
       </Modal>
 
-      {/* Pagination */}
       <div className="flex justify-end mt-4">
         <Pagination
           count={Math.ceil(users.length / usersPerPage)}

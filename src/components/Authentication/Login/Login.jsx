@@ -48,7 +48,6 @@ const Login = () => {
       }
     } catch (error) {
       toast.error(t(error.response?.data?.message));
-      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -80,18 +79,18 @@ const Login = () => {
               error={!!errors.email}
               helperText={errors.email?.message}
               sx={{
-                "& label": { color: "black" }, // Make label text black
-                "& label.Mui-focused": { color: "black" }, // Label turns gray when focused
+                "& label": { color: "black" },
+                "& label.Mui-focused": { color: "black" },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px", // Rounded corners
+                  borderRadius: "12px",
                   "& fieldset": {
-                    borderColor: "grey", // Default border color
+                    borderColor: "grey",
                   },
                   "&:hover fieldset": {
-                    borderColor: "black", // Border turns black on hover
+                    borderColor: "black",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "black", // Border turns black on focus
+                    borderColor: "black",
                   },
                 },
               }}
@@ -120,7 +119,7 @@ const Login = () => {
                   <InputAdornment position="end">
                     <IconButton
                       onClick={togglePasswordVisibility}
-                      style={{ color: "#DC2626" }} // Red icon color
+                      style={{ color: "#DC2626" }}
                     >
                       {showPassword ? <IoEye /> : <IoEyeOff />}
                     </IconButton>
@@ -128,18 +127,18 @@ const Login = () => {
                 ),
               }}
               sx={{
-                "& label": { color: "black" }, // Label color black
-                "& label.Mui-focused": { color: "black" }, // Label turns gray on focus
+                "& label": { color: "black" },
+                "& label.Mui-focused": { color: "black" },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px", // Rounded corners
+                  borderRadius: "12px",
                   "& fieldset": {
-                    borderColor: "grey", // Default border color
+                    borderColor: "grey",
                   },
                   "&:hover fieldset": {
-                    borderColor: "black", // Border turns black on hover
+                    borderColor: "black",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "black", // Border turns black on focus
+                    borderColor: "black",
                   },
                 },
               }}
@@ -152,12 +151,12 @@ const Login = () => {
             <Checkbox
               size="small"
               sx={{
-                color: "black", // Unchecked border color
+                color: "black",
                 "&.Mui-checked": {
-                  color: "black", // Checked color
+                  color: "black",
                 },
                 "&:hover": {
-                  color: "black", // Black on hover
+                  color: "black",
                 },
               }}
             />

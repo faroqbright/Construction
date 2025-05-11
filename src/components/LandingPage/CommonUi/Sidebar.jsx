@@ -92,12 +92,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       to: "/notifications",
       module: null,
     },
-    // {
-    //   icon: document,
-    //   label: t("Documents"),
-    //   to: "/documents",
-    //   module: "DocumentManagement",
-    // },
     ...(showRolesUsersButton
       ? [
           {
@@ -120,12 +114,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       to: "/all-clients",
       module: "CompanyManagement",
     },
-    // {
-    //   icon: milestone,
-    //   label: t("Additional_Milestones"),
-    //   to: "/additional-milestones",
-    //   module: "MilestoneManagement",
-    // },
   ];
 
   const filteredItems = Admin

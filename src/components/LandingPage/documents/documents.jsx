@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Button,
   Checkbox,
@@ -6,17 +6,15 @@ import {
   PaginationItem,
   Modal,
   Box,
-  TextField,
   Typography,
   IconButton,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { RiCloseLine } from "react-icons/ri";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
-import { removeUserInfo } from "../../../features/auth/authSlice";
 import RolePermissions from "../../../utils/RolePermissions";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
@@ -24,12 +22,10 @@ import "../../../utils/i18n";
 const Documents = () => {
   const [openStates, setOpenStates] = useState({});
   const [open, setOpen] = useState(false);
-  const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
   const [projecto, setProjecto] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
   const [editData, setEditData] = useState(null);
   const [formData, setFormData] = useState({
     userName: "",
@@ -41,8 +37,6 @@ const Documents = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state?.auth?.userToken);
-  const user = useSelector((state) => state?.auth?.user);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const modalRef = useRef(null);
 
@@ -65,10 +59,8 @@ const Documents = () => {
       const response = await apiRequest("get", "/userdocuments", {}, token);
       if (response?.status === 200) {
         setProjects(response?.data || []);
-        console.log(response?.data);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error);
     } finally {
       setLoading(false);
     }
@@ -87,7 +79,6 @@ const Documents = () => {
           setProjecto(response?.data?.data?.projects || []);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -102,7 +93,7 @@ const Documents = () => {
 
   const handleOpens = (user) => {
     setEditData(user);
-    setOpen(true); // Ensure modal opens
+    setOpen(true);
   };
 
   const handleSubmit = (e) => {
@@ -116,7 +107,7 @@ const Documents = () => {
 
   const handleClose = () => {
     setEditData(null);
-    setSelectedProject(""); // Reset project name
+    setSelectedProject("");
     setSelectedFile(null);
     setOpen(false);
   };
@@ -134,13 +125,10 @@ const Documents = () => {
       !formData.email.trim() ||
       !formData.phoneNumber.trim()
     ) {
-      toast.error("All fields are required.");
+      toast.error(t("All fields are required."));
       return;
     }
     try {
-      if (!token) {
-        throw new Error("No token found");
-      }
       const response = await apiRequest("post", "/clients", formData, token);
 
       if (response.data.statusCode === 201) {
@@ -148,26 +136,20 @@ const Documents = () => {
         fetchProjects();
         handleClose();
       } else {
-        toast.error("Failed to add user.");
+        toast.error(t("Failed to add user."));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
-      console.error("Error:", error);
+      toast.error(t(error.response?.data?.message) || t(error.message));
     }
   };
 
   const handleDelete = async (userId) => {
     try {
       await apiRequest("delete", `/userdocuments/${userId}`, {}, token);
-      toast.success("User deleted successfully.");
+      toast.success(t("User deleted successfully."));
       fetchProjects();
     } catch (error) {
-      toast.error("Failed to delete user.");
-      console.error("Error:", error);
+      toast.error(t("Failed to delete user."));
     }
   };
 
@@ -188,60 +170,11 @@ const Documents = () => {
         }
       );
 
-      toast.success("User updated successfully.");
+      toast.success(t("User updated successfully."));
       fetchProjects();
       handleClose();
     } catch (error) {
-      toast.error("Failed to update user.");
-      console.error("Error:", error);
-    }
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-
-    if (file) {
-      if (file.type !== "application/pdf") {
-        toast.error("Only PDF files are allowed!");
-        return;
-      }
-      setSelectedFile(file);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile || !selectedProject) {
-      toast.info("Please select a project and upload a PDF file.");
-      return;
-    }
-
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("projName", selectedProject);
-    formData.append("user", user);
-
-    try {
-      const response = await apiRequest("post", "/documents", formData, token, {
-        "Content-Type": "multipart/form-data",
-      });
-      console.log(response);
-
-      if (response?.status === 200 || response?.status === 201) {
-        toast.success("File uploaded successfully!");
-        setSelectedFile(null);
-        setSelectedProject("");
-
-        navigate("/userReports");
-      } else {
-        toast.error("Upload failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("An error occurred while uploading.");
-    } finally {
-      setUploading(false);
+      toast.error(t("Failed to update user."));
     }
   };
 

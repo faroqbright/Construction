@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Checkbox,
@@ -60,8 +60,6 @@ const ClientsTable = () => {
         dispatch(removeUserInfo());
         toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
     }
   }, [token, dispatch, navigate, page]);
@@ -115,9 +113,6 @@ const ClientsTable = () => {
       return;
     }
     try {
-      if (!token) {
-        throw new Error("No token found");
-      }
       const response = await apiRequest(
         "post",
         "/companies",
@@ -129,12 +124,9 @@ const ClientsTable = () => {
         toast.success(t(response.data.message));
         fetchUsers();
         handleClose();
-      } else {
-        // toast.error("Failed to add user.");
       }
     } catch (error) {
       toast.error(t(error.response?.data?.message) || t(error.message));
-      console.error("Error:", error);
     }
   };
 
@@ -144,7 +136,6 @@ const ClientsTable = () => {
       toast.success(t("Company deleted successfully."));
       fetchUsers();
     } catch (error) {
-      console.error("Error:", error);
     }
   };
 

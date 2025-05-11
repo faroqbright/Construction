@@ -9,15 +9,6 @@ const initialState = {
   isAuthenticated: false,
 };
 export const authSlice = createSlice({
-  //name is default property of rtk ,auth is shown in my rtk devtools
-  //we can add initial state directly here as well
-  //reducers are pair of properties and funcion
-  //each reducer method has two params state,action
-  //state access the initial state
-  //actions give us dispatches values from code that use the reducer method action.payload
-  //make the structure in which you want to store value optional
-  //you can also directly reffer like this  state.user=action.payload
-  //state.user(any initialState property name) and store structure data in initialState
   name: "auth",
   initialState,
   reducers: {

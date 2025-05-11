@@ -38,7 +38,6 @@ const Recovery = () => {
       toast.error(t(
         error.response?.data?.message)
       );
-      console.error("Error:", error);
     }
   };
 
@@ -65,18 +64,18 @@ const Recovery = () => {
           error={!!errors.otp}
           helperText={errors.otp?.message}
           sx={{
-            "& label": { color: "black" }, // Label remains black
-            "& label.Mui-focused": { color: "black" }, // Label stays black when focused
+            "& label": { color: "black" },
+            "& label.Mui-focused": { color: "black" },
             "& .MuiOutlinedInput-root": {
-              borderRadius: "12px", // Rounded corners
+              borderRadius: "12px",
               "& fieldset": {
-                borderColor: "grey", // Default border color
+                borderColor: "grey",
               },
               "&:hover fieldset": {
-                borderColor: "black", // Border turns grey on hover
+                borderColor: "black",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "black", // Border turns black on focus
+                borderColor: "black",
               },
             },
           }}

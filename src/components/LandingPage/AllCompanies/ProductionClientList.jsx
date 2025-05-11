@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Checkbox,
@@ -63,10 +63,8 @@ const ProductionClientList = () => {
     } catch (error) {
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
-        toast.success("You have been logged out.");
+        toast.success(t("You have been logged out."));
         navigate("/login");
-      } else {
-        console.error("Error:", error);
       }
     }
   }, [token, dispatch, navigate, page]);
@@ -118,13 +116,10 @@ const ProductionClientList = () => {
       !formData.email.trim() ||
       !formData.phoneNumber.trim()
     ) {
-      toast.error("All fields are required.");
+      toast.error(t("All fields are required."));
       return;
     }
     try {
-      if (!token) {
-        throw new Error("No token found");
-      }
       const response = await apiRequest("post", "/clients", formData, token);
 
       if (response.data.statusCode === 201) {
@@ -132,26 +127,20 @@ const ProductionClientList = () => {
         fetchUsers();
         handleClose();
       } else {
-        toast.error("Failed to add user.");
+        toast.error(t("Failed to add user."));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong. Please try again."
-      );
-      console.error("Error:", error);
+      toast.error(t(error.response?.data?.message) || t(error.message));
     }
   };
 
   const handleDelete = async (userId) => {
     try {
       await apiRequest("delete", `/clients/${userId}`, {}, token);
-      toast.success("User deleted successfully.");
+      toast.success(t("User deleted successfully."));
       fetchUsers();
     } catch (error) {
-      toast.error("Failed to delete user.");
-      console.error("Error:", error);
+      toast.error(t("Failed to delete user."));
     }
   };
 
@@ -166,12 +155,11 @@ const ProductionClientList = () => {
       };
       await apiRequest("patch", `/clients/${editData._id}`, updatedData, token);
 
-      toast.success("User updated successfully.");
+      toast.success(t("User updated successfully."));
       fetchUsers();
       handleClose();
     } catch (error) {
-      toast.error("Failed to update user.");
-      console.error("Error:", error);
+      toast.error(t("Failed to update user."));
     }
   };
 

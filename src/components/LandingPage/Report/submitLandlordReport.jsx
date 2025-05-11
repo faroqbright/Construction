@@ -14,7 +14,7 @@ const SubmitReport = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to manage dropdown visibility
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const token = useSelector((state) => state?.auth?.userToken);
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
   const navigate = useNavigate();
@@ -28,10 +28,9 @@ const SubmitReport = () => {
         if (response?.data?.statusCode === 200) {
           const projectsData = response?.data?.data?.projects || [];
           setProjects(projectsData);
-          setFilteredProjects(projectsData); // Initialize filtered projects
+          setFilteredProjects(projectsData);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -45,11 +44,10 @@ const SubmitReport = () => {
       project.projectName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   
-    // Show only 6 projects initially, unless the user is searching
     if (searchTerm === "") {
-      setFilteredProjects(filtered.slice(0, 6)); // Show only the first 6 projects
+      setFilteredProjects(filtered.slice(0, 6));
     } else {
-      setFilteredProjects(filtered); // Show all filtered projects when searching
+      setFilteredProjects(filtered);
     }
   }, [searchTerm, projects]);
 
@@ -59,12 +57,12 @@ const SubmitReport = () => {
 
     if (file) {
       if (file.type !== "application/pdf") {
-        toast.error("Only PDF files are allowed!");
+        toast.error(t("Only PDF files are allowed!"))
         return;
       }
 
       if (file.size > maxSize) {
-        toast.error("File size cannot be greater than 5MB!");
+        toast.error("Selected file should not be greater than 5MB.");
         return;
       }
 
@@ -74,7 +72,7 @@ const SubmitReport = () => {
 
   const handleUpload = async () => {
     if (!selectedFile || !selectedProject) {
-      toast.info("Please select a project and upload a PDF file.");
+      toast.info(t("Please select a project and upload a PDF file."));
       return;
     }
 
@@ -92,17 +90,13 @@ const SubmitReport = () => {
       console.log(response);
 
       if (response?.status === 200 || response?.status === 201) {
-        toast.success("File uploaded successfully!");
+        toast.success(t("File uploaded successfully!"));
         setSelectedFile(null);
         setSelectedProject("");
 
         navigate("/report");
-      } else {
-        toast.error("Upload failed. Please try again.");
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("An error occurred while uploading.");
     } finally {
       setUploading(false);
     }

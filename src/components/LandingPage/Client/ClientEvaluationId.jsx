@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Avatar, Box, Rating, Typography, Modal } from "@mui/material";
+import { useState, useEffect, useCallback } from "react";
+import { Avatar, Box, Rating, Typography } from "@mui/material";
 import img1 from "../../../assets/Image (1).svg";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
@@ -10,7 +10,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { useParams } from "react-router-dom";
-import { FaStar } from "react-icons/fa6";
 
 const ClientEvaluationId = () => {
   const [reviews, setReviews] = useState([]);
@@ -21,91 +20,8 @@ const ClientEvaluationId = () => {
   const { t } = useTranslation();
   const token = useSelector((state) => state.auth.userToken);
   const userName = useSelector((state) => state.auth.userInfo?.userName);
-  const userId = useSelector((state) => state?.auth?.userInfo?._id);
   const { projectId } = useParams();
   const { id } = useParams();
-  console.log("Project id is:", id);
-
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [reviewText, setReviewText] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState(null);
-
-  const openReviewModal = () => {
-    setIsReviewModalOpen(true);
-  };
-
-  const closeReviewModal = () => {
-    setIsReviewModalOpen(false);
-    setRating(0);
-    setReviewText("");
-  };
-
-  const handleRatingChange = (newRating) => {
-    setRating(newRating);
-  };
-
-  const handleReviewTextChange = (event) => {
-    setReviewText(event.target.value);
-  };
-
-  const handleSubmitReview = async () => {
-    try {
-      const payload = {
-        projectId: selectedProjectId,
-        userId: userId,
-        message: reviewText,
-        rating: rating,
-      };
-
-      const response = await apiRequest("post", "/reviews", payload, token);
-
-      if (response.status === 201) {
-        console.log("Review submitted successfully!");
-        closeReviewModal();
-        fetchReviews(); // Refresh the reviews after submission
-      } else {
-        console.error("Error submitting review:", response.data);
-      }
-    } catch (error) {
-      console.error("Error submitting review:", error);
-    }
-  };  
-
-  const StarRating = ({ rating, onRatingChange }) => {
-    return (
-      <div className="flex justify-center gap-2 mt-4 mb-6">
-        {[...Array(5)].map((_, index) => {
-          const starValue = index + 1;
-          return (
-            <FaStar
-              key={index}
-              color={starValue <= rating ? "#ffc107" : "#e4e5e9"}
-              onClick={() => onRatingChange(starValue)}
-              style={{
-                cursor: "pointer",
-                width: "24px",
-                height: "24px",
-              }}
-            />
-          );
-        })}
-      </div>
-    );
-  };
-
-  const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    boxShadow: 24,
-    p: 4,
-  };
-
-  console.log("Selected Project", selectedProject);
 
   const fetchReviews = useCallback(async () => {
     if (!id) return;
@@ -163,8 +79,6 @@ const ClientEvaluationId = () => {
 
       setReviews(formattedReviews);
     } catch (error) {
-      console.error("Error fetching reviews:", error);
-      setError("Failed to load reviews");
       setReviews([]);
       setAllProjects([]);
     } finally {
@@ -270,83 +184,6 @@ const ClientEvaluationId = () => {
                 </div>
               </div>
             )}
-
-            <div className="flex justify-end items-end">
-              {/* <button
-                className="text-[#54577A] underline"
-                onClick={() => {
-                  setSelectedProjectId(id);
-                  openReviewModal();
-                }}
-              >
-                {t("Write a Review")}
-              </button> */}
-            </div>
-
-            {/* <Modal
-              open={isReviewModalOpen}
-              onClose={closeReviewModal}
-              aria-labelledby="review-modal-title"
-              aria-describedby="review-modal-description"
-            >
-              <Box
-                sx={{
-                  ...modalStyle,
-                  borderRadius: "16px",
-                  height: "auto",
-                  width: "600px",
-                  display: "flex",
-                  flexDirection: "column",
-                  padding: "24px",
-                  position: "relative",
-                }}
-              >
-                <button
-                  onClick={closeReviewModal}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl font-bold"
-                  aria-label="Close"
-                >
-                  ×
-                </button>
-
-                <h2
-                  id="review-modal-title"
-                  className="flex justify-center text-xl font-semibold text-black-blacknew mb-4"
-                >
-                  {t("Write a Review")}
-                </h2>
-
-                <StarRating
-                  rating={rating}
-                  onRatingChange={handleRatingChange}
-                />
-                <h4 className="text-xl font-medium text-black-blacknew">
-                  {t("Write a Description")}
-                </h4>
-                <textarea
-                  id="review-modal-description"
-                  className="w-full h-32 p-2 border border-gray-300 rounded-xl mt-4"
-                  placeholder={t(`Your_review_here`)} 
-                  value={reviewText}
-                  onChange={handleReviewTextChange}
-                ></textarea>
-
-                <div className="flex justify-end mt-8 gap-2">
-                  <button
-                    onClick={handleSubmitReview}
-                    className="px-4 py-2 text-sm font-semibold text-white bg-black-blacknew rounded-lg focus:outline-none"
-                  >
-                    {t("Submit Review")}
-                  </button>
-                  <button
-                    onClick={closeReviewModal}
-                    className="px-4 py-2 mr-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
-                  >
-                    {t("Cancel")}
-                  </button>
-                </div>
-              </Box>
-            </Modal> */}
 
             {reviews.length === 0 ? (
               <Typography variant="body1" className="p-6 text-center">
