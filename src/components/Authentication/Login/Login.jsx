@@ -20,7 +20,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,15 +39,43 @@ const Login = () => {
     try {
       const response = await apiRequest("post", "/users/login", values);
       console.log(response);
-      if (response.data.data.user.isClient === true) {
+
+      const { data } = response.data;
+      const { user, accessToken } = data;
+
+      if (user.isClient === true) {
         toast.error(t("You are not authorized to access the admin panel."));
-      } else if (response.data.statusCode === 200) {
-        dispatch(setUserInfo(response.data.data));
+        return;
+      }
+
+      if (response.data.statusCode === 200) {
+        // Determine language from loca lStorage
+        const languageCode = localStorage.getItem("i18nextLng");
+        let languageSelectedForApi;
+
+        if (languageCode?.toLowerCase().startsWith("pt")) {
+          languageSelectedForApi = "portuguese";
+        } else if (languageCode?.toLowerCase().startsWith("en")) {
+          languageSelectedForApi = "english";
+        }
+
+        // If a valid language is selected, send to API
+        if (languageSelectedForApi) {
+          const endpoint = `/language/${response.data.data.user._id}`;
+          const payload = { languageSelected: languageSelectedForApi };
+
+            await apiRequest("put", endpoint, payload, accessToken);
+        }
+
+        // Save user info and navigate
+        dispatch(setUserInfo(data));
         toast.success(t(response.data.message));
         navigate("/");
       }
     } catch (error) {
-      toast.error(t(error.response?.data?.message));
+      console.log(error);
+      
+      toast.error(t(error.response?.data?.message || "Login failed"));
     } finally {
       setLoading(false);
     }
@@ -59,7 +87,7 @@ const Login = () => {
         {t("Login")}
       </h1>
       <p className="text-gray-600 mb-4 text-base">
-      {t("Login_to_access_your_account")}
+        {t("Login_to_access_your_account")}
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)}>
