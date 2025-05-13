@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -21,7 +23,7 @@ import {
   Search as SearchIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import notification from "../../../assets/notifications.svg";
+import notificationIconAsset from "../../../assets/notifications.svg"; // Renamed to avoid conflict with notifications state
 import magicPen from "../../../assets/magicpen.svg";
 import { Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,7 +31,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
 import { removeUserInfo } from "../../../features/auth/authSlice";
-import { t } from "i18next";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 
@@ -72,10 +73,10 @@ const NotificationToggle = ({
 };
 
 const NotificationSettings = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [clientSearchQuery, setClientSearchQuery] = useState("");
-  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [users, setUsers] = useState([]); // For "Select_Client" dropdown
+  const [loading, setLoading] = useState(false); // For "Select_Client" search spinner
+  const [clientSearchQuery, setClientSearchQuery] = useState(""); // For "Finance_Access_Clients" dropdown search
+  const [userSearchQuery, setUserSearchQuery] = useState(""); // For "Select_Client" dropdown search
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
@@ -84,10 +85,10 @@ const NotificationSettings = () => {
   const [financeMessage, setFinanceMessage] = useState("");
   const [financeTitle, setFinanceTitle] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("");
-  const [financeClients, setFinanceClients] = useState([]);
-  const [isLoadingClients, setIsLoadingClients] = useState(false);
-  const [selectedFinanceClients, setSelectedFinanceClients] = useState([]);
+  const [modalType, setModalType] = useState(""); // "view" or "edit"
+  const [financeClients, setFinanceClients] = useState([]); // For "Finance_Access_Clients" dropdown
+  const [isLoadingClients, setIsLoadingClients] = useState(false); // For "Finance_Access_Clients" dropdown spinner
+  const [selectedFinanceClients, setSelectedFinanceClients] = useState([]); // Holds IDs of selected finance clients
   const token = useSelector((state) => state?.auth?.userToken);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -135,77 +136,107 @@ const NotificationSettings = () => {
       }
     } catch (error) {
       setNotifications([]);
-
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
         toast.success(t("You have been logged out."));
         navigate("/login");
       } else {
-        toast.error(t(error?.response?.data?.message));
+        toast.error(
+          t(
+            error?.response?.data?.message ||
+              "Failed to fetch notification settings."
+          )
+        );
       }
     } finally {
       setIsLoadingNotifications(false);
     }
-  }, [token, dispatch, navigate]);
+  }, [token, dispatch, navigate, t]);
 
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  const fetchClients = useCallback(async () => {
+  // fetchClients function and its useEffect are removed as this logic is merged into fetchUsers
+
+  const fetchUsers = useCallback(async () => {
     if (!token) return;
 
-    setIsLoadingClients(true);
-    try {
-      const response = await apiRequest("get", "/clients", {}, token);
+    setLoading(true); // For "Select_Client" search UI
+    setIsLoadingClients(true); // For "Finance_Access_Clients" dropdown UI
 
-      if (response.data && Array.isArray(response.data.data)) {
-        const allClients = response.data.data;
-        const financeTypeClients = allClients.filter(
-          (user) => user.userType === "Finance"
-        );
-        setFinanceClients(financeTypeClients);
-      } else {
-        setFinanceClients([]);
+    try {
+      const [clientsApiResponse, rolesUserApiResponse] = await Promise.all([
+        apiRequest("get", "/clients", {}, token),
+        apiRequest("get", "/rolesUser", {}, token),
+      ]);
+
+      const clientsData = clientsApiResponse?.data?.data;
+      const rolesUserData = rolesUserApiResponse?.data?.data;
+
+      // 1. Populate `users` state (for "Select_Client" dropdown)
+      // This dropdown will show users from the `/rolesUser` endpoint only.
+      let usersForGeneralSelector = [];
+      if (Array.isArray(rolesUserData)) {
+        usersForGeneralSelector = [...rolesUserData];
       }
+      // De-duplicate (important if the source could have duplicates)
+      const uniqueUsersForGeneralSelector = usersForGeneralSelector.reduce(
+        (acc, current) => {
+          if (current && current._id) {
+            // Ensure current and current._id exist
+            const x = acc.find((item) => item._id === current._id);
+            if (!x) {
+              return acc.concat([current]);
+            }
+          }
+          return acc;
+        },
+        []
+      );
+      setUsers(uniqueUsersForGeneralSelector);
+
+      // 2. Populate `financeClients` state (for "Finance_Access_Clients" dropdown)
+      // This dropdown will show ALL users from BOTH `/clients` and `/rolesUser` (merged and de-duplicated).
+      let allUsersFromBothApis = [];
+      if (Array.isArray(clientsData)) {
+        allUsersFromBothApis.push(...clientsData.filter((u) => u && u._id)); // Filter out invalid entries
+      }
+      if (Array.isArray(rolesUserData)) {
+        allUsersFromBothApis.push(...rolesUserData.filter((u) => u && u._id)); // Filter out invalid entries
+      }
+
+      const uniqueCombinedUsers = allUsersFromBothApis.reduce(
+        (acc, current) => {
+          if (current && current._id) {
+            // Ensure current and current._id exist
+            const x = acc.find((item) => item._id === current._id);
+            if (!x) {
+              return acc.concat([current]);
+            }
+          }
+          return acc;
+        },
+        []
+      );
+      setFinanceClients(uniqueCombinedUsers);
     } catch (error) {
+      setUsers([]);
       setFinanceClients([]);
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
         toast.success(t("You have been logged out."));
         navigate("/login");
-      }
-    } finally {
-      setIsLoadingClients(false);
-    }
-  }, [token, dispatch, navigate]);
-
-  useEffect(() => {
-    fetchClients();
-  }, [fetchClients]);
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await apiRequest("get", "/rolesUser", {}, token);
-      if (response.data && response.data.data) {
-        setUsers(response.data.data);
       } else {
-        setUsers([]);
-      }
-    } catch (error) {
-      setUsers([]);
-      if (error?.response?.status === 401) {
-        dispatch(removeUserInfo());
-        toast.success(t("You have been logged out."));
-          navigate("/login");
-      } else {
-        toast.error(t(error?.response?.data?.message));
+        toast.error(
+          t(error?.response?.data?.message || "Failed to fetch user data.")
+        );
       }
     } finally {
       setLoading(false);
+      setIsLoadingClients(false);
     }
-  }, [token, dispatch, navigate]);
+  }, [token, dispatch, navigate, t]);
 
   useEffect(() => {
     fetchUsers();
@@ -213,16 +244,24 @@ const NotificationSettings = () => {
 
   const filteredFinanceClients = financeClients.filter(
     (client) =>
-      client.userName.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
-      client.email.toLowerCase().includes(clientSearchQuery.toLowerCase())
+      (client.userName?.toLowerCase() || "").includes(
+        clientSearchQuery.toLowerCase()
+      ) ||
+      (client.email?.toLowerCase() || "").includes(
+        clientSearchQuery.toLowerCase()
+      )
   );
 
   const filteredUsers = users.filter(
     (user) =>
-      (user.userName?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-        user.email?.toLowerCase().includes(userSearchQuery.toLowerCase())) &&
-      (modalType !== "edit" ||
-        !selectedUsers.some((selected) => selected._id === user._id))
+      (user.userName?.toLowerCase() || "").includes(
+        userSearchQuery.toLowerCase()
+      ) ||
+      ((user.email?.toLowerCase() || "").includes(
+        userSearchQuery.toLowerCase()
+      ) &&
+        (modalType !== "edit" ||
+          !selectedUsers.some((selected) => selected._id === user._id)))
   );
 
   const handleToggle = async (notificationId) => {
@@ -258,15 +297,18 @@ const NotificationSettings = () => {
         toast.success(t(response.data.message));
       }
     } catch (error) {
-
+      // Revert UI change on error
       updatedNotifications[notificationIndex] = {
         ...currentNotification,
         status: currentNotification.status,
       };
       setNotifications(updatedNotifications);
-
-      toast.error(t(error?.response?.data?.message));
-
+      toast.error(
+        t(
+          error?.response?.data?.message ||
+            "Failed to update notification status."
+        )
+      );
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
         toast.success(t("You have been logged out."));
@@ -304,6 +346,7 @@ const NotificationSettings = () => {
       return;
     }
 
+    setLoading(true); // Consider a specific loading state for sending notifications
     try {
       const results = [];
       for (const member of selectedItems) {
@@ -314,7 +357,7 @@ const NotificationSettings = () => {
             title,
             description,
             type,
-            memberId: member._id || member,
+            memberId: member._id || member, // Handles if member is an object or just an ID string
           },
           token
         );
@@ -325,16 +368,22 @@ const NotificationSettings = () => {
 
       if (allSuccess) {
         resetState();
-        toast.success(t('notifications sent successfully'));
+        toast.success(t("notifications sent successfully"));
+      } else {
+        // Handle partial success if necessary
+        toast.warn(t("Some notifications may have failed to send."));
       }
     } catch (error) {
-      toast.error(t(error?.response?.data?.message));
-
+      toast.error(
+        t(error?.response?.data?.message || "Failed to send notifications.")
+      );
       if (error?.response?.status === 401) {
         dispatch(removeUserInfo());
         toast.success(t("You have been logged out."));
-          navigate("/login");
+        navigate("/login");
       }
+    } finally {
+      setLoading(false); // Reset general loading state
     }
   };
 
@@ -357,31 +406,40 @@ const NotificationSettings = () => {
       title: clientTitle,
       description: message,
       type: "client",
-      memberId: selectedUsers.map((user) => user._id),
-      selectedItems: selectedUsers,
+      selectedItems: selectedUsers, // selectedUsers are full objects
       resetState: resetClientForm,
-      successMessagePrefix: "Client",
-      validationErrorMessage:
-        "Please enter a title, message and select at least one user",
+      validationErrorMessage: t(
+        "Please enter a title, message and select at least one user"
+      ),
     });
   };
 
   const handleFinanceSend = async () => {
+    // selectedFinanceClients holds IDs. We need to get the full user objects for `selectedItems`.
+    // Or ensure `sendNotification` can robustly handle just IDs if `member._id` isn't present.
+    // The current `sendNotification` expects `member._id || member`.
+    // So, `selectedFinanceClients` can be passed directly if items are just IDs.
+    // However, for consistency and if `selectedItems` is used for more than just `memberId`, mapping to objects is safer.
+    const itemsForFinanceNotification = selectedFinanceClients.map((id) => {
+      const client = financeClients.find((c) => c._id === id);
+      return client || { _id: id }; // Fallback to just ID if client object not found
+    });
+
     await sendNotification({
       title: financeTitle,
       description: financeMessage,
-      type: "financial",
-      memberId: selectedFinanceClients,
-      selectedItems: selectedFinanceClients,
+      type: "financial", // This type is semantic, even if recipients are broader
+      selectedItems: itemsForFinanceNotification,
       resetState: resetFinanceForm,
-      successMessagePrefix: "Financial",
-      validationErrorMessage:
-        "Please enter a title, message and select at least one finance client",
+      validationErrorMessage: t(
+        "Please enter a title, message and select at least one finance client"
+      ),
     });
   };
 
   return (
     <Box className="p-4 md:p-6 min-h-screen w-full bg-gray-100">
+      {/* Notification Toggles Section */}
       <Box className="shadow-sm py-4 md:py-5 mb-6">
         <Box className="space-y-4">
           {isLoadingNotifications ? (
@@ -390,7 +448,7 @@ const NotificationSettings = () => {
             </Box>
           ) : notifications.length === 0 ? (
             <Typography sx={{ textAlign: "center", color: "grey.600", p: 2 }}>
-              No notification settings found.
+              {t("No notification settings found.")}
             </Typography>
           ) : (
             [...notifications]
@@ -417,19 +475,12 @@ const NotificationSettings = () => {
         </Box>
       </Box>
 
+      {/* Client Notification Section ("Select_Client") */}
       <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
         <Box className="flex items-center gap-3 mb-4">
-          <Avatar
-            variant="square"
-            sx={{
-              bgcolor: "grey.200",
-              px: 3,
-              py: 3,
-            }}
-          >
+          <Avatar variant="square" sx={{ bgcolor: "grey.200", px: 3, py: 3 }}>
             <PersonOutlineIcon sx={{ color: "grey.700" }} />
           </Avatar>
-
           <Box>
             <Typography variant="body1" className="font-medium">
               {t("Select_Client")}
@@ -449,7 +500,7 @@ const NotificationSettings = () => {
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
             InputProps={{
-              startAdornment: loading ? (
+              startAdornment: loading ? ( // `loading` state for this section's user fetch
                 <InputAdornment position="start">
                   <CircularProgress size={20} />
                 </InputAdornment>
@@ -505,10 +556,10 @@ const NotificationSettings = () => {
                       </Avatar>
                       <Box>
                         <Typography variant="body2" className="font-medium">
-                          {user.userName || "Unnamed User"}
+                          {user.userName || t("Unnamed User")}
                         </Typography>
                         <Typography variant="caption" className="text-gray-500">
-                          {user.email || "No email"}
+                          {user.email || t("No email")}
                         </Typography>
                       </Box>
                     </Box>
@@ -537,7 +588,9 @@ const NotificationSettings = () => {
                   zIndex: 10,
                 }}
               >
-                No users found matching "{userSearchQuery}"
+                {t('No users found matching "{query}"', {
+                  query: userSearchQuery,
+                })}
               </Typography>
             )}
 
@@ -653,10 +706,7 @@ const NotificationSettings = () => {
                 color: "black",
                 backgroundColor: "#E9E9E9",
                 boxShadow: "none",
-                "&:hover": {
-                  backgroundColor: "#DCDCDC",
-                  boxShadow: "none",
-                },
+                "&:hover": { backgroundColor: "#DCDCDC", boxShadow: "none" },
                 "&.Mui-disabled": {
                   backgroundColor: "grey.300",
                   color: "grey.500",
@@ -675,6 +725,7 @@ const NotificationSettings = () => {
         </Box>
       </Box>
 
+      {/* Finance Clients Notification Section ("Finance_Access_Clients") */}
       <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
         <Box className="flex flex-col gap-3 mb-4 ">
           <Typography variant="body1" className="font-medium">
@@ -682,46 +733,43 @@ const NotificationSettings = () => {
           </Typography>
           <Select
             multiple
-            value={selectedFinanceClients}
+            value={selectedFinanceClients} // Array of IDs
             onChange={(e) => setSelectedFinanceClients(e.target.value)}
             displayEmpty
             fullWidth
             className="mb-4"
             inputProps={{ "aria-label": "Select Finance Client" }}
             IconComponent={ExpandMoreIcon}
-            renderValue={(selected) => {
-              if (selected.length === 0) {
+            renderValue={(selectedIds) => {
+              // selectedIds is an array of IDs
+              if (selectedIds.length === 0) {
                 return (
                   <Typography className="text-gray-500">
                     {t("Select_one_or_more_finance_clients...")}
                   </Typography>
                 );
               }
-              const selectedNames = financeClients
-                .filter((client) => selected.includes(client._id))
-                .map((client) => client.userName);
+              const selectedNames = financeClients // financeClients is array of user objects
+                .filter((client) => selectedIds.includes(client._id))
+                .map((client) => client.userName || t("Unnamed User"));
               return selectedNames.join(", ");
             }}
             MenuProps={{
               autoFocus: false,
-              PaperProps: {
-                sx: { maxHeight: 300 },
-              },
+              PaperProps: { sx: { maxHeight: 300 } },
             }}
             sx={{
-              "& .MuiSelect-select": {
-                padding: "10px 14px",
-              },
+              "& .MuiSelect-select": { padding: "10px 14px" },
               backgroundColor: "#f9fafb",
               borderRadius: "0.375rem",
             }}
-            disabled={isLoadingClients}
+            disabled={isLoadingClients} // `isLoadingClients` state for this section's user fetch
           >
             <ListSubheader>
               <TextField
                 size="small"
                 autoFocus
-                placeholder="Search finance clients..."
+                placeholder={t("Search_finance_clients...")} // Changed placeholder text
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -743,7 +791,6 @@ const NotificationSettings = () => {
                 <CircularProgress size={20} />
               </MenuItem>
             )}
-
             {!isLoadingClients && filteredFinanceClients.length === 0 && (
               <MenuItem disabled>
                 {clientSearchQuery
@@ -751,11 +798,11 @@ const NotificationSettings = () => {
                   : t("No_finance_clients_found.")}
               </MenuItem>
             )}
-
             {!isLoadingClients &&
               filteredFinanceClients.map((client) => (
                 <MenuItem key={client._id} value={client._id}>
-                  {client.userName} {client.email ? `(${client.email})` : ""}
+                  {client.userName || t("Unnamed User")}{" "}
+                  {client.email ? `(${client.email})` : ""}
                 </MenuItem>
               ))}
           </Select>
@@ -767,7 +814,7 @@ const NotificationSettings = () => {
               {t("Selected_Finance_Clients")} ({selectedFinanceClients.length})
             </Typography>
             <Box className="space-y-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
-              {financeClients
+              {financeClients // This is the full list of users (now populating this section)
                 .filter((client) => selectedFinanceClients.includes(client._id))
                 .map((member) => (
                   <Box
@@ -779,11 +826,13 @@ const NotificationSettings = () => {
                         sx={{ width: 28, height: 28, fontSize: "0.75rem" }}
                         className="bg-blue-100 text-blue-600"
                       >
-                        {member.userName?.charAt(0).toUpperCase()}
+                        {(member.userName || "U")?.charAt(0).toUpperCase()}
                       </Avatar>
-                      <Typography variant="body2">{member.userName}</Typography>
+                      <Typography variant="body2">
+                        {member.userName || t("Unnamed User")}
+                      </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {member.email}
+                        {member.email || t("No email")}
                       </Typography>
                     </Box>
                     <IconButton
@@ -793,9 +842,13 @@ const NotificationSettings = () => {
                           prev.filter((id) => id !== member._id)
                         )
                       }
-                      aria-label={`Remove ${member.userName}`}
+                      aria-label={t("Remove {userName}", {
+                        userName: member.userName || "user",
+                      })}
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      title={`Remove ${member.userName}`}
+                      title={t("Remove {userName}", {
+                        userName: member.userName || "user",
+                      })}
                     >
                       <Trash2 className="h-4 w-4" />
                     </IconButton>
@@ -808,7 +861,7 @@ const NotificationSettings = () => {
         <Box className="mt-6">
           <Box className="flex items-center gap-4 mb-4">
             <img
-              src={notification || "/placeholder.svg"}
+              src={notificationIconAsset}
               className="bg-gray-200 p-2 rounded"
               style={{ height: "40px", width: "40px" }}
               alt="Notification Icon"
@@ -872,7 +925,6 @@ const NotificationSettings = () => {
               }}
             />
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              {" "}
               <Button
                 variant="contained"
                 onClick={handleFinanceSend}
@@ -886,10 +938,7 @@ const NotificationSettings = () => {
                   color: "black",
                   backgroundColor: "#E9E9E9",
                   boxShadow: "none",
-                  "&:hover": {
-                    backgroundColor: "#DCDCDC",
-                    boxShadow: "none",
-                  },
+                  "&:hover": { backgroundColor: "#DCDCDC", boxShadow: "none" },
                   "&.Mui-disabled": {
                     backgroundColor: "grey.300",
                     color: "grey.500",
@@ -909,6 +958,7 @@ const NotificationSettings = () => {
         </Box>
       </Box>
 
+      {/* Edit/View Selected Clients Modal (for "Select_Client" section) */}
       {isEditModalOpen && (
         <Box
           className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
@@ -921,7 +971,7 @@ const NotificationSettings = () => {
           >
             <Box className="flex justify-between items-center mb-4 flex-shrink-0">
               <Typography variant="h6" className="font-medium">
-                {modalType === t("edit")
+                {modalType === "edit"
                   ? t("Edit_Selected_Clients")
                   : t("Selected_Clients")}
               </Typography>
@@ -934,24 +984,22 @@ const NotificationSettings = () => {
               </IconButton>
             </Box>
 
-            {modalType === t("edit") && (
+            {modalType === "edit" && (
               <TextField
                 fullWidth
                 size="small"
                 placeholder={t("Search_to_add_more_clients...")}
                 variant="outlined"
-                value={userSearchQuery}
+                value={userSearchQuery} // Uses userSearchQuery for the general client modal
                 onChange={(e) => setUserSearchQuery(e.target.value)}
                 InputProps={{
                   startAdornment: loading ? (
                     <InputAdornment position="start">
-                      {" "}
-                      <CircularProgress size={20} />{" "}
+                      <CircularProgress size={20} />
                     </InputAdornment>
                   ) : (
                     <InputAdornment position="start">
-                      {" "}
-                      <SearchIcon />{" "}
+                      <SearchIcon />
                     </InputAdornment>
                   ),
                 }}
@@ -970,13 +1018,15 @@ const NotificationSettings = () => {
 
             {modalType === "edit" && userSearchQuery.length > 0 && !loading && (
               <Box className="max-h-40 overflow-y-auto mb-4 border rounded-md flex-shrink-0">
-                {filteredUsers.length > 0 ? (
+                {filteredUsers.length > 0 ? ( // Uses filteredUsers (from `users` state)
                   filteredUsers.map((user) => (
                     <Box
                       key={user._id}
                       className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100"
                       onClick={() => {
-                        setSelectedUsers([...selectedUsers, user]);
+                        if (!selectedUsers.some((su) => su._id === user._id)) {
+                          setSelectedUsers([...selectedUsers, user]);
+                        }
                         setUserSearchQuery("");
                       }}
                     >
@@ -987,10 +1037,10 @@ const NotificationSettings = () => {
                       </Avatar>
                       <Box>
                         <Typography variant="body2" className="font-medium">
-                          {user.userName || "Unnamed User"}
+                          {user.userName || t("Unnamed User")}
                         </Typography>
                         <Typography variant="caption" className="text-gray-500">
-                          {user.email || "No email"}
+                          {user.email || t("No email")}
                         </Typography>
                       </Box>
                     </Box>
@@ -1010,7 +1060,7 @@ const NotificationSettings = () => {
               variant="subtitle1"
               className="font-medium mb-2 text-base flex-shrink-0"
             >
-              {modalType === t("edit")
+              {modalType === "edit"
                 ? t("Currently_Selected_Clients")
                 : t("Selected_Clients")}{" "}
               ({selectedUsers.length})
@@ -1029,7 +1079,6 @@ const NotificationSettings = () => {
                     key={user._id}
                     className="flex justify-between items-center p-2 rounded hover:bg-gray-100 mb-1 last:mb-0"
                   >
-                    {/* User Info */}
                     <Box className="flex items-center gap-3 overflow-hidden">
                       <Avatar className="h-8 w-8 text-xs flex-shrink-0">
                         {user.userName
@@ -1041,30 +1090,30 @@ const NotificationSettings = () => {
                           variant="body2"
                           className="font-medium truncate"
                         >
-                          {" "}
-                          {/* Added truncate */}
-                          {user.userName || "Unnamed User"}
+                          {user.userName || t("Unnamed User")}
                         </Typography>
                         <Typography
                           variant="caption"
                           className="text-gray-500 truncate"
                         >
-                          {" "}
-                          {/* Added truncate */}
-                          {user.email || "No email"}
+                          {user.email || t("No email")}
                         </Typography>
                       </Box>
                     </Box>
                     {modalType === "edit" && (
                       <IconButton
-                        onClick={() => {
+                        onClick={() =>
                           setSelectedUsers(
                             selectedUsers.filter((u) => u._id !== user._id)
-                          );
-                        }}
+                          )
+                        }
                         size="small"
-                        aria-label={`Remove ${user.userName}`}
-                        title={`Remove ${user.userName}`}
+                        aria-label={t("Remove {userName}", {
+                          userName: user.userName || "user",
+                        })}
+                        title={t("Remove {userName}", {
+                          userName: user.userName || "user",
+                        })}
                         className="flex-shrink-0"
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
@@ -1075,7 +1124,6 @@ const NotificationSettings = () => {
               )}
             </Box>
 
-            {/* Modal Footer */}
             <Box className="flex justify-end gap-2 mt-auto flex-shrink-0">
               <Button
                 variant="outlined"
@@ -1089,9 +1137,9 @@ const NotificationSettings = () => {
                   },
                 }}
               >
-                {modalType === t("edit") ? t("Cancel") : t("Close")}
+                {modalType === "edit" ? t("Cancel") : t("Close")}
               </Button>
-              {modalType === t("edit") && (
+              {modalType === "edit" && (
                 <Button
                   variant="contained"
                   onClick={() => setIsEditModalOpen(false)}

@@ -108,7 +108,7 @@ export default function Settings() {
 
       // Check if there are *any* changes (text or avatar)
       if (!hasTextFieldChanges && !isAvatarChanged) {
-        toast.info("No changes detected");
+        toast.info(t("No changes detected"));
         setIsEditing(false);
         setIsLoading(false); // Stop loading
         return;
@@ -152,7 +152,7 @@ export default function Settings() {
 
       // --- Handle Response ---
       if (response.status === 200 && response.data.success) {
-        toast.success(response.data.message || "Profile updated successfully");
+        toast.success(t(response.data.message) || t("Profile updated successfully"));
 
         // IMPORTANT: Use the user data returned from the API response
         const updatedUserFromServer = response.data.data;
@@ -298,7 +298,7 @@ export default function Settings() {
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Phone Number
+              {t("Phone Number")}
             </label>
             <input
               type="tel"
@@ -314,7 +314,7 @@ export default function Settings() {
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Address
+              {t("Address")}
             </label>
             <textarea
               name="address"
@@ -376,12 +376,12 @@ export default function Settings() {
               {isEditing ? (
                 <>
                   {/* Icon can be X or similar for Cancel */}
-                  <span>Cancel</span>
+                  <span>{t("Cancel")}</span>
                 </>
               ) : (
                 <>
                   <Pencil className="w-4 h-4" />
-                  <span>Edit Profile</span>
+                  <span>{t("Edit Profile")}</span>
                 </>
               )}
             </button>
@@ -397,7 +397,7 @@ export default function Settings() {
                 }`}
               >
                 <Save className="w-4 h-4" />
-                <span>{isLoading ? "Saving..." : "Save Changes"}</span>
+                <span>{isLoading ? t("Saving...") : t("Save Changes")}</span>
               </button>
             )}
           </div>

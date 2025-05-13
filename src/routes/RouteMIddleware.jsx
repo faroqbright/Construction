@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { removeUserInfo } from "../features/auth/authSlice";
 import apiRequest from "../utils/apiRequest";
+import "../utils/i18n";
+import { useTranslation } from "react-i18next";
 
 const RouteMiddleware = ({
   children,
@@ -12,6 +14,7 @@ const RouteMiddleware = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { userToken, userInfo } = useSelector((state) => state?.auth || {});
   const [tokenReady, setTokenReady] = useState(false);
 
@@ -49,7 +52,7 @@ const RouteMiddleware = ({
         if (response.data.statusCode === 200) {
           dispatch(removeUserInfo());
           localStorage.removeItem("persist:auth");
-          toast.success(response.data.message);
+          toast.success(t(response.data.message));
         }
       }
 

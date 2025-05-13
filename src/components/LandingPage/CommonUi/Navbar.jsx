@@ -115,7 +115,7 @@ function Navbar({ toggleSidebar, isOpen }) {
       );
 
       if (response.data?.success) {
-        toast.success("Notifications cleared successfully.");
+        toast.success(t("Notifications cleared successfully"));
         setNotifications([]);
       }
     } catch (error) {

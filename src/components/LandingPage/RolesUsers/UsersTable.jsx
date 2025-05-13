@@ -403,7 +403,7 @@ export default function UsersTable() {
                           : "bg-red-100 text-red-600"
                       }`}
                     >
-                      {user?.role?.status || "null"}
+                      {t(user?.role?.status) || "null"}
                     </span>
                   </td>
                   {(hasUpdatePermission || hasDeletePermission) && (

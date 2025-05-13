@@ -594,7 +594,7 @@ const PendingProjects = () => {
             </Slider>
           ) : (
             <p className="text-gray-500 text-center w-full">
-              No documents found.
+              {t("No documents found")}
             </p>
           )}
         </section>

@@ -152,6 +152,37 @@ export default function Report() {
     startIndex + recordsPerPage
   );
 
+  // const handleStatusUpdate = async (docId, newStatus) => {
+  //   if (!docId || !newStatus) return;
+
+  //   const originalDocuments = [...documents];
+  //   setDocuments((prevDocs) =>
+  //     prevDocs.map((doc) =>
+  //       doc._id === docId ? { ...doc, status: newStatus } : doc
+  //     )
+  //   );
+
+  //   try {
+  //     const response = await apiRequest(
+  //       "patch",
+  //       `/documents/${docId}`,
+  //       { status: newStatus },
+  //       token
+  //     );
+
+  //     console.log(response.data.message)
+  //     if (response?.status === 200 || response?.status === 201) {
+  //       toast.success(t(response.data.message));
+  //     }
+      
+  //     else {
+  //       setDocuments(originalDocuments);
+  //     }
+  //   } catch (error) {
+  //     setDocuments(originalDocuments);
+  //   }
+  // };
+
   const handleStatusUpdate = async (docId, newStatus) => {
     if (!docId || !newStatus) return;
 
@@ -171,7 +202,8 @@ export default function Report() {
       );
 
       if (response?.status === 200 || response?.status === 201) {
-        toast.success(t("Status changed successfully!"));
+        // Simply pass the backend message directly to toast.success
+        toast.success(t(response.data.message)); // Removed t() to show exact backend message
       } else {
         setDocuments(originalDocuments);
       }
@@ -179,6 +211,7 @@ export default function Report() {
       setDocuments(originalDocuments);
     }
   };
+
 
   const handleSortChange = (event) => {
     setSortOption(event.target.value);

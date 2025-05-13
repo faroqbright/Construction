@@ -513,6 +513,28 @@
   "Status changed successfully!": "Status changed successfully!",
   "Access updated successfully.": "Access updated successfully.",
   "Role name is required.": "Role name is required.",
-  "Role updated successfully.": "Role updated successfully."
+  "Role updated successfully.": "Role updated successfully.",
+  "Business Area created": "Business Area created",
+  "Project updated successfully.": "Project updated successfully.",
+  "Business Area created successfully": "Business Area created successfully",
+  "Invoice deleted successfully.": "Invoice deleted successfully.",
+  "Failed to delete invoice.": "Failed to delete invoice.",
+  "Invoice updated successfully.": "Invoice updated successfully.",
+  "Failed to update Invoice.": "Failed to update Invoice.",
+  "Username": "Username",
+  "Phone Number": "Phone Number",
+  "Address": "Address",
+  "Edit Profile": "Edit Profile",
+  "Save Changes": "Save Changes",
+  "Report successfully approved": "Report successfully approved",
+  "Report successfully rejected": "Report successfully rejected",
+  "No_Projects_Found": "No Projects Found",
+  "No documents found": "No documents found",
+  "Notifications cleared successfully": "Notifications cleared successfully",
+  "Loading notifications...": "Loading notifications...",
+  "Saving...": "Saving...",
+  "Profile updated successfully": "Profile updated successfully",
+  "notifications sent successfully": "notifications sent successfully"
+
 
 }

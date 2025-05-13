@@ -420,7 +420,7 @@ export default function RolesTable() {
                           : "bg-red-100 text-red-600"
                       }`}
                     >
-                      {role.status}
+                      {t(role.status)}
                     </span>
                   </td>
                   {(hasUpdatePermission || hasDeletePermission) && (

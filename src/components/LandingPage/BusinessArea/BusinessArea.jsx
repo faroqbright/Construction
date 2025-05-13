@@ -137,7 +137,7 @@ const BusinessAreaTable = () => {
       );
 
       if (response.status === 200 || response.status === 201) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         fetchBusinessAreas();
         handleClose();
       } else {

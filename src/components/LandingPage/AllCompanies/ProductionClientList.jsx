@@ -281,7 +281,7 @@ const ProductionClientList = () => {
                     <td className="p-4">{user.email}</td>
                     <td className="p-4">{user.companyName}</td>
                     <td className="p-4">{user.phoneNumber}</td>
-                    <td className="p-4">{user.userType}</td>
+                    <td className="p-4">{t(user.userType)}</td>
                     <td className="p-4">
                       <span
                         className={`px-3 py-1 text-xs rounded ${
@@ -290,7 +290,7 @@ const ProductionClientList = () => {
                             : "bg-red-100 text-red-600"
                         }`}
                       >
-                        {user.status}
+                        {t(user.status)}
                       </span>
                     </td>
                     {(hasCLientUpdatePermission ||

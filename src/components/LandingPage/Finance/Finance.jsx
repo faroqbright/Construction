@@ -114,10 +114,10 @@ export default function Finance() {
   const handleDelete = async (userId) => {
     try {
       await apiRequest("delete", `/finance/${userId}`, {}, token);
-      toast.success(t("User deleted successfully."));
+      toast.success(t("Invoice deleted successfully."));
       fetchUsers();
     } catch (error) {
-      toast.error(t("Failed to delete user."));
+      toast.error(t("Failed to delete invoice."));
     }
   };
 
@@ -162,11 +162,11 @@ export default function Finance() {
         }
       );
 
-      toast.success(t("User updated successfully."));
+      toast.success(t("Invoice updated successfully."));
       fetchUsers();
       handleClose();
     } catch (error) {
-      toast.error(t("Failed to update user."));
+      toast.error(t("Failed to update Invoice."));
     }
   };
 
