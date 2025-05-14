@@ -19,6 +19,7 @@ function Navbar({ toggleSidebar, isOpen }) {
   const name = userInfo?.userName;
   const profileimg = userInfo?.avatar;
   const userId = userInfo?._id;
+  const memberId = userInfo?._id;
   
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ function Navbar({ toggleSidebar, isOpen }) {
     try {
       const response = await apiRequest(
         "delete",
-        `/shownotifications/${userId}`,
+        `/shownotifications/${memberId}`,
         {},
         token
       );
