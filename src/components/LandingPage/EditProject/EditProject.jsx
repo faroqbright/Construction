@@ -92,6 +92,7 @@ export default function EditProject() {
           setProjecto([]);
         }
       } catch (error) {
+        
       } finally {
         setLoading(false);
       }
@@ -265,6 +266,7 @@ export default function EditProject() {
       }
       setDeletedMilestones([]);
     } catch (error) {
+
     }
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
@@ -434,6 +436,7 @@ export default function EditProject() {
 
           setMilestones([]);
         } catch (error) {
+          
         }
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
@@ -481,6 +484,8 @@ export default function EditProject() {
               toast.success(t(updateResponse?.data?.message));
             }
           } catch (error) {
+            console.log(error);
+            
           }
         } else {
           navigate("/project-management");
@@ -488,12 +493,12 @@ export default function EditProject() {
         }
 
         if (
-          !formData.title.trim() ||
-          !formData.description.trim() ||
-          !formData.status.trim() ||
-          !formData.projectId.trim()
+          !formData?.title?.trim() ||
+          !formData?.description?.trim() ||
+          !formData?.status?.trim() ||
+          !formData?.projectId?.trim()
         ) {
-          toast.error(t("All fields are required."));
+          // toast.error(t("All fields are required."));
           return;
         }
         try {
@@ -502,10 +507,12 @@ export default function EditProject() {
             toast.success(response.data.message);
           }
         } catch (error) {
+
           toast.error(t(error.response?.data?.message) ||t(error.message) );
         }
       }
     } catch (error) {
+
       toast.error(t(error?.response?.data?.message));
     }
     navigate("/");
