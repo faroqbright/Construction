@@ -85,7 +85,7 @@ const ClientEvaluation = () => {
         const project = review.project || {};
         const projectId =
           project._id || review.projectId || project.projectName;
-          if (!projectId) return;
+        if (!projectId) return;
         const projectName = project?.projectName || t("Unnamed_Project");
 
         const formattedReview = {
@@ -105,11 +105,7 @@ const ClientEvaluation = () => {
             id: projectId,
             name: projectName,
             banners: project?.projectBanner?.map((b) => b.url) || [img1],
-            owners:
-              project?.projectOwners?.map((owner) => ({
-                id: owner.ownerId?._id,
-                name: owner.ownerId?.name || t("Unknown_Owner"),
-              })) || [],
+            owners: project?.projectOwners?.map((b) => b.ownerName) || t("Unknown_Owner"),
             reviews: [formattedReview],
           });
         }
@@ -129,6 +125,7 @@ const ClientEvaluation = () => {
 
       setProjectsData(processedProjects);
     } catch (err) {
+      console.log(err)
       setError(t("Failed_To_Load_Data"));
       setProjectsData([]);
     } finally {
@@ -235,7 +232,7 @@ const ProjectCard = ({ project, onClick }) => {
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           <span style={{ fontWeight: "bold" }}>{t("Project_Owner")}:</span>{" "}
-          {project.owners?.map((o) => o.name).join(", ") || t("Unknown_Owner")}
+          {project.owners || t("Unknown_Owner")}
         </Typography>
         <Box display="flex" alignItems="center" mt={1}>
           <Rating
