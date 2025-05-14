@@ -23,7 +23,7 @@ import {
   Search as SearchIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import notificationIconAsset from "../../../assets/notifications.svg"; // Renamed to avoid conflict with notifications state
+import notificationIconAsset from "../../../assets/notifications.svg";
 import magicPen from "../../../assets/magicpen.svg";
 import { Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -73,10 +73,10 @@ const NotificationToggle = ({
 };
 
 const NotificationSettings = () => {
-  const [users, setUsers] = useState([]); // For "Select_Client" dropdown
-  const [loading, setLoading] = useState(false); // For "Select_Client" search spinner
-  const [clientSearchQuery, setClientSearchQuery] = useState(""); // For "Finance_Access_Clients" dropdown search
-  const [userSearchQuery, setUserSearchQuery] = useState(""); // For "Select_Client" dropdown search
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [clientSearchQuery, setClientSearchQuery] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
@@ -85,10 +85,13 @@ const NotificationSettings = () => {
   const [financeMessage, setFinanceMessage] = useState("");
   const [financeTitle, setFinanceTitle] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(""); // "view" or "edit"
-  const [financeClients, setFinanceClients] = useState([]); // For "Finance_Access_Clients" dropdown
-  const [isLoadingClients, setIsLoadingClients] = useState(false); // For "Finance_Access_Clients" dropdown spinner
-  const [selectedFinanceClients, setSelectedFinanceClients] = useState([]); // Holds IDs of selected finance clients
+  const [modalType, setModalType] = useState("");
+  const [financeClients, setFinanceClients] = useState([]);
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
+  const [selectedFinanceClients, setSelectedFinanceClients] = useState([]);
+  const [isUserSearchDropdownOpen, setIsUserSearchDropdownOpen] =
+    useState(false);
+
   const token = useSelector((state) => state?.auth?.userToken);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -119,7 +122,6 @@ const NotificationSettings = () => {
 
   const fetchNotifications = useCallback(async () => {
     if (!token) return;
-
     setIsLoadingNotifications(true);
     try {
       const response = await apiRequest(
@@ -128,7 +130,6 @@ const NotificationSettings = () => {
         {},
         token
       );
-
       if (response.data && Array.isArray(response.data.data)) {
         setNotifications(response.data.data);
       } else {
@@ -157,67 +158,48 @@ const NotificationSettings = () => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // fetchClients function and its useEffect are removed as this logic is merged into fetchUsers
-
   const fetchUsers = useCallback(async () => {
     if (!token) return;
-
-    setLoading(true); // For "Select_Client" search UI
-    setIsLoadingClients(true); // For "Finance_Access_Clients" dropdown UI
-
+    setLoading(true);
+    setIsLoadingClients(true);
     try {
       const [clientsApiResponse, rolesUserApiResponse] = await Promise.all([
         apiRequest("get", "/clients", {}, token),
         apiRequest("get", "/rolesUser", {}, token),
       ]);
+      const clientsData = clientsApiResponse?.data?.data || [];
+      const rolesUserData = rolesUserApiResponse?.data?.data || [];
 
-      const clientsData = clientsApiResponse?.data?.data;
-      const rolesUserData = rolesUserApiResponse?.data?.data;
-
-      // 1. Populate `users` state (for "Select_Client" dropdown)
-      // This dropdown will show users from the `/rolesUser` endpoint only.
-      let usersForGeneralSelector = [];
-      if (Array.isArray(rolesUserData)) {
-        usersForGeneralSelector = [...rolesUserData];
-      }
-      // De-duplicate (important if the source could have duplicates)
-      const uniqueUsersForGeneralSelector = usersForGeneralSelector.reduce(
-        (acc, current) => {
-          if (current && current._id) {
-            // Ensure current and current._id exist
-            const x = acc.find((item) => item._id === current._id);
-            if (!x) {
-              return acc.concat([current]);
-            }
-          }
-          return acc;
-        },
-        []
+      const processedClientsOnly = clientsData.filter((u) => u && u._id);
+      const financeTypeClientsFromClientsApi = processedClientsOnly.filter(
+        (u) => u.userType === "Finance"
       );
-      setUsers(uniqueUsersForGeneralSelector);
+      const uniqueClientsForLowerSection =
+        financeTypeClientsFromClientsApi.reduce((acc, current) => {
+          const x = acc.find((item) => item._id === current._id);
+          if (!x) return acc.concat([current]);
+          return acc;
+        }, []);
+      setUsers(uniqueClientsForLowerSection);
 
-      let allUsersFromBothApis = [];
+      let combinedDataForUpperSection = [];
       if (Array.isArray(clientsData)) {
-        allUsersFromBothApis.push(...clientsData.filter((u) => u && u._id)); // Filter out invalid entries
+        combinedDataForUpperSection.push(
+          ...clientsData.filter((u) => u && u._id)
+        );
       }
       if (Array.isArray(rolesUserData)) {
-        allUsersFromBothApis.push(...rolesUserData.filter((u) => u && u._id)); // Filter out invalid entries
+        combinedDataForUpperSection.push(
+          ...rolesUserData.filter((u) => u && u._id)
+        );
       }
-
-      const uniqueCombinedUsers = allUsersFromBothApis.reduce(
-        (acc, current) => {
-          if (current && current._id) {
-            // Ensure current and current._id exist
-            const x = acc.find((item) => item._id === current._id);
-            if (!x) {
-              return acc.concat([current]);
-            }
-          }
+      const uniqueCombinedUsersForUpperSection =
+        combinedDataForUpperSection.reduce((acc, current) => {
+          const x = acc.find((item) => item._id === current._id);
+          if (!x) return acc.concat([current]);
           return acc;
-        },
-        []
-      );
-      setFinanceClients(uniqueCombinedUsers);
+        }, []);
+      setFinanceClients(uniqueCombinedUsersForUpperSection);
     } catch (error) {
       setUsers([]);
       setFinanceClients([]);
@@ -250,39 +232,48 @@ const NotificationSettings = () => {
       )
   );
 
-  const filteredUsers = users.filter(
-    (user) =>
-      (user.userName?.toLowerCase() || "").includes(
-        userSearchQuery.toLowerCase()
-      ) ||
-      ((user.email?.toLowerCase() || "").includes(
-        userSearchQuery.toLowerCase()
-      ) &&
-        (modalType !== "edit" ||
-          !selectedUsers.some((selected) => selected._id === user._id)))
+  const filteredUsers = users.filter((user) => {
+    const nameMatches = (user.userName?.toLowerCase() || "").includes(
+      userSearchQuery.toLowerCase()
+    );
+    const emailMatches = (user.email?.toLowerCase() || "").includes(
+      userSearchQuery.toLowerCase()
+    );
+    if (userSearchQuery && !(nameMatches || emailMatches)) return false;
+    if (selectedUsers.some((selected) => selected._id === user._id))
+      return false;
+    return true;
+  });
+
+  const usersAvailableForSelection = users.filter(
+    (u) => !selectedUsers.some((selected) => selected._id === u._id)
   );
+  const usersToShowInDropdown = userSearchQuery
+    ? usersAvailableForSelection.filter(
+        (user) =>
+          (user.userName?.toLowerCase() || "").includes(
+            userSearchQuery.toLowerCase()
+          ) ||
+          (user.email?.toLowerCase() || "").includes(
+            userSearchQuery.toLowerCase()
+          )
+      )
+    : usersAvailableForSelection;
 
   const handleToggle = async (notificationId) => {
     if (!token || !notificationId) return;
-
     const notificationIndex = notifications.findIndex(
       (n) => n._id === notificationId
     );
-    if (notificationIndex === -1) {
-      console.error(`Notification with ID ${notificationId} not found`);
-      return;
-    }
-
+    if (notificationIndex === -1) return;
     const currentNotification = notifications[notificationIndex];
     const newStatus = !currentNotification.status;
-
     const updatedNotifications = [...notifications];
     updatedNotifications[notificationIndex] = {
       ...currentNotification,
       status: newStatus,
     };
     setNotifications(updatedNotifications);
-
     try {
       const response = await apiRequest(
         "put",
@@ -290,12 +281,8 @@ const NotificationSettings = () => {
         { status: newStatus },
         token
       );
-
-      if (response.data.message) {
-        toast.success(t(response.data.message));
-      }
+      if (response.data.message) toast.success(t(response.data.message));
     } catch (error) {
-      // Revert UI change on error
       updatedNotifications[notificationIndex] = {
         ...currentNotification,
         status: currentNotification.status,
@@ -315,14 +302,8 @@ const NotificationSettings = () => {
     }
   };
 
-  const handleMessageChange = (e) => {
-    setMessage(e.target.value);
-  };
-
-  const handleFinanceMessageChange = (e) => {
-    setFinanceMessage(e.target.value);
-  };
-
+  const handleMessageChange = (e) => setMessage(e.target.value);
+  const handleFinanceMessageChange = (e) => setFinanceMessage(e.target.value);
   const renderIcon = () => (
     <img
       src={magicPen || "/placeholder.svg"}
@@ -343,33 +324,27 @@ const NotificationSettings = () => {
       toast.error(t(validationErrorMessage));
       return;
     }
-
-    setLoading(true); // Consider a specific loading state for sending notifications
     try {
       const results = [];
-      for (const member of selectedItems) {
+      for (const item of selectedItems) {
+        const memberId = typeof item === "string" ? item : item._id;
+        if (!memberId) continue;
         const response = await apiRequest(
           "post",
           "/shownotifications",
-          {
-            title,
-            description,
-            type,
-            memberId: member._id || member, // Handles if member is an object or just an ID string
-          },
+          { title, description, type, memberId },
           token
         );
         results.push(response.data);
       }
-
       const allSuccess = results.every((result) => result?.success);
-
-      if (allSuccess) {
+      if (allSuccess && results.length > 0) {
         resetState();
         toast.success(t("notifications sent successfully"));
-      } else {
-        // Handle partial success if necessary
+      } else if (results.length > 0) {
         toast.warn(t("Some notifications may have failed to send."));
+      } else if (selectedItems.length > 0 && results.length === 0) {
+        toast.error(t("Failed to send notifications, no valid recipients."));
       }
     } catch (error) {
       toast.error(
@@ -380,8 +355,6 @@ const NotificationSettings = () => {
         toast.success(t("You have been logged out."));
         navigate("/login");
       }
-    } finally {
-      setLoading(false); // Reset general loading state
     }
   };
 
@@ -390,8 +363,8 @@ const NotificationSettings = () => {
     setMessage("");
     setSelectedUsers([]);
     setUserSearchQuery("");
+    setIsUserSearchDropdownOpen(false);
   };
-
   const resetFinanceForm = () => {
     setFinanceTitle("");
     setFinanceMessage("");
@@ -404,25 +377,19 @@ const NotificationSettings = () => {
       title: clientTitle,
       description: message,
       type: "client",
-      selectedItems: selectedUsers, // selectedUsers are full objects
+      selectedItems: selectedUsers,
       resetState: resetClientForm,
       validationErrorMessage: t(
         "Please enter a title, message and select at least one user"
       ),
     });
   };
-
   const handleFinanceSend = async () => {
-    const itemsForFinanceNotification = selectedFinanceClients.map((id) => {
-      const client = financeClients.find((c) => c._id === id);
-      return client || { _id: id }; // Fallback to just ID if client object not found
-    });
-
     await sendNotification({
       title: financeTitle,
       description: financeMessage,
-      type: "financial", // This type is semantic, even if recipients are broader
-      selectedItems: itemsForFinanceNotification,
+      type: "financial",
+      selectedItems: selectedFinanceClients,
       resetState: resetFinanceForm,
       validationErrorMessage: t(
         "Please enter a title, message and select at least one finance client"
@@ -430,9 +397,13 @@ const NotificationSettings = () => {
     });
   };
 
+  const handleUserSearchFocus = () => setIsUserSearchDropdownOpen(true);
+  const handleUserSearchBlur = () => {
+    setTimeout(() => setIsUserSearchDropdownOpen(false), 150);
+  };
+
   return (
     <Box className="p-4 md:p-6 min-h-screen w-full bg-gray-100">
-      {/* Notification Toggles Section */}
       <Box className="shadow-sm py-4 md:py-5 mb-6">
         <Box className="space-y-4">
           {isLoadingNotifications ? (
@@ -468,7 +439,6 @@ const NotificationSettings = () => {
         </Box>
       </Box>
 
-      {/* Finance Clients Notification Section ("Finance_Access_Clients") */}
       <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
         <Box className="flex flex-col gap-3 mb-4 ">
           <Typography variant="body1" className="font-medium">
@@ -476,7 +446,7 @@ const NotificationSettings = () => {
           </Typography>
           <Select
             multiple
-            value={selectedFinanceClients} // Array of IDs
+            value={selectedFinanceClients}
             onChange={(e) => setSelectedFinanceClients(e.target.value)}
             displayEmpty
             fullWidth
@@ -484,15 +454,13 @@ const NotificationSettings = () => {
             inputProps={{ "aria-label": "Select Finance Client" }}
             IconComponent={ExpandMoreIcon}
             renderValue={(selectedIds) => {
-              // selectedIds is an array of IDs
-              if (selectedIds.length === 0) {
+              if (selectedIds.length === 0)
                 return (
                   <Typography className="text-gray-500">
                     {t("Select_one_or_more_finance_clients...")}
                   </Typography>
                 );
-              }
-              const selectedNames = financeClients // financeClients is array of user objects
+              const selectedNames = financeClients
                 .filter((client) => selectedIds.includes(client._id))
                 .map((client) => client.userName || t("Unnamed User"));
               return selectedNames.join(", ");
@@ -506,13 +474,13 @@ const NotificationSettings = () => {
               backgroundColor: "#f9fafb",
               borderRadius: "0.375rem",
             }}
-            disabled={isLoadingClients} // `isLoadingClients` state for this section's user fetch
+            disabled={isLoadingClients}
           >
             <ListSubheader>
               <TextField
                 size="small"
                 autoFocus
-                placeholder={t("Search_finance_clients...")} // Changed placeholder text
+                placeholder={t("Search_finance_clients...")}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -528,7 +496,6 @@ const NotificationSettings = () => {
                 sx={{ padding: "8px", backgroundColor: "white" }}
               />
             </ListSubheader>
-
             {isLoadingClients && (
               <MenuItem disabled sx={{ justifyContent: "center" }}>
                 <CircularProgress size={20} />
@@ -550,14 +517,13 @@ const NotificationSettings = () => {
               ))}
           </Select>
         </Box>
-
         {selectedFinanceClients.length > 0 && (
           <Box className="mb-4">
             <Typography variant="body1" className="font-medium mb-2">
               {t("Selected_Finance_Clients")} ({selectedFinanceClients.length})
             </Typography>
             <Box className="space-y-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
-              {financeClients // This is the full list of users (now populating this section)
+              {financeClients
                 .filter((client) => selectedFinanceClients.includes(client._id))
                 .map((member) => (
                   <Box
@@ -600,7 +566,6 @@ const NotificationSettings = () => {
             </Box>
           </Box>
         )}
-
         <Box className="mt-6">
           <Box className="flex items-center gap-4 mb-4">
             <img
@@ -611,11 +576,9 @@ const NotificationSettings = () => {
             />
             <Box>
               <p className="text-black-blacknew font-medium">
-                {" "}
                 {t("Notification")}
               </p>
               <p className="text-lightpurple-light text-sm">
-                {" "}
                 {t("Send_notifications")}
               </p>
             </Box>
@@ -701,7 +664,6 @@ const NotificationSettings = () => {
         </Box>
       </Box>
 
-      {/* Client Notification Section ("Select_Client") */}
       <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
         <Box className="flex items-center gap-3 mb-4">
           <Avatar variant="square" sx={{ bgcolor: "grey.200", px: 3, py: 3 }}>
@@ -716,7 +678,6 @@ const NotificationSettings = () => {
             </Typography>
           </Box>
         </Box>
-
         <Box className="flex items-center flex-wrap gap-2 relative mb-4">
           <TextField
             fullWidth
@@ -725,8 +686,10 @@ const NotificationSettings = () => {
             variant="outlined"
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
+            onFocus={handleUserSearchFocus}
+            onBlur={handleUserSearchBlur}
             InputProps={{
-              startAdornment: loading ? ( // `loading` state for this section's user fetch
+              startAdornment: loading ? (
                 <InputAdornment position="start">
                   <CircularProgress size={20} />
                 </InputAdornment>
@@ -752,15 +715,18 @@ const NotificationSettings = () => {
             }}
             InputLabelProps={{ shrink: false }}
           />
-          {filteredUsers.length > 0 &&
-            userSearchQuery.length > 0 &&
-            !loading && (
-              <Box
-                className="absolute z-10 mt-1 w-full max-w-[300px] bg-white border border-gray-200 rounded-md shadow-lg"
-                sx={{ top: "calc(100% + 4px)", left: 0 }}
-              >
-                <Box className="max-h-60 overflow-y-auto py-1">
-                  {filteredUsers.map((user) => (
+          {isUserSearchDropdownOpen && (
+            <Box
+              className="absolute z-10 mt-1 w-full max-w-[300px] bg-white border border-gray-200 rounded-md shadow-lg"
+              sx={{ top: "calc(100% + 4px)", left: 0 }}
+            >
+              <Box className="max-h-60 overflow-y-auto py-1">
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                    <CircularProgress size={20} />
+                  </Box>
+                ) : usersToShowInDropdown.length > 0 ? (
+                  usersToShowInDropdown.map((user) => (
                     <Box
                       key={user._id}
                       className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100"
@@ -773,6 +739,7 @@ const NotificationSettings = () => {
                           setSelectedUsers([...selectedUsers, user]);
                         }
                         setUserSearchQuery("");
+                        setIsUserSearchDropdownOpen(false);
                       }}
                     >
                       <Avatar className="h-6 w-6 mr-2 text-xs">
@@ -789,37 +756,24 @@ const NotificationSettings = () => {
                         </Typography>
                       </Box>
                     </Box>
-                  ))}
-                </Box>
+                  ))
+                ) : (
+                  <Typography
+                    variant="body2"
+                    sx={{ p: 2, textAlign: "center", color: "grey.600" }}
+                  >
+                    {userSearchQuery
+                      ? t('No users found matching "{query}"', {
+                          query: userSearchQuery,
+                        })
+                      : users.length === 0
+                      ? t("No finance users available.")
+                      : t("No more finance users to select.")}
+                  </Typography>
+                )}
               </Box>
-            )}
-          {userSearchQuery.length > 0 &&
-            filteredUsers.length === 0 &&
-            !loading && (
-              <Typography
-                variant="caption"
-                sx={{
-                  position: "absolute",
-                  top: "calc(100% + 8px)",
-                  left: 0,
-                  color: "grey.600",
-                  width: "300px",
-                  textAlign: "center",
-                  bgcolor: "white",
-                  p: 1,
-                  borderRadius: "4px",
-                  border: "1px solid",
-                  borderColor: "grey.200",
-                  boxShadow: 1,
-                  zIndex: 10,
-                }}
-              >
-                {t('No users found matching "{query}"', {
-                  query: userSearchQuery,
-                })}
-              </Typography>
-            )}
-
+            </Box>
+          )}
           <Box className="flex items-center gap-2 ml-2">
             <AvatarGroup
               max={clientsToShow}
@@ -870,7 +824,6 @@ const NotificationSettings = () => {
             </Link>
           </Box>
         </Box>
-
         <Box sx={{ mb: 2 }}>
           <TextField
             fullWidth
@@ -895,7 +848,6 @@ const NotificationSettings = () => {
             InputLabelProps={{ shrink: false }}
           />
         </Box>
-
         <Box className="flex flex-col md:flex-row gap-4 mt-0">
           <TextField
             fullWidth
@@ -951,7 +903,6 @@ const NotificationSettings = () => {
         </Box>
       </Box>
 
-      {/* Edit/View Selected Clients Modal (for "Select_Client" section) */}
       {isEditModalOpen && (
         <Box
           className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
@@ -976,14 +927,13 @@ const NotificationSettings = () => {
                 <CloseIcon />
               </IconButton>
             </Box>
-
             {modalType === "edit" && (
               <TextField
                 fullWidth
                 size="small"
                 placeholder={t("Search_to_add_more_clients...")}
                 variant="outlined"
-                value={userSearchQuery} // Uses userSearchQuery for the general client modal
+                value={userSearchQuery}
                 onChange={(e) => setUserSearchQuery(e.target.value)}
                 InputProps={{
                   startAdornment: loading ? (
@@ -1008,18 +958,16 @@ const NotificationSettings = () => {
                 }}
               />
             )}
-
             {modalType === "edit" && userSearchQuery.length > 0 && !loading && (
               <Box className="max-h-40 overflow-y-auto mb-4 border rounded-md flex-shrink-0">
-                {filteredUsers.length > 0 ? ( // Uses filteredUsers (from `users` state)
+                {filteredUsers.length > 0 ? (
                   filteredUsers.map((user) => (
                     <Box
                       key={user._id}
                       className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100"
                       onClick={() => {
-                        if (!selectedUsers.some((su) => su._id === user._id)) {
+                        if (!selectedUsers.some((su) => su._id === user._id))
                           setSelectedUsers([...selectedUsers, user]);
-                        }
                         setUserSearchQuery("");
                       }}
                     >
@@ -1048,7 +996,6 @@ const NotificationSettings = () => {
                 )}
               </Box>
             )}
-
             <Typography
               variant="subtitle1"
               className="font-medium mb-2 text-base flex-shrink-0"
@@ -1116,7 +1063,6 @@ const NotificationSettings = () => {
                 ))
               )}
             </Box>
-
             <Box className="flex justify-end gap-2 mt-auto flex-shrink-0">
               <Button
                 variant="outlined"
