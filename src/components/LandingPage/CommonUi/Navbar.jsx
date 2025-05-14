@@ -70,9 +70,9 @@ function Navbar({ toggleSidebar, isOpen }) {
       if (response.data?.success && response.data?.data) {
         const filteredNotifications = response.data.data.filter(
           (notification) =>
-            notification.memberId === userId ||
-            notification.projectId === userId ||
-            notification._id === userId
+            notification.memberId === userId 
+            // notification.projectId === userId ||
+            // notification._id === userId
         );
   
         const transformedNotifications = filteredNotifications.map(

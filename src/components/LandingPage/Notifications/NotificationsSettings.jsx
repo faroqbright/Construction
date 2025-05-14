@@ -196,8 +196,6 @@ const NotificationSettings = () => {
       );
       setUsers(uniqueUsersForGeneralSelector);
 
-      // 2. Populate `financeClients` state (for "Finance_Access_Clients" dropdown)
-      // This dropdown will show ALL users from BOTH `/clients` and `/rolesUser` (merged and de-duplicated).
       let allUsersFromBothApis = [];
       if (Array.isArray(clientsData)) {
         allUsersFromBothApis.push(...clientsData.filter((u) => u && u._id)); // Filter out invalid entries
@@ -415,11 +413,6 @@ const NotificationSettings = () => {
   };
 
   const handleFinanceSend = async () => {
-    // selectedFinanceClients holds IDs. We need to get the full user objects for `selectedItems`.
-    // Or ensure `sendNotification` can robustly handle just IDs if `member._id` isn't present.
-    // The current `sendNotification` expects `member._id || member`.
-    // So, `selectedFinanceClients` can be passed directly if items are just IDs.
-    // However, for consistency and if `selectedItems` is used for more than just `memberId`, mapping to objects is safer.
     const itemsForFinanceNotification = selectedFinanceClients.map((id) => {
       const client = financeClients.find((c) => c._id === id);
       return client || { _id: id }; // Fallback to just ID if client object not found
@@ -475,6 +468,239 @@ const NotificationSettings = () => {
         </Box>
       </Box>
 
+      {/* Finance Clients Notification Section ("Finance_Access_Clients") */}
+      <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
+        <Box className="flex flex-col gap-3 mb-4 ">
+          <Typography variant="body1" className="font-medium">
+            {t("Select_Client")}
+          </Typography>
+          <Select
+            multiple
+            value={selectedFinanceClients} // Array of IDs
+            onChange={(e) => setSelectedFinanceClients(e.target.value)}
+            displayEmpty
+            fullWidth
+            className="mb-4"
+            inputProps={{ "aria-label": "Select Finance Client" }}
+            IconComponent={ExpandMoreIcon}
+            renderValue={(selectedIds) => {
+              // selectedIds is an array of IDs
+              if (selectedIds.length === 0) {
+                return (
+                  <Typography className="text-gray-500">
+                    {t("Select_one_or_more_finance_clients...")}
+                  </Typography>
+                );
+              }
+              const selectedNames = financeClients // financeClients is array of user objects
+                .filter((client) => selectedIds.includes(client._id))
+                .map((client) => client.userName || t("Unnamed User"));
+              return selectedNames.join(", ");
+            }}
+            MenuProps={{
+              autoFocus: false,
+              PaperProps: { sx: { maxHeight: 300 } },
+            }}
+            sx={{
+              "& .MuiSelect-select": { padding: "10px 14px" },
+              backgroundColor: "#f9fafb",
+              borderRadius: "0.375rem",
+            }}
+            disabled={isLoadingClients} // `isLoadingClients` state for this section's user fetch
+          >
+            <ListSubheader>
+              <TextField
+                size="small"
+                autoFocus
+                placeholder={t("Search_finance_clients...")} // Changed placeholder text
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                value={clientSearchQuery}
+                onChange={(e) => setClientSearchQuery(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                sx={{ padding: "8px", backgroundColor: "white" }}
+              />
+            </ListSubheader>
+
+            {isLoadingClients && (
+              <MenuItem disabled sx={{ justifyContent: "center" }}>
+                <CircularProgress size={20} />
+              </MenuItem>
+            )}
+            {!isLoadingClients && filteredFinanceClients.length === 0 && (
+              <MenuItem disabled>
+                {clientSearchQuery
+                  ? t("No_clients_match_search.")
+                  : t("No_finance_clients_found.")}
+              </MenuItem>
+            )}
+            {!isLoadingClients &&
+              filteredFinanceClients.map((client) => (
+                <MenuItem key={client._id} value={client._id}>
+                  {client.userName || t("Unnamed User")}{" "}
+                  {client.email ? `(${client.email})` : ""}
+                </MenuItem>
+              ))}
+          </Select>
+        </Box>
+
+        {selectedFinanceClients.length > 0 && (
+          <Box className="mb-4">
+            <Typography variant="body1" className="font-medium mb-2">
+              {t("Selected_Finance_Clients")} ({selectedFinanceClients.length})
+            </Typography>
+            <Box className="space-y-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
+              {financeClients // This is the full list of users (now populating this section)
+                .filter((client) => selectedFinanceClients.includes(client._id))
+                .map((member) => (
+                  <Box
+                    key={member._id}
+                    className="flex justify-between items-center p-2 rounded hover:bg-gray-100"
+                  >
+                    <Box className="flex items-center gap-3">
+                      <Avatar
+                        sx={{ width: 28, height: 28, fontSize: "0.75rem" }}
+                        className="bg-blue-100 text-blue-600"
+                      >
+                        {(member.userName || "U")?.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Typography variant="body2">
+                        {member.userName || t("Unnamed User")}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {member.email || t("No email")}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        setSelectedFinanceClients((prev) =>
+                          prev.filter((id) => id !== member._id)
+                        )
+                      }
+                      aria-label={t("Remove {userName}", {
+                        userName: member.userName || "user",
+                      })}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      title={t("Remove {userName}", {
+                        userName: member.userName || "user",
+                      })}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </IconButton>
+                  </Box>
+                ))}
+            </Box>
+          </Box>
+        )}
+
+        <Box className="mt-6">
+          <Box className="flex items-center gap-4 mb-4">
+            <img
+              src={notificationIconAsset}
+              className="bg-gray-200 p-2 rounded"
+              style={{ height: "40px", width: "40px" }}
+              alt="Notification Icon"
+            />
+            <Box>
+              <p className="text-black-blacknew font-medium">
+                {" "}
+                {t("Notification")}
+              </p>
+              <p className="text-lightpurple-light text-sm">
+                {" "}
+                {t("Send_notifications")}
+              </p>
+            </Box>
+          </Box>
+          <Box className="space-y-4">
+            <TextField
+              fullWidth
+              size="small"
+              placeholder={t("Title_here..")}
+              value={financeTitle}
+              onChange={(e) => setFinanceTitle(e.target.value)}
+              sx={{
+                maxWidth: 300,
+                bgcolor: "white",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "0.375rem",
+                  "& fieldset": { borderColor: "grey.200" },
+                  "&:hover fieldset": { borderColor: "grey.300" },
+                  "&.Mui-focused fieldset": { borderColor: "primary.main" },
+                },
+                "& .MuiOutlinedInput-input": {
+                  fontSize: "0.875rem",
+                  padding: "8px 10px",
+                },
+              }}
+              InputLabelProps={{ shrink: false }}
+            />
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              placeholder={t(
+                "Please_write_the_finance_notification_message..."
+              )}
+              value={financeMessage}
+              onChange={handleFinanceMessageChange}
+              sx={{
+                bgcolor: "white",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "0.375rem",
+                  padding: "8px 12px",
+                  "& fieldset": { borderColor: "grey.200" },
+                  "&:hover fieldset": { borderColor: "grey.300" },
+                  "&.Mui-focused fieldset": { borderColor: "primary.main" },
+                },
+                "& .MuiOutlinedInput-input": {
+                  fontSize: "0.875rem",
+                  padding: "0px",
+                },
+              }}
+            />
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                onClick={handleFinanceSend}
+                disabled={
+                  !financeTitle.trim() ||
+                  !financeMessage.trim() ||
+                  selectedFinanceClients.length === 0
+                }
+                sx={{
+                  marginTop: "0px",
+                  color: "black",
+                  backgroundColor: "#E9E9E9",
+                  boxShadow: "none",
+                  "&:hover": { backgroundColor: "#DCDCDC", boxShadow: "none" },
+                  "&.Mui-disabled": {
+                    backgroundColor: "grey.300",
+                    color: "grey.500",
+                    cursor: "not-allowed",
+                    pointerEvents: "auto",
+                  },
+                  textTransform: "none",
+                  fontSize: "0.8125rem",
+                  padding: "6px 12px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {t("Send")}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+
       {/* Client Notification Section ("Select_Client") */}
       <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
         <Box className="flex items-center gap-3 mb-4">
@@ -483,10 +709,10 @@ const NotificationSettings = () => {
           </Avatar>
           <Box>
             <Typography variant="body1" className="font-medium">
-              {t("Select_Client")}
+              {t("Finance")}
             </Typography>
             <Typography variant="caption" className="text-gray-500">
-              {t("Please_select_a_client_that_you_wish_to_notify")}
+              {t("Please_select_a_finance_that_you_wish_to_notify")}
             </Typography>
           </Box>
         </Box>
@@ -495,7 +721,7 @@ const NotificationSettings = () => {
           <TextField
             fullWidth
             size="small"
-            placeholder={t("Search_for_a_client...")}
+            placeholder={t("Search_for_a_finance...")}
             variant="outlined"
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
@@ -640,7 +866,7 @@ const NotificationSettings = () => {
                 setIsEditModalOpen(true);
               }}
             >
-              {t("Edit_Selected_Clients")}
+              {t("Edit_Selected_Finance")}
             </Link>
           </Box>
         </Box>
@@ -722,239 +948,6 @@ const NotificationSettings = () => {
               {t("Send")}
             </Button>
           </div>
-        </Box>
-      </Box>
-
-      {/* Finance Clients Notification Section ("Finance_Access_Clients") */}
-      <Box className="bg-white rounded-lg shadow-sm p-4 md:p-5 mb-6">
-        <Box className="flex flex-col gap-3 mb-4 ">
-          <Typography variant="body1" className="font-medium">
-            {t("Finance_Access_Clients")}
-          </Typography>
-          <Select
-            multiple
-            value={selectedFinanceClients} // Array of IDs
-            onChange={(e) => setSelectedFinanceClients(e.target.value)}
-            displayEmpty
-            fullWidth
-            className="mb-4"
-            inputProps={{ "aria-label": "Select Finance Client" }}
-            IconComponent={ExpandMoreIcon}
-            renderValue={(selectedIds) => {
-              // selectedIds is an array of IDs
-              if (selectedIds.length === 0) {
-                return (
-                  <Typography className="text-gray-500">
-                    {t("Select_one_or_more_finance_clients...")}
-                  </Typography>
-                );
-              }
-              const selectedNames = financeClients // financeClients is array of user objects
-                .filter((client) => selectedIds.includes(client._id))
-                .map((client) => client.userName || t("Unnamed User"));
-              return selectedNames.join(", ");
-            }}
-            MenuProps={{
-              autoFocus: false,
-              PaperProps: { sx: { maxHeight: 300 } },
-            }}
-            sx={{
-              "& .MuiSelect-select": { padding: "10px 14px" },
-              backgroundColor: "#f9fafb",
-              borderRadius: "0.375rem",
-            }}
-            disabled={isLoadingClients} // `isLoadingClients` state for this section's user fetch
-          >
-            <ListSubheader>
-              <TextField
-                size="small"
-                autoFocus
-                placeholder={t("Search_finance_clients...")} // Changed placeholder text
-                fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" />
-                    </InputAdornment>
-                  ),
-                }}
-                value={clientSearchQuery}
-                onChange={(e) => setClientSearchQuery(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-                sx={{ padding: "8px", backgroundColor: "white" }}
-              />
-            </ListSubheader>
-
-            {isLoadingClients && (
-              <MenuItem disabled sx={{ justifyContent: "center" }}>
-                <CircularProgress size={20} />
-              </MenuItem>
-            )}
-            {!isLoadingClients && filteredFinanceClients.length === 0 && (
-              <MenuItem disabled>
-                {clientSearchQuery
-                  ? t("No_clients_match_search.")
-                  : t("No_finance_clients_found.")}
-              </MenuItem>
-            )}
-            {!isLoadingClients &&
-              filteredFinanceClients.map((client) => (
-                <MenuItem key={client._id} value={client._id}>
-                  {client.userName || t("Unnamed User")}{" "}
-                  {client.email ? `(${client.email})` : ""}
-                </MenuItem>
-              ))}
-          </Select>
-        </Box>
-
-        {selectedFinanceClients.length > 0 && (
-          <Box className="mb-4">
-            <Typography variant="body1" className="font-medium mb-2">
-              {t("Selected_Finance_Clients")} ({selectedFinanceClients.length})
-            </Typography>
-            <Box className="space-y-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
-              {financeClients // This is the full list of users (now populating this section)
-                .filter((client) => selectedFinanceClients.includes(client._id))
-                .map((member) => (
-                  <Box
-                    key={member._id}
-                    className="flex justify-between items-center p-2 rounded hover:bg-gray-100"
-                  >
-                    <Box className="flex items-center gap-3">
-                      <Avatar
-                        sx={{ width: 28, height: 28, fontSize: "0.75rem" }}
-                        className="bg-blue-100 text-blue-600"
-                      >
-                        {(member.userName || "U")?.charAt(0).toUpperCase()}
-                      </Avatar>
-                      <Typography variant="body2">
-                        {member.userName || t("Unnamed User")}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {member.email || t("No email")}
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        setSelectedFinanceClients((prev) =>
-                          prev.filter((id) => id !== member._id)
-                        )
-                      }
-                      aria-label={t("Remove {userName}", {
-                        userName: member.userName || "user",
-                      })}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      title={t("Remove {userName}", {
-                        userName: member.userName || "user",
-                      })}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </IconButton>
-                  </Box>
-                ))}
-            </Box>
-          </Box>
-        )}
-
-        <Box className="mt-6">
-          <Box className="flex items-center gap-4 mb-4">
-            <img
-              src={notificationIconAsset}
-              className="bg-gray-200 p-2 rounded"
-              style={{ height: "40px", width: "40px" }}
-              alt="Notification Icon"
-            />
-            <Box>
-              <p className="text-black-blacknew font-medium">
-                {" "}
-                {t("Finance_Notification")}
-              </p>
-              <p className="text-lightpurple-light text-sm">
-                {" "}
-                {t("Send_notifications_to_selected_finance_users.")}
-              </p>
-            </Box>
-          </Box>
-          <Box className="space-y-4">
-            <TextField
-              fullWidth
-              size="small"
-              placeholder={t("Title_here..")}
-              value={financeTitle}
-              onChange={(e) => setFinanceTitle(e.target.value)}
-              sx={{
-                maxWidth: 300,
-                bgcolor: "white",
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "0.375rem",
-                  "& fieldset": { borderColor: "grey.200" },
-                  "&:hover fieldset": { borderColor: "grey.300" },
-                  "&.Mui-focused fieldset": { borderColor: "primary.main" },
-                },
-                "& .MuiOutlinedInput-input": {
-                  fontSize: "0.875rem",
-                  padding: "8px 10px",
-                },
-              }}
-              InputLabelProps={{ shrink: false }}
-            />
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              placeholder={t(
-                "Please_write_the_finance_notification_message..."
-              )}
-              value={financeMessage}
-              onChange={handleFinanceMessageChange}
-              sx={{
-                bgcolor: "white",
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "0.375rem",
-                  padding: "8px 12px",
-                  "& fieldset": { borderColor: "grey.200" },
-                  "&:hover fieldset": { borderColor: "grey.300" },
-                  "&.Mui-focused fieldset": { borderColor: "primary.main" },
-                },
-                "& .MuiOutlinedInput-input": {
-                  fontSize: "0.875rem",
-                  padding: "0px",
-                },
-              }}
-            />
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Button
-                variant="contained"
-                onClick={handleFinanceSend}
-                disabled={
-                  !financeTitle.trim() ||
-                  !financeMessage.trim() ||
-                  selectedFinanceClients.length === 0
-                }
-                sx={{
-                  marginTop: "0px",
-                  color: "black",
-                  backgroundColor: "#E9E9E9",
-                  boxShadow: "none",
-                  "&:hover": { backgroundColor: "#DCDCDC", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "grey.300",
-                    color: "grey.500",
-                    cursor: "not-allowed",
-                    pointerEvents: "auto",
-                  },
-                  textTransform: "none",
-                  fontSize: "0.8125rem",
-                  padding: "6px 12px",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {t("Send")}
-              </Button>
-            </Box>
-          </Box>
         </Box>
       </Box>
 

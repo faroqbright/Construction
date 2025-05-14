@@ -538,6 +538,11 @@
     "Loading notifications...": "Carregando notificações...",
     "Saving...": "Salvando…",
     "Profile updated successfully": "Perfil atualizado com sucesso",
-    "notifications sent successfully": "Notificação enviada com sucesso"
+    "notifications sent successfully": "Notificação enviada com sucesso",
+    "Notification": "Notificação",
+    "Send_notifications": "Enviar notificações",
+    "Please_select_a_finance_that_you_wish_to_notify": "Selecione uma finança que você deseja notificar",
+    "Search_for_a_finance...": "Procure um financiamento...",
+    "Edit_Selected_Finance": "Editar finanças selecionadas"
 
 }

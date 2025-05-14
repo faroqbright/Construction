@@ -534,7 +534,11 @@
   "Loading notifications...": "Loading notifications...",
   "Saving...": "Saving...",
   "Profile updated successfully": "Profile updated successfully",
-  "notifications sent successfully": "notifications sent successfully"
-
+  "notifications sent successfully": "notifications sent successfully",
+  "Notification": "Notification",
+  "Send_notifications": "Send notifications",
+  "Please_select_a_finance_that_you_wish_to_notify": "Please select a finance that you wish to notify",
+  "Search_for_a_finance...": "Search for a finance...",
+  "Edit_Selected_Finance": "Edit Selected Finance"
 
 }
