@@ -69,69 +69,66 @@ const ClientEvaluation = () => {
   const [projectsData, setProjectsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  console.log("currentUserId", currentUserId);
+  
   const fetchReviewsAndProcessProjects = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await apiRequest("get", `/reviews`, {}, token);
-      const reviewsData = Array.isArray(response?.data?.data)
-        ? response.data.data
-        : [];
+  try {
+    setLoading(true);
+    setError(null);
+    const response = await apiRequest("get", `/reviews`, {}, token);
 
-      const projectsMap = new Map();
+    const reviewsData = Array.isArray(response?.data?.data) 
+      ? response.data.data 
+      : [];
 
-      reviewsData.forEach((review) => {
-        const project = review.project || {};
-        const projectId =
-          project._id || review.projectId || project.projectName;
-        if (!projectId) return;
-        const projectName = project?.projectName || t("Unnamed_Project");
-
-        const formattedReview = {
-          _id: review._id,
-          userId: review.userId?._id || null,
-          userName: review.userId?.name || t("Anonymous"),
-          userAvatar: review.userId?.avatar || null,
-          message: review.message,
-          rating: review.rating,
-          createdAt: review.createdAt,
-        };
-
-        if (projectsMap.has(projectId)) {
-          projectsMap.get(projectId).reviews.push(formattedReview);
-        } else {
-          projectsMap.set(projectId, {
-            id: projectId,
-            name: projectName,
-            banners: project?.projectBanner?.map((b) => b.url) || [img1],
-            owners: project?.projectOwners?.map((b) => b.ownerName) || t("Unknown_Owner"),
-            reviews: [formattedReview],
-          });
-        }
-      });
-
-      const processedProjects = Array.from(projectsMap.values()).map((proj) => {
-        const { average, count } = calculateAverageRating(proj.reviews);
-        return {
-          ...proj,
-          averageRating: average,
-          reviewCount: count,
-          isCurrentUserOwner: proj.owners.some(
-            (owner) => owner.id === currentUserId
-          ),
-        };
-      });
-
-      setProjectsData(processedProjects);
-    } catch (err) {
-      console.log(err)
-      setError(t("Failed_To_Load_Data"));
+    if (reviewsData.length === 0) {
+      console.log("No reviews found.");
       setProjectsData([]);
-    } finally {
-      setLoading(false);
+      return;
     }
-  }, [token, t, currentUserId]);
+
+    const projectsMap = new Map();
+
+    reviewsData.forEach((review) => {
+      const project = review.project || {};
+      const projectId = project._id || review.projectId || "fallback-id";
+      const projectName = project?.projectName || t("Unnamed_Project");
+
+      const formattedReview = {
+        _id: review._id,
+        userId: review.userId?._id || null,
+        userName: review.userId?.name || t("Anonymous"),
+        userAvatar: review.userId?.avatar || null,
+        message: review.message,
+        rating: review.rating,
+        createdAt: review.createdAt,
+      };
+
+      if (projectsMap.has(projectId)) {
+        projectsMap.get(projectId).reviews.push(formattedReview);
+      } else {
+        projectsMap.set(projectId, {
+          id: projectId,
+          name: projectName,
+          banners: project?.projectBanner?.map((b) => b.url) || [img1],
+          owners: project?.projectOwners?.map((b) => b.ownerName) || [t("Unknown_Owner")],
+          reviews: [formattedReview],
+        });
+      }
+    });
+
+    const processedProjects = Array.from(projectsMap.values());
+    console.log("Processed Projects:", processedProjects); // Debug
+
+    setProjectsData(processedProjects);
+  } catch (err) {
+    console.error("API Error:", err); // Debug
+    setError(t("Failed To Load Data"));
+    setProjectsData([]);
+  } finally {
+    setLoading(false);
+  }
+}, [token, t, currentUserId]);
 
   useEffect(() => {
     fetchReviewsAndProcessProjects();

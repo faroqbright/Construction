@@ -10,7 +10,7 @@
     "Hi": "Olá",
     "Project_Reports": "Relatórios do Projecto",
     "Zoomed_Image": "Imagem ampliada",
-    "Uploading": "Enviando",
+    "Uploading": "Carregando",
     "Lets_finish_your_projects_today!": "Vamos terminar os seus projectos hoje!",
     "Pending_Projects": "Projectos Pendentes",
     "No_projects_available": "Nenhum projecto disponível",
@@ -543,6 +543,19 @@
     "Send_notifications": "Enviar notificações",
     "Please_select_a_finance_that_you_wish_to_notify": "Selecione uma finança que você deseja notificar",
     "Search_for_a_finance...": "Procure um financiamento...",
-    "Edit_Selected_Finance": "Editar finanças selecionadas"
+    "Edit_Selected_Finance": "Editar finanças selecionadas",
+    "Uploading...": "Carregando...",
+    "Select start and end date": "Selecionar data de início e fim",
+    "Failed To Load Data": "Falha ao carregar dados",
+    "Search_to_add_more_clients...": "Procure por clientes para adicionar",
+    "Done": "OK",
+    "Edit Role": "Editar função",
+    "Projects_Report_List": "Lista de Relatórios de Projectos",
+    "Search_reports": "Relatórios de pesquisa",
+    "tab_all_projects": "Todos os projectos",
+    "tab_pending": "Pendentes",
+    "tab_approved": "Aprovados",
+    "tab_rejected": "Rejeitados"
+
 
 }

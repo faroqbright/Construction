@@ -170,7 +170,7 @@ const SubmitDocument = () => {
             onClick={handleUpload}
             disabled={uploading}
           >
-            {uploading ? "Uploading..." : `${t("Upload_Changes")}`}
+            {uploading ? t("Uploading...") : `${t("Upload_Changes")}`}
           </button>
         </div>
       </div>

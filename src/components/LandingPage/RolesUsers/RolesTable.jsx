@@ -45,7 +45,7 @@ export default function RolesTable() {
   const hasCreatePermission = RolePermissions("RolesManagement", "create");
   const hasDeletePermission = RolePermissions("RolesManagement", "delete");
   const hasUpdatePermission = RolePermissions("RolesManagement", "update");
-  
+
   const fetchRoles = useCallback(async () => {
     setLoading(true);
     try {
@@ -80,8 +80,7 @@ export default function RolesTable() {
       if (response.status === 200) {
         fetchRoles();
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleAdd = async () => {
@@ -101,12 +100,12 @@ export default function RolesTable() {
       );
 
       if (response.data.statusCode === 201) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         fetchRoles();
         setRoleName("");
         setStatus("Active");
         handleCloses();
-        setClickedItem(true)
+        setClickedItem(true);
       }
     } catch (error) {
       toast.error(t(error.response?.data?.message) || t(error.message));
@@ -189,7 +188,6 @@ export default function RolesTable() {
       if (response && response.status === 200) {
         setRoleData(response.data.data);
       }
-      
     } catch (error) {
       if (error && error?.status === 401) {
         dispatch(removeUserInfo());
@@ -312,7 +310,10 @@ export default function RolesTable() {
           }}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-black">Edit Role</h2>
+            <h2 className="text-lg font-semibold text-black">
+              {t("Edit Role")}
+            </h2>
+
             <button
               onClick={handleCloseEdit}
               className="text-black hover:text-gray-700"

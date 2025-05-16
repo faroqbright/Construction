@@ -358,6 +358,10 @@ const ProjectDetails = () => {
               <span className="text-[#54577A] font-bold text-base">
                 {projectData?.status === "Ongoing"
                   ? t("Ongoing")
+                  : projectData?.status === "Pending"
+                  ? t("Pending")
+                  : projectData?.status === "Completed"
+                  ? t("Completed")
                   : projectData?.status}
               </span>
             </div>

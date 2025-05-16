@@ -120,7 +120,7 @@ const ProjectManager = () => {
       } catch (error) {
         if (error && error?.status === 401) {
           dispatch(removeUserInfo());
-        toast.success(t("You have been logged out."));
+          toast.success(t("You have been logged out."));
           navigate("/login");
         }
       } finally {
@@ -527,7 +527,7 @@ const ProjectManager = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center">
+                  {/* <div className="mt-4 flex items-center">
                     {project.members
                       .slice(visibleIndex, visibleIndex + 3)
                       .map((member) =>
@@ -591,6 +591,69 @@ const ProjectManager = () => {
                         </>
                       )}
                     </>
+                  </div> */}
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex items-center">
+                      {project.members
+                        .slice(visibleIndex, visibleIndex + 3)
+                        .map((member) =>
+                          member.avatar ? (
+                            <img
+                              key={member._id}
+                              className="w-8 h-8 rounded-full mr-2"
+                              src={member.avatar}
+                              onClick={() => openModal(project._id)}
+                              alt="Member"
+                            />
+                          ) : (
+                            <User
+                              key={member._id}
+                              className="bg-slate-400 rounded-full p-2 text-white mr-2"
+                              size={32}
+                              onClick={() => openModal(project._id)}
+                            />
+                          )
+                        )}
+
+                      {project.members.length > 3 && (
+                        <span
+                          onClick={handleMoreClick}
+                          className="text-blue-500 underline mx-1 cursor-pointer text-sm"
+                        >
+                          +{project.members.length - (visibleIndex + 3)}{" "}
+                          {t("More")}
+                        </span>
+                      )}
+                    </div>
+
+                    {!projects?.fromBusinessArea && (
+                      <div className="flex items-center space-x-2 ml-2">
+                        <span
+                          onClick={() =>
+                            project.status !== "Completed"
+                              ? handleEditProjectClick(project._id)
+                              : handleViewProjectClick(project._id)
+                          }
+                          className="text-blue-500 cursor-pointer underline text-sm whitespace-nowrap"
+                        >
+                          {project.status !== t("Completed")
+                            ? hasProjUpdatePermission
+                              ? t("Add_Information")
+                              : t("View_Project")
+                            : t("View_Project")}
+                        </span>
+
+                        {hasProjDeletePermission && (
+                          <Trash2
+                            onClick={() =>
+                              handleDeleteProjectClick(project._id)
+                            }
+                            className="text-red-redNew cursor-pointer"
+                            size={16}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

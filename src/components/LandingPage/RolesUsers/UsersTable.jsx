@@ -83,7 +83,7 @@ export default function UsersTable() {
     try {
       const response = await apiRequest("post", "/rolesUser", user, token);
       if (response.data.statusCode === 201) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         fetchUsers();
         setOpenUser(false);
         setRoleSearchTerm("");

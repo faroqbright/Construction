@@ -539,6 +539,18 @@
   "Send_notifications": "Send notifications",
   "Please_select_a_finance_that_you_wish_to_notify": "Please select a finance that you wish to notify",
   "Search_for_a_finance...": "Search for a finance...",
-  "Edit_Selected_Finance": "Edit Selected Finance"
-
+  "Edit_Selected_Finance": "Edit Selected Finance",
+  "Uploading...": "Uploading...",
+  "Select start and end date": "Select start and end date",
+  "Failed To Load Data": "Failed To Load Data",
+  "Search_to_add_more_clients...": "Search to add more clients...",
+  "Done": "Done",
+  "Edit Role": "Edit Role",
+  "Projects_Report_List": "Projects Report List",
+  "Search_reports": "Search reports",
+  "tab_all_projects": "All Projects",
+  "tab_pending": "Pending",
+  "tab_approved": "Approved",
+  "tab_rejected": "Rejected"
+ 
 }

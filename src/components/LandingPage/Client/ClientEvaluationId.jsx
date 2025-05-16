@@ -22,6 +22,8 @@ const ClientEvaluationId = () => {
   const userName = useSelector((state) => state.auth.userInfo?.userName);
   const { projectId } = useParams();
   const { id } = useParams();
+  console.log("REVIEWS", reviews);
+  
 
   const fetchReviews = useCallback(async () => {
     if (!id) return;
@@ -204,7 +206,7 @@ const ClientEvaluationId = () => {
                       <div className="ml-3 w-full">
                         <div className="flex justify-between items-center">
                           <p className="text-gray-800 font-medium">
-                            {review.userId?.name || t("Anonymous")}
+                            {review?.userId?._id?.userName || t("Anonymous")}
                           </p>
                           <p className="text-gray-600 text-[0.7rem]">
                             {review.createdAt

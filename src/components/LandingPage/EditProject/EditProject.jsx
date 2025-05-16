@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  useParams,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";
@@ -68,7 +64,7 @@ export default function EditProject() {
       } catch (error) {
         if (error?.response?.status === 401) {
           dispatch(removeUserInfo());
-        toast.success(t("You have been logged out."));
+          toast.success(t("You have been logged out."));
           navigate("/login");
         }
       }
@@ -92,7 +88,6 @@ export default function EditProject() {
           setProjecto([]);
         }
       } catch (error) {
-        
       } finally {
         setLoading(false);
       }
@@ -254,7 +249,7 @@ export default function EditProject() {
     )
       if (formData.deadline)
         toast.error(t("Please select both the Start Date and End Date."));
-
+      
     try {
       for (const milestoneId of deletedMilestones) {
         await apiRequest(
@@ -265,9 +260,7 @@ export default function EditProject() {
         );
       }
       setDeletedMilestones([]);
-    } catch (error) {
-
-    }
+    } catch (error) {}
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
 
@@ -435,9 +428,7 @@ export default function EditProject() {
           }
 
           setMilestones([]);
-        } catch (error) {
-          
-        }
+        } catch (error) {}
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
           try {
@@ -485,7 +476,6 @@ export default function EditProject() {
             }
           } catch (error) {
             console.log(error);
-            
           }
         } else {
           navigate("/project-management");
@@ -494,7 +484,7 @@ export default function EditProject() {
 
         if (
           !formData?.title?.trim() ||
-          !formData?.description?.trim() ||
+          // !formData?.description?.trim() ||
           !formData?.status?.trim() ||
           !formData?.projectId?.trim()
         ) {
@@ -502,17 +492,14 @@ export default function EditProject() {
           return;
         }
         try {
-
           if (response.status === 200 || response.status === 201) {
             toast.success(response.data.message);
           }
         } catch (error) {
-
-          toast.error(t(error.response?.data?.message) ||t(error.message) );
+          toast.error(t(error.response?.data?.message) || t(error.message));
         }
       }
     } catch (error) {
-
       toast.error(t(error?.response?.data?.message));
     }
     navigate("/");
@@ -732,7 +719,9 @@ export default function EditProject() {
                       );
 
                       if (!isValid) {
-                        toast.error(t("Selected file should not be greater than 5MB."));
+                        toast.error(
+                          t("Selected file should not be greater than 5MB.")
+                        );
                         e.target.value = "";
                         return;
                       }
@@ -879,7 +868,9 @@ export default function EditProject() {
             )}
           />
           {errors.projectName && (
-            <span className="text-red-600">{t(errors.projectName.message)}</span>
+            <span className="text-red-600">
+              {t(errors.projectName.message)}
+            </span>
           )}
         </div>
         <div className="mb-4">
@@ -900,7 +891,9 @@ export default function EditProject() {
             )}
           />
           {errors.description && (
-            <span className="text-red-600">{t(errors.description.message)}</span>
+            <span className="text-red-600">
+              {t(errors.description.message)}
+            </span>
           )}
         </div>
 
@@ -985,7 +978,7 @@ export default function EditProject() {
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     disabled={isViewMode}
                     dateFormat="MM/dd/yyyy"
-                    placeholderText="Select start and end date"
+                    placeholderText={t("Select start and end date")}
                     wrapperClassName="w-full"
                   />
                 </div>
@@ -1198,6 +1191,7 @@ export default function EditProject() {
                     <Select
                       {...field}
                       isMulti
+                      placeholder={t("Select")}
                       options={users
                         .filter(
                           (user) =>
@@ -1435,6 +1429,7 @@ export default function EditProject() {
                     <Select
                       {...field}
                       isMulti
+                      placeholder={t("Select")}
                       options={owners
                         .filter(
                           (user) =>
