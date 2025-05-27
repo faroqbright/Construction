@@ -9,5 +9,6 @@ export default defineConfig({
     hmr: {
       overlay: false, // Disable the HMR error overlay
     },
+	  allowedHosts:["appsoapro.serveng.ao"]
   },
 });
