@@ -113,8 +113,8 @@ const ProductionClientList = () => {
   const handleAdd = async () => {
     if (
       !formData.userName.trim() ||
-      !formData.email.trim() ||
-      !formData.phoneNumber.trim()
+      !formData.email.trim() 
+      // !formData.phoneNumber.trim()
     ) {
       toast.error(t("All fields are required."));
       return;
@@ -253,7 +253,7 @@ const ProductionClientList = () => {
                 <th className="p-4 border-b">{t("User_Name")}</th>
                 <th className="p-4 border-b">{t("Email")}</th>
                 <th className="p-4 border-b">{t("Company_Name")}</th>
-                <th className="p-4 border-b">{t("Phone_Number")}</th>
+                {/* <th className="p-4 border-b">{t("Phone_Number")}</th> */}
                 <th className="p-4 border-b">{t("Role")}</th>
                 <th className="p-4 border-b">{t("Status")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
@@ -280,7 +280,7 @@ const ProductionClientList = () => {
 
                     <td className="p-4">{user.email}</td>
                     <td className="p-4">{user.companyName}</td>
-                    <td className="p-4">{user.phoneNumber}</td>
+                    {/* <td className="p-4">{user.phoneNumber}</td> */}
                     <td className="p-4">{t(user.userType)}</td>
                     <td className="p-4">
                       <span
@@ -403,7 +403,7 @@ const ProductionClientList = () => {
                 setFormData({ ...formData, email: e.target.value })
               }
             />
-            <TextField
+            {/* <TextField
               label={t("Phone_Number")}
               variant="outlined"
               fullWidth
@@ -412,7 +412,7 @@ const ProductionClientList = () => {
               onChange={(e) =>
                 setFormData({ ...formData, phoneNumber: e.target.value })
               }
-            />
+            /> */}
 
             {/* Choose User Type Dropdown */}
             <FormControl fullWidth variant="outlined">
@@ -450,7 +450,7 @@ const ProductionClientList = () => {
             </FormControl>
 
             {/* Conditionally render the password field */}
-            {!editData && (
+            {/* {!editData && (
               <TextField
                 label={t("Password")}
                 variant="outlined"
@@ -462,7 +462,7 @@ const ProductionClientList = () => {
                   setFormData({ ...formData, password: e.target.value })
                 }
               />
-            )}
+            )} */}
 
             <div className="flex justify-end space-x-2">
               <Button

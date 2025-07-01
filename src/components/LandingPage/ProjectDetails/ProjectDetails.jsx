@@ -605,7 +605,7 @@ const ProjectDetails = () => {
           </div>
         )}
 
-        <div className="mt-6 p-6">
+        {/* <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-gray-800">
             {t("Project_Milestones")}
           </h3>
@@ -660,7 +660,7 @@ const ProjectDetails = () => {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="mt-6 p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
