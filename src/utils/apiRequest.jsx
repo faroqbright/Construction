@@ -4,8 +4,9 @@ const BASE_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname.includes("vercel.app") ||
   window.location.hostname.includes("netlify.app")
-    ? "https://constructionbe-production.up.railway.app/api/v1"
-    : "https://appsoapro.serveng.ao/backend/api/v1";
+    // ? "https://constructionbe-production.up.railway.app/api/v1"
+    ? "http://localhost:8080/api/v1"
+    : "https://appsoapro.techbytech.tech/backend/api/v1";
 
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {

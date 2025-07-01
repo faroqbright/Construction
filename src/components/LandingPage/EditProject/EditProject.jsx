@@ -52,6 +52,7 @@ export default function EditProject() {
   const userId = useSelector((state) => state?.auth?.userInfo?._id);
   const [selectedCompany, setSelectedCompany] = useState("");
   const dispatch = useDispatch();
+
   useEffect(() => {
     const fetchBusinessAreas = async () => {
       try {
@@ -71,6 +72,7 @@ export default function EditProject() {
 
     fetchBusinessAreas();
   }, [token, dispatch, navigate]);
+
   useEffect(() => {
     const fetchProjecto = async () => {
       setLoading(true);
@@ -93,6 +95,7 @@ export default function EditProject() {
 
     fetchProjecto();
   }, [token]);
+
   useEffect(() => {
     if (initialValues?.projectBanner) {
       setSelectedFiles(
@@ -102,28 +105,34 @@ export default function EditProject() {
       );
     }
   }, [initialValues]);
+
   const handleOPenButton = () => {
     setIsModalOpens(true);
   };
+
   const handleCloseButton = () => {
     setIsModalOpens(false);
   };
+
   useEffect(() => {
     if (isModalOpen) {
       setModalTeamMembers([...teamMembers]);
     }
   }, [isModalOpen, teamMembers]);
+
   useEffect(() => {
     if (isclientModalOpen) {
       setModalClientMembers([...clientMembers]);
     }
   }, [isclientModalOpen, clientMembers]);
+
   const openModal = () => setIsModalOpen(true);
   const openClientModal = () => setIsclientModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const closeClientModal = () => setIsclientModalOpen(false);
   const [projectsData, setProjectData] = useState([]);
   const [SelectedbusinessArea, setSelectedbusinessArea] = useState([]);
+
   const fetchProjects = useCallback(async () => {
     if (isCreateMode) return;
 
@@ -171,6 +180,7 @@ export default function EditProject() {
 
         setSelectedbusinessArea(data.businessAreas);
         setSelectedCompany(data.comapanyName);
+
         if (data.additionalMilestones) {
           setMilestones(
             data.additionalMilestones.map((milestone) => ({
@@ -195,6 +205,7 @@ export default function EditProject() {
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
+
   const fetchProjectsOwner = useCallback(async () => {
     try {
       const response = await apiRequest("get", "/clients", {}, token);
@@ -205,9 +216,11 @@ export default function EditProject() {
       setError(t("Error fetching project data"));
     }
   }, [token, isCreateMode]);
+
   useEffect(() => {
     fetchProjectsOwner();
   }, [fetchProjectsOwner]);
+
   const fetchProjectsUser = useCallback(async () => {
     if (isViewMode) return;
     try {
@@ -219,15 +232,13 @@ export default function EditProject() {
       setError(t("Error fetching project data"));
     }
   }, [token, isViewMode]);
+
   useEffect(() => {
     fetchProjectsUser();
   }, [fetchProjectsUser]);
   const [deletedMilestones, setDeletedMilestones] = useState([]);
-  const onSubmit = async (formData) => {
-    // Add the new toast and navigation here
-    toast.info(t("Your changes are being saved."));
-    navigate("/project-management");
 
+  const onSubmit = async (formData) => {
     if (isCreateMode && selectedFiles.length > 3)
       return toast.error(t("You can only have up to 3 banners."));
     if (
@@ -238,6 +249,7 @@ export default function EditProject() {
     )
       if (formData.deadline)
         toast.error(t("Please select both the Start Date and End Date."));
+
     try {
       for (const milestoneId of deletedMilestones) {
         await apiRequest(
@@ -253,6 +265,7 @@ export default function EditProject() {
     const method = isCreateMode ? "post" : "put";
 
     let requestData;
+
     if (isCreateMode) {
       const data = new FormData();
       for (const key in formData) {
@@ -305,8 +318,10 @@ export default function EditProject() {
         modalTeamMembers?.map((member) => member._id) || [];
       const modalClientMemberIds =
         modalClientMembers?.map((owner) => owner._id) || [];
+
       const areArraysEqual = (arr1, arr2) =>
         arr1.length === arr2.length && arr1.every((id) => arr2.includes(id));
+
       const isMembersChanged = !areArraysEqual(
         initialMemberIds,
         modalMemberIds
@@ -315,6 +330,7 @@ export default function EditProject() {
         initialClientMemberIds,
         modalClientMemberIds
       );
+
       if (isMembersChanged && modalMemberIds.length > 0) {
         updatedFields.members = modalMemberIds;
       }
@@ -328,6 +344,7 @@ export default function EditProject() {
       const keptFiles = selectedFiles
         .filter((file) => !file.file)
         .map((file) => file.url);
+
       if (
         newFiles.length > 0 ||
         existingBannerUrls.length !== keptFiles.length ||
@@ -336,15 +353,18 @@ export default function EditProject() {
         updatedFields.projectBanner = true;
       }
       const data = new FormData();
+
       const requiredFields = [
         "projectName",
         "title",
         "description",
         "location",
       ];
+
       requiredFields.forEach((field) => {
         data.append(field, formData[field]);
       });
+
       Object.keys(updatedFields).forEach((key) => {
         if (
           key !== "projectBanner" &&
@@ -354,6 +374,7 @@ export default function EditProject() {
           data.append(key, updatedFields[key]);
         }
       });
+
       if (updatedFields.projectOwners) {
         updatedFields.projectOwners.forEach((owner, index) => {
           data.append(`members[${index}]`, owner);
@@ -371,10 +392,12 @@ export default function EditProject() {
           data.append("projectBanner", file.file);
         }
       });
+
       requestData = data;
     }
     try {
       const response = await apiRequest(method, endpoint, requestData, token);
+
       if (
         response?.data?.statusCode === 201 ||
         response?.data?.statusCode === 200
@@ -395,6 +418,7 @@ export default function EditProject() {
               userId: userId,
               projectId: response.data.data._id,
             };
+
             await apiRequest(
               "post",
               `/additional/milestone/${response.data.data._id}`,
@@ -423,6 +447,7 @@ export default function EditProject() {
         }
 
         const responseid = response?.data?.data._id;
+
         const projectName = formData.projectName || initialValues.projectName;
 
         if (!projectName) {
@@ -441,6 +466,7 @@ export default function EditProject() {
               },
               token
             );
+
             if (
               updateResponse?.data?.statusCode === 201 ||
               updateResponse?.data?.statusCode === 200
@@ -481,6 +507,7 @@ export default function EditProject() {
 
   const handleMilestoneDelete = async (id) => {
     const milestoneToDelete = milestones.find((m) => m.id === id);
+
     if (!milestoneToDelete) return;
 
     if (milestoneToDelete.apiId) {
@@ -499,10 +526,12 @@ export default function EditProject() {
       userName: option.label,
       avatar: option.avatar,
     }));
+
     const mergedMembers = [...existingMembers, ...newMembers].filter(
       (member, index, self) =>
         index === self.findIndex((m) => m._id === member._id)
     );
+
     setModalTeamMembers(mergedMembers);
     const selectedUserIds = mergedMembers.map((member) => member._id);
     setSelectedUsers(selectedUserIds);
@@ -516,12 +545,14 @@ export default function EditProject() {
       userName: option.label,
       avatar: option.avatar,
     }));
+
     const mergedMember = [
       ...existingMember.filter((member) =>
         newMember.every((newM) => newM._id !== member._id)
       ),
       ...newMember,
     ];
+
     setModalClientMembers(mergedMember);
     const selectedUserId = mergedMember.map((owner) => owner._id);
     setSelectedClientUsers(selectedUserId);
@@ -535,22 +566,27 @@ export default function EditProject() {
     setClientMembers(modalClientMembers);
     closeClientModal();
   };
+
   const handleDelete = (memberId) => {
     setModalTeamMembers((prevMembers) =>
       prevMembers.filter((member) => member._id !== memberId)
     );
+
     setSelectedUsers((prevUsers) =>
       prevUsers.filter((userId) => userId !== memberId)
     );
   };
+
   const handleClientDelete = (ownerId) => {
     setModalClientMembers((prevMembers) =>
       prevMembers.filter((owner) => owner._id !== ownerId)
     );
+
     setSelectedClientUsers((prevUsers) =>
       prevUsers.filter((userId) => userId !== ownerId)
     );
   };
+
   const handleDateChange = (startDate, endDate) => {
     if (startDate && endDate) {
       setValue(
@@ -563,6 +599,7 @@ export default function EditProject() {
       setValue("deadline", "");
     }
   };
+
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -573,12 +610,14 @@ export default function EditProject() {
     boxShadow: 24,
     p: 4,
   };
+
   const handleFileChangetwo = (e) => {
     const newFiles = Array.from(e.target.files).map((file) => ({
       file,
       name: file.name,
       url: URL.createObjectURL(file),
     }));
+
     setSelectedFiles((prevFiles) => {
       const existingFileNames = new Set(prevFiles.map((f) => f.name));
 
@@ -597,6 +636,7 @@ export default function EditProject() {
   const removeFile = (index) => {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
+
   const [selectedInvoice, setSelectedInvoice] = useState(
     FinancialExecution?.[0]?.fileName || ""
   );
@@ -604,9 +644,11 @@ export default function EditProject() {
     financialExecution: FinancialExecution?.[0]?.financialExecution ?? "",
     physicalExecution: FinancialExecution?.[0]?.physicalExecution ?? "",
   });
+
   const handleInvoiceChange = (e) => {
     const selectedFile = e.target.value;
     setSelectedInvoice(selectedFile);
+
     const selectedData = FinancialExecution?.find(
       (file) => file.fileName === selectedFile
     );
@@ -627,6 +669,7 @@ export default function EditProject() {
       });
     }
   }, [FinancialExecution]);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <ChangeLogModal
@@ -649,8 +692,7 @@ export default function EditProject() {
             onClick={() =>
               document.getElementById("projectBannerInput").click()
             }
-            className="border-2 border-dashed border-gray-300 rounded-lg py-10 px-4
-            text-center cursor-pointer hover:bg-gray-50 transition duration-150"
+            className="border-2 border-dashed border-gray-300 rounded-lg py-10 px-4 text-center cursor-pointer hover:bg-gray-50 transition duration-150"
           >
             <p className="text-gray-600 mb-4">
               {t("Drop_your_images_here_or")}{" "}
@@ -670,11 +712,11 @@ export default function EditProject() {
                   onChange={(e) => {
                     const files = e.target.files;
                     const maxSize = 5 * 1024 * 1024;
-
                     if (files.length > 0) {
                       const isValid = Array.from(files).every(
                         (file) => file.size <= maxSize
                       );
+
                       if (!isValid) {
                         toast.error(
                           t("Selected file should not be greater than 5MB.")
@@ -739,6 +781,7 @@ export default function EditProject() {
                 value: area._id,
                 label: area.businessArea,
               }));
+
               const initialValue =
                 options.find(
                   (option) => option.label === initialValues.businessArea
@@ -783,6 +826,7 @@ export default function EditProject() {
                 value: company,
                 label: company,
               }));
+
               return (
                 <Select
                   {...field}
@@ -903,6 +947,7 @@ export default function EditProject() {
             )}
           </div>
         )}
+
         <div className="mb-4 w-full">
           <label className="block text-2xl font-semibold mb-2 text-red-800">
             <span className="text-gray-700 text-sm">{t("Deadline")}</span>*
@@ -918,31 +963,67 @@ export default function EditProject() {
                     .split(" - ")
                     .map((date) => (date ? new Date(date) : null))
                 : [null, null];
+
+              const handleStartChange = (startDate) => {
+                const endDate = dates[1];
+                const formatted = [
+                  startDate ? startDate.toLocaleDateString("en-US") : "",
+                  endDate ? endDate.toLocaleDateString("en-US") : "",
+                ]
+                  .filter(Boolean)
+                  .join(" - ");
+                field.onChange(formatted);
+                handleDateChange(startDate, endDate);
+              };
+
+              const handleEndChange = (endDate) => {
+                const startDate = dates[0];
+                const formatted = [
+                  startDate ? startDate.toLocaleDateString("en-US") : "",
+                  endDate ? endDate.toLocaleDateString("en-US") : "",
+                ]
+                  .filter(Boolean)
+                  .join(" - ");
+                field.onChange(formatted);
+                handleDateChange(startDate, endDate);
+              };
+
               return (
-                <div className="w-full">
+                <div className="w-full flex gap-4">
                   <DatePicker
-                    {...field}
-                    selectsRange
+                    selected={dates[0]}
+                    onChange={handleStartChange}
+                    selectsStart
                     startDate={dates[0]}
                     endDate={dates[1]}
-                    onChange={(dates) => {
-                      const [startDate, endDate] = dates;
-                      handleDateChange(startDate, endDate);
-                    }}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     disabled={isViewMode}
                     dateFormat="MM/dd/yyyy"
-                    placeholderText={t("Select start and end date")}
+                    placeholderText={t("Select start date")}
+                    wrapperClassName="w-full"
+                  />
+                  <DatePicker
+                    selected={dates[1]}
+                    onChange={handleEndChange}
+                    selectsEnd
+                    startDate={dates[0]}
+                    endDate={dates[1]}
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                    disabled={isViewMode}
+                    dateFormat="MM/dd/yyyy"
+                    placeholderText={t("Select end date")}
                     wrapperClassName="w-full"
                   />
                 </div>
               );
             }}
           />
+
           {errors.deadline && (
             <span className="text-red-600">{t(errors.deadline.message)}</span>
           )}
         </div>
+
         {!isCreateMode && FinancialExecution?.length > 0 && (
           <>
             <h2 className="text-2xl font-bold mt-6 mb-6">{t("Invoice")}</h2>
@@ -963,6 +1044,7 @@ export default function EditProject() {
                 ))}
               </select>
             </div>
+
             <h2 className="text-2xl font-bold mt-6 mb-6">{t("Execution")}</h2>
             <div className="mb-4">
               <label className="block text-2xl font-semibold mb-2">
@@ -981,6 +1063,7 @@ export default function EditProject() {
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
               />
             </div>
+
             <div className="mb-4">
               <label className="block text-2xl font-semibold mb-2">
                 <span className="text-gray-700 text-sm">
@@ -1000,8 +1083,10 @@ export default function EditProject() {
             </div>
           </>
         )}
+
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6">{t("Project_Milestones")}</h2>
+
           {/* 💡 Input Form Section */}
           <div className="bg-white p-6 border border-gray-200 rounded-md shadow-sm mb-10">
             <label className="block text-2xl font-semibold mb-2">
@@ -1021,6 +1106,7 @@ export default function EditProject() {
                 />
               )}
             />
+
             <label className="block text-2xl font-semibold mt-4 mb-2">
               <span className="text-gray-700 text-sm">
                 {t("Milestone_Description")}
@@ -1038,6 +1124,7 @@ export default function EditProject() {
                 ></textarea>
               )}
             />
+
             <div className="flex justify-end mt-6">
               <button
                 type="button"
@@ -1046,11 +1133,13 @@ export default function EditProject() {
                   const formValues = getValues();
                   if (!formValues.milestonetitle || !formValues.milestonedesc)
                     return;
+
                   const newMilestone = {
                     id: Date.now(),
                     name: formValues.milestonetitle,
                     description: formValues.milestonedesc,
                   };
+
                   setMilestones((prev) => [...prev, newMilestone]);
                   setValue("additionalMilestones", [
                     ...milestones,
@@ -1062,6 +1151,7 @@ export default function EditProject() {
               >
                 {t("Save_Milestones")}
               </button>
+
               <button
                 type="button"
                 className="bg-gray-200 text-black-blacknew px-6 py-2 rounded-md shadow-md"
@@ -1074,6 +1164,7 @@ export default function EditProject() {
               </button>
             </div>
           </div>
+
           {/* ✅ Milestones List Section */}
           <div className="mt-4">
             <h3 className="text-xl font-semibold mb-4">{t("Milestones")}</h3>
@@ -1108,6 +1199,7 @@ export default function EditProject() {
             )}
           </div>
         </div>
+
         <h2 className="text-2xl font-bold mt-6 mb-6"> {t("Team")} Soapro </h2>
         <div className="mb-4">
           {!isViewMode && (
@@ -1116,7 +1208,7 @@ export default function EditProject() {
                 <span className="text-gray-700 text-sm">
                   {" "}
                   {t("Add_Team_Members")}
-                </span>{" "}
+                </span>
                 *
               </label>
               <Controller
@@ -1202,6 +1294,7 @@ export default function EditProject() {
                 ✕
               </button>
             </div>
+
             <div>
               {!isViewMode && (
                 <>
@@ -1258,12 +1351,10 @@ export default function EditProject() {
                 </>
               )}
             </div>
+
             {!isCreateMode && (
               <div className="mt-4 flex-grow scrollbar-custom">
-                <h3
-                  className="block text-sm
-                font-semibold mb-4 text-gray-700"
-                >
+                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
                   {t("Added_Members")}
                 </h3>
                 <ul className="space-y-2">
@@ -1299,6 +1390,7 @@ export default function EditProject() {
                 </ul>
               </div>
             )}
+
             <div className="flex justify-between mt-4 w-full">
               <button
                 onClick={saveChanges}
@@ -1315,6 +1407,7 @@ export default function EditProject() {
             </div>
           </Box>
         </Modal>
+
         {!isCreateMode && (
           <>
             <h2 className="block text-sm font-semibold mb-4 text-gray-700">
@@ -1333,8 +1426,7 @@ export default function EditProject() {
                     ) : (
                       <User
                         key={member._id}
-                        className="bg-slate-400
-                      rounded-full p-2 text-white mr-2"
+                        className="bg-slate-400 rounded-full p-2 text-white mr-2"
                         size={32}
                       />
                     )}
@@ -1345,6 +1437,7 @@ export default function EditProject() {
             </div>
           </>
         )}
+
         <h2 className="text-2xl font-bold mt-6 mb-6">{t("Company_Team")}</h2>
         <div className="mb-4">
           {!isViewMode && (
@@ -1353,7 +1446,7 @@ export default function EditProject() {
                 <span className="text-gray-700 text-sm">
                   {" "}
                   {t("Add_Client_Members")}
-                </span>{" "}
+                </span>
                 *
               </label>
               <Controller
@@ -1375,12 +1468,12 @@ export default function EditProject() {
                         .filter(
                           (user) =>
                             !clientMembers.some(
-                              (member) => member._id === user._id
-                            )
+                              (owner) => owner._id === user._id
+                            ) && user.companyName === selectedCompany
                         )
                         .map((user) => ({
                           value: user._id,
-                          label: user.ownerName || user.userName,
+                          label: user?.userName || user?.ownerName,
                           avatar: user.avatar,
                         }))}
                       value={field.value || []}
@@ -1411,6 +1504,7 @@ export default function EditProject() {
             </>
           )}
         </div>
+
         <Modal
           open={isclientModalOpen}
           onClose={closeClientModal}
@@ -1429,7 +1523,7 @@ export default function EditProject() {
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-700">
-                {t("Edit_Client_Members")}
+                {t("Edit_Members")}
               </h2>
               <button
                 onClick={closeClientModal}
@@ -1439,6 +1533,7 @@ export default function EditProject() {
                 ✕
               </button>
             </div>
+
             <div>
               {!isViewMode && (
                 <>
@@ -1454,39 +1549,61 @@ export default function EditProject() {
                           ? "Client Members is required"
                           : false,
                     }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        isMulti
-                        options={owners
-                          .filter(
-                            (user) =>
-                              !modalClientMembers.some(
-                                (member) =>
-                                  (member.ownerId &&
-                                    member.ownerId === user._id) ||
-                                  (member.ownerName &&
-                                    member.ownerName === user.ownerName)
-                              )
-                          )
-                          .map((user) => ({
-                            value: user._id,
-                            label: user.ownerName || user.userName,
-                            avatar: user.avatar,
+                    render={({ field }) => {
+                      const filteredOptions = owners
+                        .filter(
+                          (user) =>
+                            !modalClientMembers.some(
+                              (owner) =>
+                                (owner.ownerId && owner.ownerId === user._id) ||
+                                (owner.ownerName &&
+                                  owner.ownerName === user.ownerName) ||
+                                (owner.userName &&
+                                  owner.userName === user.userName)
+                            )
+                        )
+                        .map((user) => ({
+                          value: user._id,
+                          label: user.ownerName || user.userName,
+                          avatar: user.avatar,
+                        }));
+                      return (
+                        <Select
+                          {...field}
+                          isMulti
+                          options={owners
+                            .filter(
+                              (user) =>
+                                !modalClientMembers.some(
+                                  (owner) =>
+                                    (owner.ownerId &&
+                                      owner.ownerId === user._id) ||
+                                    (owner.ownerName &&
+                                      owner.ownerName === user.ownerName) ||
+                                    (owner.userName &&
+                                      owner.userName === user.userName)
+                                ) && user.companyName === selectedCompany
+                            )
+                            .map((user) => ({
+                              value: user._id,
+                              label: user.ownerName || user.userName,
+                              avatar: user.avatar,
+                            }))}
+                          value={modalClientMembers.map((owner) => ({
+                            value: owner._id,
+                            label: owner.ownerName || owner.userName,
+                            avatar: owner.avatar,
                           }))}
-                        value={modalClientMembers.map((member) => ({
-                          value: member._id,
-                          label: member.ownerName || member.userName,
-                          avatar: member.avatar,
-                        }))}
-                        onChange={(selectedOptions) => {
-                          handleClientUsersChange(selectedOptions);
-                          field.onChange(selectedOptions);
-                        }}
-                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                      />
-                    )}
+                          onChange={(selectedOptions) => {
+                            handleClientUsersChange(selectedOptions);
+                            field.onChange(selectedOptions);
+                          }}
+                          className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                        />
+                      );
+                    }}
                   />
+
                   {errors.clientMembers && (
                     <span className="text-red-600">
                       {t(errors.clientMembers.message)}
@@ -1495,10 +1612,11 @@ export default function EditProject() {
                 </>
               )}
             </div>
+
             {!isCreateMode && (
               <div className="mt-4 flex-grow scrollbar-custom">
                 <h3 className="block text-sm font-semibold mb-4 text-gray-700">
-                  {t("Added_Members")}
+                  {t("Added_Clients")}
                 </h3>
                 <ul className="space-y-2">
                   {modalClientMembers.map((owner) => (
@@ -1519,7 +1637,7 @@ export default function EditProject() {
                           size={32}
                         />
                       )}
-                      <span>{owner.ownerName || owner.userName}</span>
+                      <span>{owner?.userName || owner?.ownerName}</span>
                       {!isViewMode && (
                         <button
                           className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
@@ -1533,6 +1651,7 @@ export default function EditProject() {
                 </ul>
               </div>
             )}
+
             <div className="flex justify-between mt-4 w-full">
               <button
                 onClick={saveClientChanges}
@@ -1549,6 +1668,7 @@ export default function EditProject() {
             </div>
           </Box>
         </Modal>
+
         {!isCreateMode && (
           <>
             <h2 className="block text-sm font-semibold mb-4 text-gray-700">

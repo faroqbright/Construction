@@ -106,7 +106,7 @@ export default function UsersTable() {
         setCurrentUser({
           userName: response.data.data.userName,
           _id: response.data.data._id,
-          phoneNumber: response.data.data.phoneNumber,
+          // phoneNumber: response.data.data.phoneNumber,
           email: response.data.data.email,
           role: response.data.data.role?._id,
           status: response.data.data.status,
@@ -231,6 +231,9 @@ export default function UsersTable() {
         <Modal open={openUser} onClose={handleCloseUser}>
           <Box
             sx={{
+              position: "absolute",
+              top: "30%",
+              left: "40%",
               width: 400,
               margin: "auto",
               padding: 4,
@@ -253,9 +256,9 @@ export default function UsersTable() {
                 const newUser = {
                   userName: formData.get("userName"),
                   email: formData.get("email"),
-                  phoneNumber: formData.get("phoneNumber"),
+                  // phoneNumber: formData.get("phoneNumber"),
                   role: currentUser.role,
-                  password: formData.get("password"),
+                  // password: formData.get("password"),
                   status: t("Active"),
                 };
                 addUser(newUser);
@@ -275,14 +278,14 @@ export default function UsersTable() {
                 fullWidth
                 required
               />
-              <TextField
+              {/* <TextField
                 name="phoneNumber"
                 label={t("Phone_Number")}
                 variant="outlined"
                 fullWidth
                 required
-              />
-              <TextField
+              /> */}
+              {/* <TextField
                 name="password"
                 label={t("Password")}
                 type={showPassword ? "text" : "password"}
@@ -303,7 +306,7 @@ export default function UsersTable() {
                     </IconButton>
                   ),
                 }}
-              />
+              /> */}
               <Autocomplete
                 options={filteredRoles}
                 getOptionLabel={(option) => option.roleName}
@@ -363,7 +366,7 @@ export default function UsersTable() {
               </th>
               <th className="p-4 border-b">{t("User_Name")}</th>
               <th className="p-4 border-b">{t("Email")}</th>
-              <th className="p-4 border-b">{t("Phone_Number")}</th>
+              {/* <th className="p-4 border-b">{t("Phone_Number")}</th> */}
               <th className="p-4 border-b">{t("Role")}</th>
               <th className="p-4 border-b">{t("Status")}</th>
               {(hasUpdatePermission || hasDeletePermission) && (
@@ -393,7 +396,7 @@ export default function UsersTable() {
                       .join(" ")}
                   </td>
                   <td className="p-4">{user.email}</td>
-                  <td className="p-4">{user.phoneNumber}</td>
+                  {/* <td className="p-4">{user.phoneNumber}</td> */}
                   <td className="p-4">{user?.role?.roleName || "null"}</td>
                   <td className="p-4">
                     <span
@@ -486,7 +489,7 @@ export default function UsersTable() {
               const updatedUser = {
                 userName: formData.get("userName"),
                 email: formData.get("email"),
-                phoneNumber: formData.get("phoneNumber"),
+                // phoneNumber: formData.get("phoneNumber"),
                 role: currentUser.role,
                 status: formData.get("status"),
               };
@@ -518,7 +521,7 @@ export default function UsersTable() {
                 setCurrentUser((prev) => ({ ...prev, email: e.target.value }))
               }
             />
-            <TextField
+            {/* <TextField
               name="phoneNumber"
               label={t("Phone_Number")}
               variant="outlined"
@@ -531,7 +534,7 @@ export default function UsersTable() {
                   phoneNumber: e.target.value,
                 }))
               }
-            />
+            /> */}
             <Autocomplete
               options={filteredRolesEdit}
               getOptionLabel={(option) => option.roleName}

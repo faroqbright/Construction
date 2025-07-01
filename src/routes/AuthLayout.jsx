@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Authentication/Navbar/Navbar";
-import construction from "../assets/construction_img.svg"
+import construction from "../assets/auth.jpg"
 
 const AuthLayout = () => {
   return (
