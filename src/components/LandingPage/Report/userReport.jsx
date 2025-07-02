@@ -69,6 +69,7 @@ const DocumentList = () => {
                 backgroundColor: "#333333",
               },
             }}
+
             onClick={() => navigate("/submitReport")}
           >
             + {t("Create_New_Report")}

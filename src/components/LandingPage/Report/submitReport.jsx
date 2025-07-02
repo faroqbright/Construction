@@ -17,6 +17,8 @@ const SubmitReport = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const token = useSelector((state) => state?.auth?.userToken);
   const user = useSelector((state) => state?.auth?.userInfo?.userName);
+  const role = useSelector((state) => state?.auth?.userInfo?.role?.roleName);
+
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -43,17 +45,17 @@ const SubmitReport = () => {
     const filtered = projects.filter((project) =>
       project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  
+
     if (searchTerm === "") {
-      setFilteredProjects(filtered.slice(0, 6)); 
+      setFilteredProjects(filtered.slice(0, 6));
     } else {
-      setFilteredProjects(filtered); 
+      setFilteredProjects(filtered);
     }
   }, [searchTerm, projects]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    const maxSize = 5 * 1024 * 1024
+    const maxSize = 5 * 1024 * 1024;
 
     if (file) {
       if (file.type !== "application/pdf") {
@@ -87,9 +89,22 @@ const SubmitReport = () => {
       const response = await apiRequest("post", "/documents", formData, token, {
         "Content-Type": "multipart/form-data",
       });
-      console.log(response);
 
       if (response?.status === 200 || response?.status === 201) {
+        const docId = response?.data?.document?._id;
+        if (role == "Director" || role == "director" || role == "Diretor" || role == "Diretora") {
+          try {
+            const response1 = await apiRequest(
+              "patch",
+              `/documents/${docId}`,
+              { status: "approved" },
+              token
+            );
+          } catch (error) {
+            console.error("Failed to update status:", error);
+            toast.error(t("status_update_failed_error"));
+          }
+        }
         toast.success(t("File uploaded successfully!"));
         setSelectedFile(null);
         setSelectedProject("");

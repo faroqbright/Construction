@@ -695,7 +695,7 @@ export default function EditProject() {
             className="border-2 border-dashed border-gray-300 rounded-lg py-10 px-4 text-center cursor-pointer hover:bg-gray-50 transition duration-150"
           >
             <p className="text-gray-600 mb-4">
-              {t("Drop_your_images_here_or")}{" "}
+              {t("Click here to")}{" "}
               <span className="text-blue-600 font-semibold underline hover:text-blue-800">
                 {t("Upload")}
               </span>

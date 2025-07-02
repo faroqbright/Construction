@@ -257,7 +257,7 @@
     "Business_Area_Name": "Nome da área comercial",
     "Project_Gallery": "Galeria de Projecto",
     "Drop_your_images_here_or": "Arraste as imagens aqui",
-    "Upload": "Carregue",
+    "Upload": "Carregar",
     "Business_Area": "Área de Negócio",
     "Business Area": "Área de Negócio",
     "Select_the_Business_Area": "Seleccione a área de negócio",
@@ -555,7 +555,8 @@
     "tab_all_projects": "Todos os projectos",
     "tab_pending": "Pendentes",
     "tab_approved": "Aprovados",
-    "tab_rejected": "Rejeitados"
+    "tab_rejected": "Rejeitados",
+    "Click here to": "Clique aqui para"
 
 
 }

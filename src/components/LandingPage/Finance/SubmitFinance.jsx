@@ -169,7 +169,7 @@ export default function SubmitFinance() {
         </div>
       </div>
 
-      <div className="mx-4 mb-3">
+      {/* <div className="mx-4 mb-3">
         <h3>
           {t("Filename")}{" "}
           <span className="text-red-600 text-xl pr-1">*</span>
@@ -181,7 +181,7 @@ export default function SubmitFinance() {
           value={fileName}
           onChange={(e) => setFileName(e.target.value)}
         />
-      </div>
+      </div> */}
 
       <div className="mx-4 mb-3">
         <h3>
