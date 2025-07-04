@@ -552,5 +552,24 @@
   "tab_pending": "Pending",
   "tab_approved": "Approved",
   "tab_rejected": "Rejected",
-  "Click here to": "Click here to"
+  "Click here to": "Click here to",
+  "Select start date": "Select start date",
+  "Select end date": "Select end date",
+  "New customer created and email sent successfully!": "New customer created and email sent successfully!",
+  "Password has been updated successfully. The user will need to log in with the new password.": "Password has been updated successfully. The user will need to log in with the new password.",
+  "Phone_Number_(optional)": "Phone Number (optional)",
+  "New user created and email sent successfully!": "New user created and email sent successfully!",
+  "Change Your Password": "Change Your Password",
+  "password": "password",
+  "Password is required": "Password is required",
+  "Minimum 6 characters": "Minimum 6 characters",
+  "Maximum 8 characters": "Maximum 8 characters",
+  "text": "text",
+  "confirmPassword": "confirmPassword",
+  "Confirm Password is required": "Confirm Password is required",
+  "Passwords do not match": "Passwords do not match",
+  "Confirm Password": "Confirm Password",
+  "Change Password": "Change Password"
+
+  
 }

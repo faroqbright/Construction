@@ -312,7 +312,7 @@ const MilestoneTable = () => {
             <thead>
               <tr>
                 <th className="p-4 border-b">
-                  <Checkbox />
+                  {/* <Checkbox /> */}
                 </th>
                 <th className="p-4 border-b">{t("Title")}</th>
                 <th className="p-4 border-b">{t("Description")}</th>
@@ -330,7 +330,7 @@ const MilestoneTable = () => {
               {milestones.map((milestone, idx) => (
                 <tr key={milestone._id} className="hover:bg-gray-50">
                   <td className="p-4">
-                    <Checkbox />
+                    {/* <Checkbox /> */}
                   </td>
                   <td className="p-4">{milestone.title || "-"}</td>
                   <td

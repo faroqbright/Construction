@@ -123,7 +123,7 @@ const FinanceClientsList = () => {
       const response = await apiRequest("post", "/clients", formData, token);
 
       if (response.data.statusCode === 201) {
-        toast.success(response.data.message);
+        toast.success(t(response.data.message));
         fetchUsers();
         handleClose();
       } else {
@@ -246,7 +246,7 @@ const FinanceClientsList = () => {
             <thead>
               <tr>
                 <th className="p-4 border-b">
-                  <Checkbox />
+                  {/* <Checkbox /> */}
                 </th>
                 <th className="p-4 border-b">{t("User_Name")}</th>
                 <th className="p-4 border-b">{t("Email")}</th>
@@ -265,7 +265,7 @@ const FinanceClientsList = () => {
                 .map((user, idx) => (
                   <tr key={user._id} className="hover:bg-gray-50">
                     <td className="p-4">
-                      <Checkbox />
+                      {/* <Checkbox /> */}
                     </td>
                     <td className="p-4">
                       {user.userName

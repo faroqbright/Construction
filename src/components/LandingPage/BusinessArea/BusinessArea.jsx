@@ -246,7 +246,7 @@ const BusinessAreaTable = () => {
             <thead>
               <tr>
                 <th className="p-4 border-b">
-                  <Checkbox />
+                  {/* <Checkbox /> */}
                 </th>
                 <th className="p-4 border-b">{t("Business_Area")}</th>
                 <th className="p-4 border-b">{t("Created_At")}</th>
@@ -259,7 +259,7 @@ const BusinessAreaTable = () => {
               {businessAreas.map((businessArea, idx) => (
                 <tr key={businessArea._id} className="hover:bg-gray-50">
                   <td className="p-4">
-                    <Checkbox />
+                    {/* <Checkbox /> */}
                   </td>
                   <td className="p-4">{businessArea.businessArea}</td>
                   <td className="p-4">

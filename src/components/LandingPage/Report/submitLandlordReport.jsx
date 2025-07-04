@@ -53,7 +53,7 @@ const SubmitReport = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 150 * 1024 * 1024; // 5MB
 
     if (file) {
       if (file.type !== "application/pdf") {
@@ -62,7 +62,7 @@ const SubmitReport = () => {
       }
 
       if (file.size > maxSize) {
-        toast.error("Selected file should not be greater than 5MB.");
+        toast.error("Selected file should not be greater than 150MB.");
         return;
       }
 
@@ -164,7 +164,7 @@ const SubmitReport = () => {
               {t("Choose_a_file_and_Drop_it_here")}
             </p>
             <p className="text-[#626262] text-[14px] font-[500] mt-2">
-              {t("Only_PDF_files_are_allowed")}, {t("up_to")} 5MB
+              {t("Only_PDF_files_are_allowed")}, {t("up_to")} 150MB
             </p>
             <input
               type="file"

@@ -446,7 +446,6 @@ const ProjectDetails = () => {
                         document.onmouseup = () => {
                           document.onmousemove = null;
                           document.onmouseup = null;
-                          handleDragEnd();
                         };
                       }
                     : undefined
@@ -483,13 +482,59 @@ const ProjectDetails = () => {
                         document.onmouseup = () => {
                           document.onmousemove = null;
                           document.onmouseup = null;
-                          handleDragEnd();
                         };
                       }
                     : undefined
                 }
               ></div>
             </div>
+          </div>
+
+          {/* Add Save and Cancel buttons */}
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+              className="px-5 py-2 bg-black-blacknew text-white rounded-md"
+              onClick={async () => {
+                if (financialId) {
+                  try {
+                    await apiRequest(
+                      "patch",
+                      `/finance/${financialId}`,
+                      {
+                        physicalExecution: physicalExecution,
+                        financialExecution: financialExecution,
+                      },
+                      token
+                    );
+                    toast.success(t("Execution updated successfully."));
+                  } catch (err) {
+                    toast.error(t("Error updating finance execution."));
+                  }
+                }
+              }}
+            >
+              {t("Save")}
+            </button>
+            <button
+              className="px-5 py-2 rounded-md bg-gray-100"
+              onClick={() => {
+                // Reset to original values
+                if (projectData?.financeDocuments?.length) {
+                  const firstDoc = projectData.financeDocuments[0];
+                  setPhysicalExecution(
+                    parseFloat(firstDoc?.physicalExecution) || 0
+                  );
+                  setFinancialExecution(
+                    parseFloat(firstDoc?.financialExecution) || 0
+                  );
+                } else {
+                  setPhysicalExecution(0);
+                  setFinancialExecution(0);
+                }
+              }}
+            >
+              {t("Cancel")}
+            </button>
           </div>
         </div>
 
@@ -821,7 +866,7 @@ const ProjectDetails = () => {
               <thead>
                 <tr>
                   <th className="p-4 border-b">
-                    <Checkbox />
+                    {/* <Checkbox /> */}
                   </th>
                   <th className="p-4 border-b">{t("Invoice_Name")}</th>
                   <th className="p-4 border-b">{t("Reference")}</th>
@@ -836,11 +881,10 @@ const ProjectDetails = () => {
                 {paginatedFinanceDocuments?.map((doc) => (
                   <tr key={doc.id} className="hover:bg-gray-50">
                     <td className="p-4">
-                      <Checkbox />
+                      {/* <Checkbox /> */}
                     </td>
                     <td className="p-4">
-                      {doc.fileName
-                        .split(" ")
+                      {doc?.fileName?.split(" ")
                         .map(
                           (word) => word.charAt(0).toUpperCase() + word.slice(1)
                         )

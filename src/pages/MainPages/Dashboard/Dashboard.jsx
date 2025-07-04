@@ -9,15 +9,20 @@ import { toast } from "react-toastify";
 import { X } from "lucide-react";
 import apiRequest from "../../../utils/apiRequest";
 import { setUserInfo } from "../../../features/auth/authSlice";
+import { useTranslation } from "react-i18next";
+import "../../../utils/i18n";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.userInfo);
+  const user1 = useSelector((state) => state);
   const token = useSelector((state) => state.auth.userToken);
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
+  console.log(user1);
 
   const {
     control,
@@ -52,14 +57,14 @@ const Dashboard = () => {
         token
       );
 
-      if (res?.data?.message) {
-        toast.success(res.data.message);
+      if (res?.data?.statusCode === 200) {
+        toast.success(t(res.data.message));
         setShowModal(false);
-        dispatch(setUserInfo({ ...user, isPasswordChanged: true }));
+        dispatch(setUserInfo({ user: { ...user, isPasswordChanged: true } }));
       }
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Failed to change password"
+        t(error?.response?.data?.message) || "Failed to change password"
       );
     } finally {
       setLoading(false);
@@ -78,7 +83,7 @@ const Dashboard = () => {
               <X size={24} />
             </button>
             <h2 className="text-xl font-semibold mb-4 text-center">
-              Change Your Password
+              {t("Change Your Password")}
             </h2>
 
             <form onSubmit={handleSubmit(handlePasswordSubmit)}>
@@ -87,14 +92,14 @@ const Dashboard = () => {
                 control={control}
                 defaultValue=""
                 rules={{
-                  required: "Password is required",
-                  minLength: { value: 6, message: "Minimum 6 characters" },
-                  maxLength: { value: 8, message: "Maximum 8 characters" },
+                  required: t("Password is required"),
+                  minLength: { value: 6, message: t("Minimum 6 characters") },
+                  maxLength: { value: 8, message: t("Maximum 8 characters") },
                 }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Password"
+                    label={t("Password")}
                     type={showPassword ? "text" : "password"}
                     fullWidth
                     margin="normal"
@@ -120,14 +125,14 @@ const Dashboard = () => {
                 control={control}
                 defaultValue=""
                 rules={{
-                  required: "Confirm Password is required",
+                  required: t("Confirm Password is required"),
                   validate: (value) =>
-                    value === password || "Passwords do not match",
+                    value === password || t("Passwords do not match"),
                 }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Confirm Password"
+                    label={t("Confirm Password")}
                     type={showConfirm ? "text" : "password"}
                     fullWidth
                     margin="normal"
@@ -161,7 +166,7 @@ const Dashboard = () => {
                 }}
                 disabled={loading}
               >
-                {loading ? "Saving..." : "Change Password"}
+                {loading ? t("Saving...") : t("Change Password")}
               </Button>
             </form>
           </div>

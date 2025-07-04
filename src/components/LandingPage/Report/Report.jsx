@@ -355,7 +355,7 @@ export default function Report() {
             <thead className="text-black-blacknew font-semibold">
               <tr className="bg-white">
                 <th className="pr-10">
-                  <input type="checkbox" />  
+                  {/* <input type="checkbox" />   */}
                 </th>
                 <th className="p-4 text-left text-lg">{t("Project_Name")}</th>
                 <th className="p-4 text-left text-lg">{t("Attached_Report")}</th>
@@ -379,7 +379,7 @@ export default function Report() {
                       className="hover:bg-gray-50 border-b"
                     >
                       <td className="p-5">
-                        <input type="checkbox" />  
+                        {/* <input type="checkbox" />   */}
                       </td>
                       <td className="p-4 font-semibold">
                         {doc.projName || "-"}

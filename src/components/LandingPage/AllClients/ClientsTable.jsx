@@ -221,7 +221,7 @@ const ClientsTable = () => {
             <thead>
               <tr>
                 <th className="p-4 border-b">
-                  <Checkbox />
+                  {/* <Checkbox /> */}
                 </th>
                 
                 <th className="p-4 border-b">{t("Company_Name")}</th>
@@ -238,7 +238,7 @@ const ClientsTable = () => {
               {users.map((user, idx) => (
                 <tr key={user._id} className="hover:bg-gray-50">
                   <td className="p-4">
-                    <Checkbox />
+                    {/* <Checkbox /> */}
                   </td>
                   <td className="p-4">{user.name}</td>
                   <td className="p-4">{user.email}</td>

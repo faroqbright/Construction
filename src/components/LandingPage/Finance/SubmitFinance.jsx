@@ -78,10 +78,10 @@ export default function SubmitFinance() {
       return;
     }
 
-    if (!fileName) {
-      toast.info(t("Please enter a filename."));
-      return;
-    }
+    // if (!fileName) {
+    //   toast.info(t("Please enter a filename."));
+    //   return;
+    // }
     if (!reference) {
       toast.info(t("Please enter a Reference No."));
       return;
@@ -92,7 +92,7 @@ export default function SubmitFinance() {
     const formData = new FormData();
     formData.append("file", selectedFile);
     formData.append("projName", selectedProject);
-    formData.append("fileName", fileName);
+    // formData.append("fileName", fileName);
     formData.append("user", user);
     formData.append("reference", reference);
 
@@ -106,7 +106,7 @@ export default function SubmitFinance() {
         toast.success(t("File uploaded successfully!"));
         setSelectedFile(null);
         setSelectedProject("");
-        setFileName("");
+        // setFileName("");
         setreference("");
         navigate("/finance");
       }

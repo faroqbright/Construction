@@ -384,7 +384,7 @@ export default function RolesTable() {
           <thead>
             <tr>
               <th className="p-4 border-b">
-                <Checkbox />
+                {/* <Checkbox /> */}
               </th>
               <th className="p-4 border-b">{t("Role_Name")}</th>
               <th className="p-4 border-b">{t("Created_By")}</th>
@@ -406,7 +406,7 @@ export default function RolesTable() {
               currentRoles.map((role, idx) => (
                 <tr key={role._id} className="hover:bg-gray-50">
                   <th className="p-4">
-                    <Checkbox />
+                    {/* <Checkbox /> */}
                   </th>
                   <td className="p-4">{role.roleName}</td>
                   <td className="p-4">{role.createdBy}</td>

@@ -238,7 +238,7 @@ const Documents = () => {
             <thead>
               <tr>
                 <th className="p-4 border-b">
-                  <Checkbox />
+                  {/* <Checkbox /> */}
                 </th>
                 <th className="p-4 border-b">{t("Project_Name")}</th>
                 <th className="p-4 border-b">{t("Document_Name")}</th>
@@ -252,7 +252,7 @@ const Documents = () => {
                 ? projects.map((user, idx) => (
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="p-4">
-                        <Checkbox />
+                        {/* <Checkbox /> */}
                       </td>
                       <td className="p-4">
                         {user.projName

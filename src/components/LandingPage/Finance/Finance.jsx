@@ -221,7 +221,7 @@ export default function Finance() {
             <thead>
               <tr>
                 <th className="p-4 border-b">
-                  <Checkbox />
+                  {/* <Checkbox /> */}
                 </th>
                 <th className="p-4 border-b">{t("Project_Name")}</th>
                 <th className="p-4 border-b">{t("Reference")}</th>
@@ -239,7 +239,7 @@ export default function Finance() {
                 ? users.map((user, idx) => (
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="p-4">
-                        <Checkbox />
+                        {/* <Checkbox /> */}
                       </td>
                       <td className="p-4">
                         {user.projName
@@ -254,8 +254,7 @@ export default function Finance() {
                         {user.reference ? user.reference : "-"}
                       </td>
                       <td className="p-4">
-                        {user.fileName
-                          .split(" ")
+                        {user?.fileName?.split(" ")
                           .map(
                             (word) =>
                               word.charAt(0).toUpperCase() + word.slice(1)
