@@ -569,7 +569,9 @@
   "Confirm Password is required": "Confirm Password is required",
   "Passwords do not match": "Passwords do not match",
   "Confirm Password": "Confirm Password",
-  "Change Password": "Change Password"
+  "Change Password": "Change Password",
+  "Team Members is required": "Team Members is required",
+  "Client Members is required": "Client Members is required"
 
   
 }

@@ -573,5 +573,7 @@
   "Confirm Password is required": "Confirmar senha é necessário",
   "Passwords do not match": "As senhas não correspondem",
   "Confirm Password": "Confirme sua senha",
-  "Change Password": "Alterar a senha"
+  "Change Password": "Alterar a senha",
+  "Team Members is required": "Membros da equipe são necessários",
+  "Client Members is required": "Membros do cliente são necessários"
 }

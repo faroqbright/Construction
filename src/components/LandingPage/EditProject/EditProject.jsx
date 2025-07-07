@@ -238,7 +238,7 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
   const [deletedMilestones, setDeletedMilestones] = useState([]);
 
-  const onSubmit = async (formData) => {
+   const onSubmit = async (formData) => {
     if (isCreateMode && selectedFiles.length > 3)
       return toast.error(t("You can only have up to 3 banners."));
     if (
@@ -306,8 +306,16 @@ export default function EditProject() {
       if (formData.status !== initialValues.status) {
         updatedFields.status = formData.status;
       }
+
       if (formData.deadline !== initialValues.deadline) {
-        updatedFields.deadline = formData.deadline;
+        const dates = formData.deadline.split(" - ");
+        const startDate = dates[0]?.trim();
+        const endDate = dates[1]?.trim();
+
+        if (startDate && endDate) {
+          updatedFields.startDate = startDate;
+          updatedFields.endDate = endDate;
+        }
       }
 
       const initialMemberIds =
@@ -354,12 +362,7 @@ export default function EditProject() {
       }
       const data = new FormData();
 
-      const requiredFields = [
-        "projectName",
-        "title",
-        "description",
-        "location",
-      ];
+      const requiredFields = ["projectName", "title", "location"];
 
       requiredFields.forEach((field) => {
         data.append(field, formData[field]);
@@ -432,7 +435,7 @@ export default function EditProject() {
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
           try {
-            const financeUpdateResponse = await apiRequest(
+            await apiRequest(
               "patch",
               `/finance/${id}`,
               {
@@ -447,7 +450,6 @@ export default function EditProject() {
         }
 
         const responseid = response?.data?.data._id;
-
         const projectName = formData.projectName || initialValues.projectName;
 
         if (!projectName) {
@@ -484,11 +486,9 @@ export default function EditProject() {
 
         if (
           !formData?.title?.trim() ||
-          // !formData?.description?.trim() ||
           !formData?.status?.trim() ||
           !formData?.projectId?.trim()
         ) {
-          // toast.error(t("All fields are required."));
           return;
         }
         try {
@@ -964,53 +964,52 @@ export default function EditProject() {
                     .map((date) => (date ? new Date(date) : null))
                 : [null, null];
 
-              const handleStartChange = (startDate) => {
-                const endDate = dates[1];
-                const formatted = [
-                  startDate ? startDate.toLocaleDateString("en-US") : "",
-                  endDate ? endDate.toLocaleDateString("en-US") : "",
-                ]
-                  .filter(Boolean)
-                  .join(" - ");
-                field.onChange(formatted);
-                handleDateChange(startDate, endDate);
+              const formatDate = (date) => {
+                if (!date) return "";
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, "0"); 
+                const day = String(d.getDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`;
               };
 
-              const handleEndChange = (endDate) => {
-                const startDate = dates[0];
-                const formatted = [
-                  startDate ? startDate.toLocaleDateString("en-US") : "",
-                  endDate ? endDate.toLocaleDateString("en-US") : "",
-                ]
-                  .filter(Boolean)
-                  .join(" - ");
-                field.onChange(formatted);
-                handleDateChange(startDate, endDate);
+              const handleDateUpdate = (start, end) => {
+                const formattedStart = formatDate(start);
+                const formattedEnd = formatDate(end);
+
+                if (formattedStart && formattedEnd) {
+                  field.onChange(`${formattedStart} - ${formattedEnd}`);
+                } else if (formattedStart) {
+                  field.onChange(`${formattedStart} - `);
+                } else {
+                  field.onChange("");
+                }
               };
 
               return (
                 <div className="w-full flex gap-4">
                   <DatePicker
                     selected={dates[0]}
-                    onChange={handleStartChange}
+                    onChange={(date) => handleDateUpdate(date, dates[1])}
                     selectsStart
                     startDate={dates[0]}
                     endDate={dates[1]}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     disabled={isViewMode}
-                    dateFormat="MM/dd/yyyy"
+                    dateFormat="yyyy-MM-dd"
                     placeholderText={t("Select start date")}
                     wrapperClassName="w-full"
                   />
                   <DatePicker
                     selected={dates[1]}
-                    onChange={handleEndChange}
+                    onChange={(date) => handleDateUpdate(dates[0], date)}
                     selectsEnd
                     startDate={dates[0]}
                     endDate={dates[1]}
+                    minDate={dates[0]} 
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     disabled={isViewMode}
-                    dateFormat="MM/dd/yyyy"
+                    dateFormat="yyyy-MM-dd"
                     placeholderText={t("Select end date")}
                     wrapperClassName="w-full"
                   />
@@ -1217,7 +1216,7 @@ export default function EditProject() {
                 rules={{
                   required:
                     teamMembers?.length === 0
-                      ? "Team Members is required"
+                      ? t("Team Members is required")
                       : false,
                 }}
                 render={({ field }) =>
@@ -1307,7 +1306,7 @@ export default function EditProject() {
                     rules={{
                       required:
                         teamMembers?.length === 0
-                          ? "Team Members is required"
+                          ? t("Team Members is required")
                           : false,
                     }}
                     render={({ field }) => (
@@ -1455,7 +1454,7 @@ export default function EditProject() {
                 rules={{
                   required:
                     clientMembers.length === 0
-                      ? "Client Members is required"
+                      ? t("Client Members is required")
                       : false,
                 }}
                 render={({ field }) =>
@@ -1546,7 +1545,7 @@ export default function EditProject() {
                     rules={{
                       required:
                         clientMembers.length === 0
-                          ? "Client Members is required"
+                          ? t("Client Members is required")
                           : false,
                     }}
                     render={({ field }) => {
