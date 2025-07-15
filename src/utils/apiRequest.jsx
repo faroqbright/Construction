@@ -10,7 +10,7 @@ const BASE_URL =
 
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
-    method: method.toLowerCase(), // Normalize method to lowercase
+    method: method.toLowerCase(),
     url: `${BASE_URL}${url}`, // Dynamically set base URL
     headers: {
       Authorization: `Bearer ${token}`,
