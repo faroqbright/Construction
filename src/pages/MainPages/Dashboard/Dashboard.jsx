@@ -15,14 +15,13 @@ import "../../../utils/i18n";
 const Dashboard = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.userInfo);
-  const user1 = useSelector((state) => state);
+  // const user1 = useSelector((state) => state);
   const token = useSelector((state) => state.auth.userToken);
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
-  console.log(user1);
 
   const {
     control,

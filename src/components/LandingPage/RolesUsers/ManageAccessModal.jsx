@@ -3,7 +3,7 @@ import { Modal, Box, Typography, Checkbox, Button } from "@mui/material";
 import apiRequest from "../../../utils/apiRequest";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import socket from "../../../websockets/socket";
+// import socket from "../../../websockets/socket";
 import { useTranslation } from "react-i18next";
 import "../../../utils/i18n";
 
@@ -130,14 +130,14 @@ export default function ManageAccessModal({ open, onClose, roleId, roleData }) {
     }
   };
 
-  useEffect(() => {
-    socket.on("accessedUpdate", async (accessedUpdate) => {
-      console.log("Role updated:", accessedUpdate);
-    });
-    return () => {
-      socket.off("accessedUpdate");
-    };
-  }, []);
+  // useEffect(() => {
+  //   socket.on("accessedUpdate", async (accessedUpdate) => {
+  //     console.log("Role updated:", accessedUpdate);
+  //   });
+  //   return () => {
+  //     socket.off("accessedUpdate");
+  //   };
+  // }, []);
 
   const handleChange = (type, field) => {
     setAccess((prev) => ({
