@@ -4,14 +4,15 @@ const BASE_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname.includes("vercel.app") ||
   window.location.hostname.includes("netlify.app")
-    // ? "https://constructionbe-production.up.railway.app/api/v1"
     ? "http://localhost:8080/api/v1"
+    : window.location.hostname.includes("techbytech")
+    ? "https://appsoapro.techbytech.tech/backend/api/v1"
     : "https://appsoapro.serveng.ao/backend/api/v1";
 
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   const config = {
     method: method.toLowerCase(),
-    url: `${BASE_URL}${url}`, // Dynamically set base URL
+    url: `${BASE_URL}${url}`,
     headers: {
       Authorization: `Bearer ${token}`,
       ...headers,
@@ -21,12 +22,12 @@ const apiRequest = async (method, url, data = {}, token, headers = {}) => {
   switch (method.toLowerCase()) {
     case "get":
     case "delete":
-      config.params = data; // For GET and DELETE requests, use params
+      config.params = data;
       break;
     case "post":
     case "put":
     case "patch":
-      config.data = data; // For POST, PUT, and PATCH requests, use data
+      config.data = data;
       break;
     default:
       throw new Error(`Unsupported request method: ${method}`);
