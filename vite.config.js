@@ -1,15 +1,21 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+// vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true, // Allow external access (e.g., from network or reverse proxy)
-    port: 5173, // (optional) default is 5173
     hmr: {
-      overlay: false, // Disable error overlay
+      overlay: false,
     },
-    cors: true, // Allow CORS in dev server
+    cors: true,
+    origin: "https://appsoapro.techbytech.tech", // ✅ Your production frontend domain
+    allowedHosts: [
+      "localhost",
+      "127.0.0.1",
+      "appsoapro.techbytech.tech",      // ✅ your current frontend
+      "api.appsoapro.techbytech.tech",  // ✅ your API subdomain
+      "appsoapro.serveng.ao",           // ✅ old domain preserved
+    ],
   },
 });
