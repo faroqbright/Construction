@@ -14,10 +14,10 @@ const apiRequest = async (method, url, data = {}, token, headers = {}) => {
     method: method.toLowerCase(),
     url: `${BASE_URL}${url}`,
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
-    withCredentials: true, // ✅ Required for cookies in CORS
+    withCredentials: true,
   };
 
   switch (method.toLowerCase()) {
