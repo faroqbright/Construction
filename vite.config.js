@@ -1,13 +1,15 @@
-// vite.config.js
-import { defineConfig } from 'vite';import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: { // Add the server configuration object
+  server: {
+    host: true, // Allow external access (e.g., from network or reverse proxy)
+    port: 5173, // (optional) default is 5173
     hmr: {
-      overlay: false, // Disable the HMR error overlay
+      overlay: false, // Disable error overlay
     },
-    allowedHosts: ["appsoapro.serveng.ao"],
-  },
+    cors: true, // Allow CORS in dev server
+  },
 });
