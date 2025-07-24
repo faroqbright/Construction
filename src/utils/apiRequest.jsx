@@ -17,6 +17,7 @@ const apiRequest = async (method, url, data = {}, token, headers = {}) => {
       Authorization: `Bearer ${token}`,
       ...headers,
     },
+    withCredentials: true, // ✅ Required for cookies in CORS
   };
 
   switch (method.toLowerCase()) {
