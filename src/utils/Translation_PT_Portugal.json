@@ -575,5 +575,6 @@
   "Confirm Password": "Confirme sua senha",
   "Change Password": "Alterar a senha",
   "Team Members is required": "Membros da equipe são necessários",
-  "Client Members is required": "Membros do cliente são necessários"
+  "Client Members is required": "Membros do cliente são necessários",
+  "Invalid credentials": "Credenciais Inválidas"
 }

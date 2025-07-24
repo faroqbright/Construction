@@ -6,7 +6,7 @@ const BASE_URL =
   window.location.hostname.includes("netlify.app")
     ? "http://localhost:8080/api/v1"
     : window.location.hostname.includes("techbytech")
-    ? "https://appsoapro.techbytech.tech/backend/api/v1"
+    ? "https://api.appsoapro.techbytech.tech/api/v1"
     : "https://appsoapro.serveng.ao/backend/api/v1";
 
 const apiRequest = async (method, url, data = {}, token, headers = {}) => {
