@@ -35,9 +35,13 @@ const Login = () => {
   };
 
   const onSubmit = async (values) => {
+  console.log("click")
+
     setLoading(true);
     try {
       const response = await apiRequest("post", "/users/login", values);
+  console.log("dsdsdsds")
+
       console.log(response);
 
       const { data } = response.data;
@@ -84,8 +88,7 @@ const Login = () => {
   return (
     <div className="w-full">
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
-        {/* {t("Login")} */}
-        Testing 
+        {t("Login")}
       </h1>
       <p className="text-gray-600 mb-4 text-base">
         {t("Login_to_access_your_account")}
