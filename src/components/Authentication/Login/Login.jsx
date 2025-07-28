@@ -84,7 +84,8 @@ const Login = () => {
   return (
     <div className="w-full">
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-black">
-        {t("Login")}
+        {/* {t("Login")} */}
+        Testing 
       </h1>
       <p className="text-gray-600 mb-4 text-base">
         {t("Login_to_access_your_account")}
