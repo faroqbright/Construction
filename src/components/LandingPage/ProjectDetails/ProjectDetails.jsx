@@ -353,7 +353,7 @@ const ProjectDetails = () => {
             </div>
             <div>
               <strong className="text-black-blacknew text-base">
-                {t("Project_Status")}:
+                {t("Project_Status")}:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
                 {projectData?.status === "Ongoing"
@@ -592,7 +592,7 @@ const ProjectDetails = () => {
               <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-200 rounded">
                 <img src={logo} alt="" />
                 <span className="font-semibold text-sm mt-4">
-                  No Images yet.
+                  {t("No Images yet.")}
                 </span>
               </div>
             )}
@@ -980,8 +980,8 @@ const ProjectDetails = () => {
                 <span className="text-sm text-black-blacknew">
                   {capitalizeWords(member?.userName)}{" "}
                   {member?.role?.roleName
-                    ? `(${capitalizeWords(member.role.roleName)})`
-                    : `(${capitalizeWords(member?.userType)})`}
+                    ? `(${capitalizeWords(t(member.role.roleName))})`
+                    : `(${capitalizeWords(t(member?.userType))})`}
                 </span>
               </div>
             ))}

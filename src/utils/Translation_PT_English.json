@@ -572,5 +572,11 @@
   "Change Password": "Change Password",
   "Team Members is required": "Team Members is required",
   "Client Members is required": "Client Members is required",
-  "Invalid credentials": "Invalid credentials"  
+  "Invalid credentials": "Invalid credentials",
+  "No_Data_Available": "No Data Available",
+  "No notification settings found.": "No notification settings found.",
+  "No users available.": "No users available.",
+  "Company": "Company",
+  "No Images yet.": "No Images yet."
+
 }

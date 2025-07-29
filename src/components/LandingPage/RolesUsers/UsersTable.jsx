@@ -382,7 +382,7 @@ export default function UsersTable() {
             {currentUsers.length === 0 ? (
               <tr>
                 <td colSpan="7" className="text-center py-4">
-                  No users available.
+                  {t("No users available.")}
                 </td>
               </tr>
             ) : (

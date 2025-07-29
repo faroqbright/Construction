@@ -275,7 +275,7 @@
   "Search_Business_Area": "Seleccionar a Área de Negócio ",
   "Search_Client_Company": "Seleccionar Cliente",
   "View_Change_Log": "Ver Histórico de Alterações",
-  "Pending": "Pendentes",
+  "Pending": "Pendente",
   "Approved": "Aprovados",
   "All_projects": "Todos os Projectos",
   "approved": "Aprovados",
@@ -383,7 +383,7 @@
   "Please check your email to verify!": "Por favor, verifique o seu email para confirmar!",
   "No assigned projects found": "Nenhum projecto atribuído encontrado",
   "Failed to fetch user documents": "Falha ao obter documentos do utilizador",
-  "No changes detected": "Nenhuma alteração detectada",
+  "No changes detected": "Nenhuma alteração feita",
   "Document not found after update": "Documento não encontrado após actualização",
   "Multer error": "Erro na biblioteca Multer",
   "User not found": "Utilizador não encontrado",
@@ -576,5 +576,10 @@
   "Change Password": "Alterar a senha",
   "Team Members is required": "Membros da equipe são necessários",
   "Client Members is required": "Membros do cliente são necessários",
-  "Invalid credentials": "Credenciais Inválidas"
+  "Invalid credentials": "Credenciais Inválidas",
+  "No_Data_Available": "Nenhum dado disponível",
+  "No notification settings found.": "Nenhuma configuração de notificação encontrada.",
+  "No users available.": "Nenhum usuário disponível.",
+  "Company": "Empresa",
+  "No Images yet.": "Ainda não há imagens."
 }

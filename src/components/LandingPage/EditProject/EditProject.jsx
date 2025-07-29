@@ -493,7 +493,7 @@ export default function EditProject() {
         }
         try {
           if (response.status === 200 || response.status === 201) {
-            toast.success(response.data.message);
+            toast.success(t(response.data.message));
           }
         } catch (error) {
           toast.error(t(error.response?.data?.message) || t(error.message));
