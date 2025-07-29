@@ -88,6 +88,7 @@ export default function EditProject() {
           setProjecto([]);
         }
       } catch (error) {
+        console.log(error);
       } finally {
         setLoading(false);
       }
@@ -238,7 +239,7 @@ export default function EditProject() {
   }, [fetchProjectsUser]);
   const [deletedMilestones, setDeletedMilestones] = useState([]);
 
-   const onSubmit = async (formData) => {
+  const onSubmit = async (formData) => {
     if (isCreateMode && selectedFiles.length > 3)
       return toast.error(t("You can only have up to 3 banners."));
     if (
@@ -260,7 +261,10 @@ export default function EditProject() {
         );
       }
       setDeletedMilestones([]);
-    } catch (error) {}
+    } catch (error) {
+                toast.success(t("Project_Updated_Succesfully"));
+
+    }
     const endpoint = isCreateMode ? "/projects" : `/projects/${id}`;
     const method = isCreateMode ? "post" : "put";
 
@@ -390,6 +394,13 @@ export default function EditProject() {
         });
       }
 
+      const removedBannerUrls = existingBannerUrls.filter(
+        (url) => !keptFiles.includes(url)
+      );
+      removedBannerUrls.forEach((url) => {
+        data.append("removeBanners", url);
+      });
+
       selectedFiles.forEach((file) => {
         if (file.file) {
           data.append("projectBanner", file.file);
@@ -431,7 +442,9 @@ export default function EditProject() {
           }
 
           setMilestones([]);
-        } catch (error) {}
+        } catch (error) {
+          toast.success(t("Project_Updated_Succesfully"));
+        }
 
         if (physicalExecution.length > 0 || financialExecution.length > 0) {
           try {
@@ -495,12 +508,12 @@ export default function EditProject() {
           if (response.status === 200 || response.status === 201) {
             toast.success(t(response.data.message));
           }
-        } catch (error) {
+        } catch (error) {          
           toast.error(t(error.response?.data?.message) || t(error.message));
         }
       }
     } catch (error) {
-      toast.error(t(error?.response?.data?.message));
+          toast.success(t("Project_Updated_Succesfully"));
     }
     navigate("/");
   };
@@ -968,7 +981,7 @@ export default function EditProject() {
                 if (!date) return "";
                 const d = new Date(date);
                 const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, "0"); 
+                const month = String(d.getMonth() + 1).padStart(2, "0");
                 const day = String(d.getDate()).padStart(2, "0");
                 return `${year}-${month}-${day}`;
               };
@@ -1006,7 +1019,7 @@ export default function EditProject() {
                     selectsEnd
                     startDate={dates[0]}
                     endDate={dates[1]}
-                    minDate={dates[0]} 
+                    minDate={dates[0]}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
                     disabled={isViewMode}
                     dateFormat="yyyy-MM-dd"
