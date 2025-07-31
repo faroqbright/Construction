@@ -80,10 +80,10 @@ export default function EditProject() {
         const response = await apiRequest("get", "/companies", {}, token);
 
         if (response?.data?.statusCode === 200 && response?.data?.data) {
-          const comapanyName = response.data.data.map(
+          const companyName = response.data.data.map(
             (company) => company.name
           );
-          setProjecto(comapanyName);
+          setProjecto(companyName);
         } else {
           setProjecto([]);
         }
@@ -166,7 +166,7 @@ export default function EditProject() {
           financeDocuments: data.financeDocuments,
           additionalMilestones: data.additionalMilestones,
           businessArea: data.businessAreas,
-          company: data.comapanyName,
+          company: data.companyName,
         });
 
         setValue("projectName", data.projectName);
@@ -177,10 +177,10 @@ export default function EditProject() {
         setValue("projectBanner", data.projectBanner);
         setValue("deadline", data.deadline);
         setValue("businessArea", data.businessAreas);
-        setValue("company", data.comapanyName);
+        setValue("company", data.companyName);
 
         setSelectedbusinessArea(data.businessAreas);
-        setSelectedCompany(data.comapanyName);
+        setSelectedCompany(data.companyName);
 
         if (data.additionalMilestones) {
           setMilestones(
@@ -290,7 +290,7 @@ export default function EditProject() {
       data.append("physicalEducationRange", "100");
       data.append("daysLeft", t("Awaiting_Start"));
       data.append("businessAreas", SelectedbusinessArea);
-      data.append("comapanyName", selectedCompany);
+      data.append("companyName", selectedCompany);
 
       requestData = data;
     } else {
@@ -305,7 +305,7 @@ export default function EditProject() {
         updatedFields.businessAreas = SelectedbusinessArea;
       }
       if (selectedCompany !== initialValues.company) {
-        updatedFields.comapanyName = selectedCompany;
+        updatedFields.companyName = selectedCompany;
       }
       if (formData.status !== initialValues.status) {
         updatedFields.status = formData.status;

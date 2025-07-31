@@ -340,7 +340,7 @@ const ProjectDetails = () => {
                 {t("Client_Company")}:{" "}
               </strong>
               <span className="text-[#54577A] font-bold text-base">
-                {projectData?.comapanyName}
+                {projectData?.companyName}
               </span>
             </div>
             <div>

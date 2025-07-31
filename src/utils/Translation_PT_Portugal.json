@@ -582,5 +582,28 @@
   "No users available.": "Nenhum usuário disponível.",
   "Company": "Empresa",
   "No Images yet.": "Ainda não há imagens.",
-  "Project_Updated_Succesfully": "Projeto Atualizado Com Sucesso."
+  "Project_Updated_Succesfully": "Projeto Atualizado Com Sucesso.",
+  "Approve": "Aprovar",
+  "Reject": "Rejeitar",
+  "Delete_Report": "Eliminar Relatório",
+  "Download_Report": "Download Relatório",
+  "confirm_deletion_title": "Confirmar Eliminação",
+  "confirm_deletion_message": "Tem a certeza de que deseja eliminar permanentemente este relatório? Esta ação não pode ser desfeita.",
+  "confirm": "Confirmar",
+  "cancel": "Cancelar",
+  "report_approved_successfully": "Relatório aprovado com sucesso.",
+  "report_rejected_successfully": "Relatório rejeitado com sucesso.",
+  "report_deleted_successfully": "Relatório eliminado com sucesso.",
+  "report_delete_failed": "Falha ao eliminar o relatório.",
+   "notification_title_project_reports": "Relatórios de Projeto",
+  "notification_desc_project_reports": "Ative a geração e exibição dinâmica de relatórios de projeto com atualizações de dados em tempo real e opções de filtragem flexíveis, garantindo que as partes interessadas sempre visualizem as informações mais atuais e relevantes.",
+  
+  "notification_title_project_updates": "Atualizações de Projeto ao Vivo",
+  "notification_desc_project_updates": "Forneça atualizações de projeto ao vivo com acompanhamento automático de status, destaques de progresso e informações de colaboração em tempo real para manter as equipas alinhadas e informadas em todas as etapas.",
+
+  "notification_title_approval_workflows": "Fluxos de Aprovação em Tempo Real",
+  "notification_desc_approval_workflows": "Facilite fluxos de trabalho de aprovação de projetos em tempo real com atualizações de status instantâneas, notificações automáticas e ações baseadas em funções para agilizar a tomada de decisões e aumentar a transparência.",
+
+  "notification_title_financial_updates": "Atualizações Financeiras",
+  "notification_desc_financial_updates": "Forneça atualizações financeiras em tempo real com painéis dinâmicos, acompanhamento de orçamento e alertas instantâneos para garantir uma tomada de decisão informada e transparência financeira em todos os projetos."
 }

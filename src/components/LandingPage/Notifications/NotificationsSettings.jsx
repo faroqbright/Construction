@@ -40,7 +40,6 @@ const NotificationToggle = ({
   description,
   checked,
   onChange,
-  id,
 }) => {
   return (
     <Box className="flex items-center mb-5 justify-between py-3 border-b bg-white rounded-lg border-gray-100 last:border-b-0 hover:bg-gray-50/50 px-1">
@@ -99,25 +98,27 @@ const NotificationSettings = () => {
 
   const clientsToShow = 3;
 
-  const translatableTitles = {
-    "Project Reports": t("Project Reports"),
-    "Project Updates": t("Project Updates"),
-    "Financial Updates": t("Financial Updates"),
-  };
-
-  const translateDescriptions = {
+  const translationMap = {
     "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information":
-      t(
-        "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information"
-      ),
+      {
+        titleKey: "notification_title_project_reports",
+        descKey: "notification_desc_project_reports",
+      },
+    "Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency.":
+      {
+        titleKey: "notification_title_approval_workflows",
+        descKey: "notification_desc_approval_workflows",
+      },
     "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage.":
-      t(
-        "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage."
-      ),
+      {
+        titleKey: "notification_title_project_updates",
+        descKey: "notification_desc_project_updates",
+      },
     "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects.":
-      t(
-        "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects."
-      ),
+      {
+        titleKey: "notification_title_financial_updates",
+        descKey: "notification_desc_financial_updates",
+      },
   };
 
   const fetchNotifications = useCallback(async () => {
@@ -418,23 +419,27 @@ const NotificationSettings = () => {
             [...notifications]
               .filter((n) => n.title !== "Project Approval")
               .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-              .map((notificationItem) => (
-                <NotificationToggle
-                  key={notificationItem._id}
-                  id={notificationItem._id}
-                  icon={renderIcon()}
-                  title={
-                    translatableTitles[notificationItem.title] ||
-                    notificationItem.title
-                  }
-                  description={
-                    translateDescriptions[notificationItem.description] ||
-                    notificationItem.description
-                  }
-                  checked={notificationItem.status}
-                  onChange={() => handleToggle(notificationItem._id)}
-                />
-              ))
+              .map((notificationItem) => {
+                const mapping = translationMap[notificationItem.title];
+
+                const titleToTranslate = mapping
+                  ? mapping.titleKey
+                  : notificationItem.title;
+                const descToTranslate = mapping
+                  ? mapping.descKey
+                  : notificationItem.description || "";
+
+                return (
+                  <NotificationToggle
+                    key={notificationItem._id}
+                    icon={renderIcon()}
+                    title={t(titleToTranslate)}
+                    description={t(descToTranslate)}
+                    checked={notificationItem.status}
+                    onChange={() => handleToggle(notificationItem._id)}
+                  />
+                );
+              })
           )}
         </Box>
       </Box>

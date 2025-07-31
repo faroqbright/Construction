@@ -458,7 +458,7 @@
   "No changes detected. Project remains the same.": "No changes detected. Project remains the same.",
   "Failed to update project after changes.": "Failed to update project after changes.",
   "Project updated successfully": "Project updated successfully",
-  "Projects retrieved successfully": "Projects retrieved successfully", 
+  "Projects retrieved successfully": "Projects retrieved successfully",
   "You don't have permission to access this project": "You don't have permission to access this project",
   "Project retrieved successfully": "Project retrieved successfully",
   "Failed to retrieve project": "Failed to retrieve project",
@@ -469,7 +469,7 @@
   "Company not found. Please enter a valid company name.": "Company not found. Please enter a valid company name.",
   "Invalid userType.": "Invalid userType.",
   "Company not found.": "Company not found.",
-  "Company name is required.":"Company name is required.",
+  "Company name is required.": "Company name is required.",
   "Company Name already exists": "Company Name already exists",
   "Company created successfully": "Company created successfully",
   "All companies fetched successfully": "All companies fetched successfully",
@@ -578,6 +578,28 @@
   "No users available.": "No users available.",
   "Company": "Company",
   "No Images yet.": "No Images yet.",
-  "Project_Updated_Succesfully": "Project Updated Successfully."
+  "Project_Updated_Succesfully": "Project Updated Successfully.",
+  "Approve": "Approve",
+  "Reject": "Reject",
+  "Delete_Report": "Delete Report",
+  "Download_Report": "Download Report",
+  "confirm_deletion_title": "Confirm Deletion",
+  "confirm_deletion_message": "Are you sure you want to permanently delete this report? This action cannot be undone.",
+  "confirm": "Confirm",
+  "cancel": "Cancel",
+  "report_approved_successfully": "Report approved successfully.",
+  "report_rejected_successfully": "Report rejected successfully.",
+  "report_deleted_successfully": "Report deleted successfully.",
+  "report_delete_failed": "Failed to delete report.",
+   "notification_title_project_reports": "Project Reports",
+  "notification_desc_project_reports": "Enable dynamic generation and display of project reports with real-time data updates and flexible filtering options, ensuring stakeholders always view the most current and relevant information.",
+  
+  "notification_title_project_updates": "Project Updates",
+  "notification_desc_project_updates": "Deliver live project updates with automatic status tracking, progress highlights, and real-time collaboration insights to keep teams aligned and informed at every stage.",
 
+  "notification_title_approval_workflows": "Real-Time Approval Workflows",
+  "notification_desc_approval_workflows": "Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency.",
+
+  "notification_title_financial_updates": "Financial Updates",
+  "notification_desc_financial_updates": "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects."
 }
