@@ -9,7 +9,7 @@ export default defineConfig({
       overlay: false,
     },
     cors: true,
-    origin: "https://appsoapro.techbytech.tech", // ✅ Your production frontend domain
+    // origin: "https://appsoapro.techbytech.tech", // ✅ Your production frontend domain
     allowedHosts: [
       "localhost",
       "127.0.0.1",

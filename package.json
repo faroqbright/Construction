@@ -18,6 +18,7 @@
     "@mui/x-date-pickers-pro": "^7.22.3",
     "@reduxjs/toolkit": "^2.4.0",
     "axios": "^1.7.9",
+    "caniuse-lite": "^1.0.30001731",
     "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",
     "firebase": "^11.6.1",
