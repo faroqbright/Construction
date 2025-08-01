@@ -4,7 +4,7 @@ const BASE_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname.includes("vercel.app") ||
   window.location.hostname.includes("netlify.app")
-    ? "http://localhost:8081/api/v1"
+    ? "http://localhost:8080/api/v1"
     : window.location.hostname.includes("techbytech")
     ? "https://api.appsoapro.techbytech.tech/api/v1"
     : "https://appsoapro.serveng.ao/backend/api/v1";
