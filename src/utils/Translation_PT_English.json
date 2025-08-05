@@ -562,7 +562,7 @@
   "Change Your Password": "Change Your Password",
   "password": "password",
   "Password is required": "Password is required",
-  "Minimum 6 characters": "Minimum 6 characters",
+  "Minimum 8 characters": "Minimum 8 characters",
   "Maximum 8 characters": "Maximum 8 characters",
   "text": "text",
   "confirmPassword": "confirmPassword",

@@ -106,7 +106,7 @@ export default function UsersTable() {
         setCurrentUser({
           userName: response.data.data.userName,
           _id: response.data.data._id,
-          // phoneNumber: response.data.data.phoneNumber,
+          phoneNumber: response.data.data.phoneNumber,
           email: response.data.data.email,
           role: response.data.data.role?._id,
           status: response.data.data.status,

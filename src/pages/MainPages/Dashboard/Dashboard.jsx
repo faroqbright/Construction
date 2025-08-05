@@ -92,8 +92,7 @@ const Dashboard = () => {
                 defaultValue=""
                 rules={{
                   required: t("Password is required"),
-                  minLength: { value: 6, message: t("Minimum 6 characters") },
-                  maxLength: { value: 8, message: t("Maximum 8 characters") },
+                  minLength: { value: 8, message: t("Minimum 8 characters") },
                 }}
                 render={({ field }) => (
                   <TextField
