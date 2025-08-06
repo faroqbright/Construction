@@ -374,7 +374,7 @@ const ProjectDetails = () => {
           </h3>
           <div className="flex gap-3 flex-wrap">
             {projectData?.projectReports
-              ?.filter((doc) => doc.status === t("approved"))
+              ?.filter((doc) => doc.status === "approved")
               .map((doc, index) => (
                 <div
                   key={index}
@@ -419,7 +419,7 @@ const ProjectDetails = () => {
             <div className="relative w-full h-2 bg-gray-200 rounded-full">
               <div
                 className={`absolute top-0 left-0 h-2 rounded-full ${
-                  projectData?.status === t("Completed")
+                  projectData?.status === "Completed"
                     ? "bg-red-500"
                     : "bg-red-500"
                 }`}
@@ -1011,7 +1011,7 @@ const ProjectDetails = () => {
         </div>
 
         <div className="flex justify-end gap-5 pr-6 pb-6">
-          {projectData?.status !== t("Completed") ? (
+          {projectData?.status !== "Completed" ? (
             <button
               onClick={() => navigate(`/details/edit/${projectData?._id}`)}
               className="px-5 py-2 bg-black-blacknew text-white rounded-md"

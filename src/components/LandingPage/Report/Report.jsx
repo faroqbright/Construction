@@ -18,7 +18,6 @@ import {
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useSelector } from "react-redux";
@@ -27,7 +26,6 @@ import { CheckCircle, XCircle, Trash2, MoreVertical } from "lucide-react";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { t } from "i18next";
 import ConfirmationModal from "../../../components/ConfirmationModal";
 
 const RAW_TAB_VALUES = {
@@ -37,12 +35,11 @@ const RAW_TAB_VALUES = {
   REJECTED: "rejected",
 };
 
-const TAB_I18N_KEYS = {
-  [RAW_TAB_VALUES.ALL]: t("tab_all_projects"),
-  [RAW_TAB_VALUES.PENDING]: t("tab_pending"),
-  [RAW_TAB_VALUES.APPROVED]: t("tab_approved"),
-  [RAW_TAB_VALUES.REJECTED]: t("tab_rejected"),
-  STATUS_NO_REPORT: "status_no_report",
+const TAB_TRANSLATION_KEYS = {
+  [RAW_TAB_VALUES.ALL]: "tab_all_projects",
+  [RAW_TAB_VALUES.PENDING]: "tab_pending",
+  [RAW_TAB_VALUES.APPROVED]: "tab_approved",
+  [RAW_TAB_VALUES.REJECTED]: "tab_rejected",
 };
 
 export default function Report() {
@@ -51,6 +48,7 @@ export default function Report() {
   const { t } = useTranslation();
   const token = useSelector((state) => state.auth.userToken);
   const [searchQuery, setSearchQuery] = useState("");
+
   const getInitialTab = () => {
     const queryParams = new URLSearchParams(location.search);
     const tabFromUrl = queryParams.get("tab");
@@ -58,26 +56,25 @@ export default function Report() {
       ? tabFromUrl
       : RAW_TAB_VALUES.ALL;
   };
+
   const [selectedTab, setSelectedTab] = useState(getInitialTab());
   const [page, setPage] = useState(1);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState("Chronological");
   const [selectedMonth, setSelectedMonth] = useState(null);
-
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentDoc, setCurrentDoc] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabFromUrl = params.get("tab");
-    const targetTab =
-      tabFromUrl && Object.values(RAW_TAB_VALUES).includes(tabFromUrl)
-        ? tabFromUrl
-        : RAW_TAB_VALUES.ALL;
-    setSelectedTab(targetTab);
+    if (tabFromUrl && Object.values(RAW_TAB_VALUES).includes(tabFromUrl)) {
+      setSelectedTab(tabFromUrl);
+    } else {
+      setSelectedTab(RAW_TAB_VALUES.ALL);
+    }
   }, [location.search]);
 
   useEffect(() => {
@@ -116,6 +113,7 @@ export default function Report() {
 
   const handleViewDashboard = () => navigate("/");
   const recordsPerPage = 10;
+  
   const handleTabChange = (tabValue) => {
     setPage(1);
     setSelectedTab(tabValue);
@@ -139,7 +137,7 @@ export default function Report() {
         documents.filter((doc) => {
           const matchesTab =
             selectedTab === RAW_TAB_VALUES.ALL ||
-            doc.status?.toLowerCase() === selectedTab.toLowerCase();
+            doc.status?.toLowerCase() === selectedTab;
           const matchesMonth =
             !selectedMonth ||
             (doc.uploadedAt &&
@@ -194,16 +192,16 @@ export default function Report() {
       setDocuments(originalDocuments);
       toast.error(t("report_delete_failed"));
     }
+    setModalOpen(false);
   };
 
   const handleSortChange = (e) => setSortOption(e.target.value);
 
   const getDisplayStatus = (status) => {
-    if (!status) return t(TAB_I18N_KEYS.STATUS_NO_REPORT);
-    const key = Object.keys(RAW_TAB_VALUES).find(
-      (k) => RAW_TAB_VALUES[k] === status.toLowerCase()
-    );
-    return key ? t(TAB_I18N_KEYS[status.toLowerCase()]) : status;
+    if (!status) return t("status_no_report");
+    const lowerStatus = status.toLowerCase();
+    const translationKey = TAB_TRANSLATION_KEYS[lowerStatus];
+    return translationKey ? t(translationKey) : status;
   };
 
   return (
@@ -287,7 +285,7 @@ export default function Report() {
         {Object.values(RAW_TAB_VALUES).map((tabValue) => (
           <Chip
             key={tabValue}
-            label={t(TAB_I18N_KEYS[tabValue])}
+            label={t(TAB_TRANSLATION_KEYS[tabValue])}
             onClick={() => handleTabChange(tabValue)}
             sx={{
               py: 3, px: 3, borderRadius: "9999px",
@@ -335,7 +333,7 @@ export default function Report() {
                     <td className="p-5"></td>
                     <td className="p-4 font-semibold">{doc.projName || "-"}</td>
                     <td className="p-4 font-normal">
-                      {doc.fileName ? doc.fileName.length > 20 ? `${doc.fileName.substring(0, 18)}...${doc.fileName.slice(-4)}` : doc.fileName : <span className="text-gray-400 italic">{t(TAB_I18N_KEYS.STATUS_NO_REPORT)}</span>}
+                      {doc.fileName ? doc.fileName.length > 20 ? `${doc.fileName.substring(0, 18)}...${doc.fileName.slice(-4)}` : doc.fileName : <span className="text-gray-400 italic">{t("status_no_report")}</span>}
                     </td>
                     <td className="p-4">{getDisplayStatus(doc.status)}</td>
                     <td className="p-4">
@@ -374,17 +372,17 @@ export default function Report() {
           <Typography variant="inherit">{t("Delete_Report")}</Typography>
         </MenuItem>
       </Menu>
-      {currentDoc && (
-        <ConfirmationModal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onConfirm={handleDeleteReport}
-          title={t("confirm_deletion_title")}
-          message={t("confirm_deletion_message")}
-          confirmText={t("confirm")}
-          cancelText={t("cancel")}
-        />
-      )}
+      
+      <ConfirmationModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleDeleteReport}
+        title={t("confirm_deletion_title")}
+        message={t("confirm_deletion_message")}
+        confirmText={t("confirm")}
+        cancelText={t("cancel")}
+      />
+      
       {filteredDocuments.length > recordsPerPage && (
         <div className="flex justify-end items-center mt-4">
           <Pagination

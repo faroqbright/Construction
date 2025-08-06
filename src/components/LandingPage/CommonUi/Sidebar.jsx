@@ -9,7 +9,6 @@ import group from "../../../assets/Group.png";
 import client from "../../../assets/client.png";
 import message from "../../../assets/message.png";
 import users from "../../../assets/user.png";
-import document from "../../../assets/solar_document-linear.png";
 import solar from "../../../assets/solar_user-broken.png";
 import dash from "../../../assets/category-2.png";
 import report from "../../../assets/iconoir_reports.png";
@@ -17,7 +16,6 @@ import building from "../../../assets/building-2.png";
 import { useSelector } from "react-redux";
 import "../../../utils/i18n";
 import { useTranslation } from "react-i18next";
-import milestone from "../../../assets/milestone.png";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [reportDropdown, setReportDropdown] = useState(false);
@@ -62,13 +60,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           {
             icon: report,
             label: t("Reports"),
-            to: "/report?tab=All%20Projects",
+            to: "/report?tab=all",
             module: "ReportsManagement",
             isDropdown: true,
             dropdownItems: [
-              { label: t("Pending_Reports"), to: "/report?tab=Pending" },
-              { label: t("Approved_Reports"), to: "/report?tab=Approved" },
-              { label: t("Rejected_Reports"), to: "/report?tab=Rejected" },
+              { label: t("Pending_Reports"), to: "/report?tab=pending" },
+              { label: t("Approved_Reports"), to: "/report?tab=approved" },
+              { label: t("Rejected_Reports"), to: "/report?tab=rejected" },
             ],
           },
         ]
