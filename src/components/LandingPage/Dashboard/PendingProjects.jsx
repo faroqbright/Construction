@@ -47,8 +47,7 @@ const PendingProjects = () => {
       if (response.data && response.data.data.projects) {
         setDatas(response.data.data.projects);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }, [token]);
 
   const fetchDocuments = useCallback(async () => {
@@ -61,8 +60,7 @@ const PendingProjects = () => {
         );
         setDocuments(approvedDocuments);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }, [token]);
 
   const fetchCompletedProjects = useCallback(async () => {
@@ -82,8 +80,7 @@ const PendingProjects = () => {
       if (response.data && response.data.data.projects) {
         setcompleted(response.data.data.projects);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }, [token]);
 
   const [ongoing, setongoing] = useState([]);
@@ -105,8 +102,7 @@ const PendingProjects = () => {
       if (response.data && response.data.data.projects) {
         setongoing(response.data.data.projects);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }, [token]);
 
   useEffect(() => {
@@ -160,45 +156,24 @@ const PendingProjects = () => {
       },
     ],
   };
-  const sliderRefProjects = useRef(null);
-  const sliderRefReportsTwo = useRef(null);
-  const sliderRefReportsThree = useRef(null);
 
-  const handlePrevClickProjects = () => {
-    if (sliderRefProjects.current) {
-      sliderRefProjects.current.slickPrev();
-    }
-  };
+  const sliderRefOngoing = useRef(null);
+  const sliderRefReports = useRef(null);
+  const sliderRefPending = useRef(null);
+  const sliderRefCompleted = useRef(null);
 
-  const handlePrevClickProjectsTwo = () => {
-    if (sliderRefReportsTwo.current) {
-      sliderRefReportsTwo.current.slickPrev();
-    }
-  };
+  const handlePrevClickOngoing = () => sliderRefOngoing.current?.slickPrev();
+  const handleNextClickOngoing = () => sliderRefOngoing.current?.slickNext();
 
-  const handlePrevClickProjectsThree = () => {
-    if (sliderRefReportsThree.current) {
-      sliderRefReportsThree.current.slickPrev();
-    }
-  };
+  const handlePrevClickReports = () => sliderRefReports.current?.slickPrev();
+  const handleNextClickReports = () => sliderRefReports.current?.slickNext();
 
-  const handleNextClickProjects = () => {
-    if (sliderRefProjects.current) {
-      sliderRefProjects.current.slickNext();
-    }
-  };
+  const handlePrevClickPending = () => sliderRefPending.current?.slickPrev();
+  const handleNextClickPending = () => sliderRefPending.current?.slickNext();
 
-  const handleNextClickProjectsTwo = () => {
-    if (sliderRefReportsTwo.current) {
-      sliderRefReportsTwo.current.slickNext();
-    }
-  };
+  const handlePrevClickCompleted = () => sliderRefCompleted.current?.slickPrev();
+  const handleNextClickCompleted = () => sliderRefCompleted.current?.slickNext();
 
-  const handleNextClickProjectsThree = () => {
-    if (sliderRefReportsThree.current) {
-      sliderRefReportsThree.current.slickNext();
-    }
-  };
 
   const handleViewProjectClick = (id) => {
     navigate(`/details/${id}`);
@@ -215,6 +190,8 @@ const PendingProjects = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setSelectedProjectId(null);
+    setModalDocuments([]);
   };
 
   const fetchProjectByID = useCallback(
@@ -231,7 +208,7 @@ const PendingProjects = () => {
           setModalDocuments(data.documents);
         }
       } catch (error) {
-        setError("Error fetching project data");
+        console.error("Error fetching project data:", error);
       }
     },
     [token]
@@ -257,7 +234,6 @@ const PendingProjects = () => {
   return (
     <>
       <div className="px-4 py-6 pl-8">
-
         <div className="w-full max-w-7xl ">
           <div className="h-full slider-container">
             <header className="mb-6 flex justify-between">
@@ -266,7 +242,7 @@ const PendingProjects = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickProjects}
+                  onClick={handlePrevClickOngoing}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -275,7 +251,7 @@ const PendingProjects = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickProjects}
+                  onClick={handleNextClickOngoing}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -284,13 +260,13 @@ const PendingProjects = () => {
             </header>
 
             <div className="slider-container  ">
-              <Slider ref={sliderRefProjects} {...settings}>
+              <Slider ref={sliderRefOngoing} {...settings}>
                 {ongoing.length > 0 ? (
-                  ongoing?.map((project, index) => (
+                  ongoing?.map((project) => (
                     <div
                       key={project._id}
                       className="bg-white rounded-lg justify-between w-full p-4 flex flex-col"
-                      style={{ marginLeft: project ? "50px" : "0px" }}
+                      style={{ marginLeft: "50px" }}
                     >
                       {project.projectBanner?.length > 0 ? (
                         <Swiper
@@ -421,99 +397,6 @@ const PendingProjects = () => {
                           >
                             {t("deliverables_attached")}
                           </button>
-
-                          <Modal
-                            open={isModalOpen}
-                            onClose={closeModal}
-                            aria-labelledby="modal-modal-title"
-                            aria-describedby="modal-modal-description"
-                          >
-                            <Box
-                              sx={{
-                                ...modalStyle,
-                                borderRadius: "16px",
-                                height: "470px",
-                                display: "flex",
-                                flexDirection: "column",
-                                padding: "24px",
-                              }}
-                            >
-                              <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-semibold text-black-blacknew">
-                                  {t("Deliverables_Attached")}
-                                </h2>
-                                <button
-                                  onClick={closeModal}
-                                  className="text-black-blacknew font-bold hover:text-gray-700 focus:outline-none"
-                                  aria-label="Close"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                              <div className="mt-4 flex-grow scrollbar-custom">
-                                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
-                                  {t("Attached_Documents")}
-                                </h3>
-                                {modalDocuments && modalDocuments.length > 0 ? (
-                                  <ul className="space-y-4">
-                                    {modalDocuments.map((file, index) => (
-                                      <li
-                                        key={index}
-                                        className="flex items-start bg-gray-100 p-3 rounded-lg"
-                                      >
-                                        <div className="w-14 h-14 flex items-center justify-center bg-gray-200 rounded-lg">
-                                          <img
-                                            src={pdf}
-                                            alt="PDF Icon"
-                                            className="w-10 h-10"
-                                          />
-                                        </div>
-                                        <div className="ml-3 flex-1">
-                                          <p className="text-sm font-semibold text-gray-700">
-                                            {file.fileName}
-                                          </p>
-                                          <p className="text-xs text-gray-500 mt-1">
-                                            Uploaded by: {file.user}
-                                          </p>
-                                        </div>
-                                        <a
-                                          href={file.fileUrl}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-sm text-blue-500 hover:text-blue-700"
-                                        >
-                                          <Button
-                                            startIcon={
-                                              <MdOutlineFileDownload
-                                                size={40}
-                                              />
-                                            }
-                                            sx={{
-                                              textTransform: "none",
-                                              color: "#121619",
-                                            }}
-                                          ></Button>
-                                        </a>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                ) : (
-                                  <p className="text-gray-500">
-                                    {t("No_files_attached")}
-                                  </p>
-                                )}
-                              </div>
-
-                              <div className="flex justify-between mt-4 w-full">
-                                <button
-                                  onClick={closeModal}
-                                  className="px-4 py-3 w-full ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
-                                >
-                                  {t("Cancel")}
-                                </button>
-                              </div>
-                            </Box>
-                          </Modal>
                         </div>
                       </div>
                     </div>
@@ -525,6 +408,99 @@ const PendingProjects = () => {
             </div>
           </div>
         </div>
+        
+        <Modal
+          open={isModalOpen}
+          onClose={closeModal}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box
+            sx={{
+              ...modalStyle,
+              borderRadius: "16px",
+              height: "470px",
+              display: "flex",
+              flexDirection: "column",
+              padding: "24px",
+            }}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-black-blacknew">
+                {t("Deliverables_Attached")}
+              </h2>
+              <button
+                onClick={closeModal}
+                className="text-black-blacknew font-bold hover:text-gray-700 focus:outline-none"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mt-4 flex-grow scrollbar-custom overflow-y-auto">
+              <h3 className="block text-sm font-semibold mb-4 text-gray-700">
+                {t("Attached_Documents")}
+              </h3>
+              {modalDocuments && modalDocuments.length > 0 ? (
+                <ul className="space-y-4">
+                  {modalDocuments.map((file, index) => (
+                    <li
+                      key={index}
+                      className="flex items-start bg-gray-100 p-3 rounded-lg"
+                    >
+                      <div className="w-14 h-14 flex items-center justify-center bg-gray-200 rounded-lg">
+                        <img
+                          src={pdf}
+                          alt="PDF Icon"
+                          className="w-10 h-10"
+                        />
+                      </div>
+                      <div className="ml-3 flex-1">
+                        <p className="text-sm font-semibold text-gray-700">
+                          {file.fileName}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Uploaded by: {file.user}
+                        </p>
+                      </div>
+                      <a
+                        href={file.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        <Button
+                          startIcon={
+                            <MdOutlineFileDownload
+                              size={40}
+                            />
+                          }
+                          sx={{
+                            textTransform: "none",
+                            color: "#121619",
+                          }}
+                        ></Button>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500">
+                  {t("No_files_attached")}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-between mt-4 w-full">
+              <button
+                onClick={closeModal}
+                className="px-4 py-3 w-full ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+              >
+                {t("Cancel")}
+              </button>
+            </div>
+          </Box>
+        </Modal>
 
         <section className="w-full flex justify-between gap-6 mt-14 flex-col">
           <header className="mb-6 flex justify-between">
@@ -533,7 +509,7 @@ const PendingProjects = () => {
             </h2>
             <div className="flex">
               <button
-                onClick={handlePrevClickProjectsTwo}
+                onClick={handlePrevClickReports}
                 className="p-1 rounded-full"
               >
                 <GrFormPrevious
@@ -542,7 +518,7 @@ const PendingProjects = () => {
                 />
               </button>
               <button
-                onClick={handleNextClickProjectsTwo}
+                onClick={handleNextClickReports}
                 className="p-1 rounded-full"
               >
                 <GrFormNext className="slick-arrow" size={18} />
@@ -550,7 +526,7 @@ const PendingProjects = () => {
             </div>
           </header>
           {documents.length > 0 ? (
-            <Slider ref={sliderRefReportsTwo} {...settings} className="w-full">
+            <Slider ref={sliderRefReports} {...settings} className="w-full">
               {documents.map((doc) => (
                 <div
                   key={doc._id}
@@ -607,7 +583,7 @@ const PendingProjects = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickProjects}
+                  onClick={handlePrevClickPending}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -616,7 +592,7 @@ const PendingProjects = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickProjects}
+                  onClick={handleNextClickPending}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -625,13 +601,13 @@ const PendingProjects = () => {
             </header>
 
             <div className="slider-container  ">
-              <Slider ref={sliderRefProjects} {...settings}>
+              <Slider ref={sliderRefPending} {...settings}>
                 {datas.length > 0 ? (
-                  datas?.map((project, index) => (
+                  datas?.map((project) => (
                     <div
                       key={project._id}
                       className="bg-white rounded-lg justify-between w-full p-4 flex flex-col"
-                      style={{ marginLeft: project ? "50px" : "0px" }}
+                      style={{ marginLeft: "50px" }}
                     >
                       {project.projectBanner?.length > 0 ? (
                         <Swiper
@@ -762,100 +738,6 @@ const PendingProjects = () => {
                           >
                             {t("deliverables_attached")}
                           </button>
-
-                          {/* Modal */}
-                          <Modal
-                            open={isModalOpen}
-                            onClose={closeModal}
-                            aria-labelledby="modal-modal-title"
-                            aria-describedby="modal-modal-description"
-                          >
-                            <Box
-                              sx={{
-                                ...modalStyle,
-                                borderRadius: "16px",
-                                height: "470px",
-                                display: "flex",
-                                flexDirection: "column",
-                                padding: "24px",
-                              }}
-                            >
-                              <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-semibold text-black-blacknew">
-                                  {t("Deliverables_Attached")}
-                                </h2>
-                                <button
-                                  onClick={closeModal}
-                                  className="text-black-blacknew font-bold hover:text-gray-700 focus:outline-none"
-                                  aria-label="Close"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                              <div className="mt-4 flex-grow scrollbar-custom">
-                                <h3 className="block text-sm font-semibold mb-4 text-gray-700">
-                                  {t("Attached_Documents")}
-                                </h3>
-                                {modalDocuments && modalDocuments.length > 0 ? (
-                                  <ul className="space-y-4">
-                                    {modalDocuments.map((file, index) => (
-                                      <li
-                                        key={index}
-                                        className="flex items-start bg-gray-100 p-3 rounded-lg"
-                                      >
-                                        <div className="w-14 h-14 flex items-center justify-center bg-gray-200 rounded-lg">
-                                          <img
-                                            src={pdf}
-                                            alt="PDF Icon"
-                                            className="w-10 h-10"
-                                          />
-                                        </div>
-                                        <div className="ml-3 flex-1">
-                                          <p className="text-sm font-semibold text-gray-700">
-                                            {file.fileName}
-                                          </p>
-                                          <p className="text-xs text-gray-500 mt-1">
-                                            Uploaded by: {file.user}
-                                          </p>
-                                        </div>
-                                        <a
-                                          href={file.fileUrl}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-sm text-blue-500 hover:text-blue-700"
-                                        >
-                                          <Button
-                                            startIcon={
-                                              <MdOutlineFileDownload
-                                                size={40}
-                                              />
-                                            }
-                                            sx={{
-                                              textTransform: "none",
-                                              color: "#121619",
-                                            }}
-                                          ></Button>
-                                        </a>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                ) : (
-                                  <p className="text-gray-500">
-                                    {t("No_files_attached")}
-                                  </p>
-                                )}
-                              </div>
-
-                              <div className="flex justify-between mt-4 w-full">
-                                <button
-                                  onClick={closeModal}
-                                  className="px-4 py-3 w-full ml-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
-                                >
-                                  {t("Cancel")}
-                                </button>
-                              </div>
-                            </Box>
-                          </Modal>
                         </div>
                       </div>
                     </div>
@@ -876,7 +758,7 @@ const PendingProjects = () => {
               </h2>
               <div className="flex">
                 <button
-                  onClick={handlePrevClickProjectsThree}
+                  onClick={handlePrevClickCompleted}
                   className="p-1 rounded-full"
                 >
                   <GrFormPrevious
@@ -885,7 +767,7 @@ const PendingProjects = () => {
                   />
                 </button>
                 <button
-                  onClick={handleNextClickProjectsThree}
+                  onClick={handleNextClickCompleted}
                   className="p-1 rounded-full"
                 >
                   <GrFormNext className="slick-arrow" size={18} />
@@ -894,9 +776,9 @@ const PendingProjects = () => {
             </header>
 
             <div className="slider-container ">
-              <Slider ref={sliderRefReportsThree} {...settings}>
+              <Slider ref={sliderRefCompleted} {...settings}>
                 {completed.length > 0 ? (
-                  completed?.map((project, index) => (
+                  completed?.map((project) => (
                     <div
                       key={project._id}
                       className="bg-white rounded-lg cursor-pointer shadow-lg p-4 flex flex-col "

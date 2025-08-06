@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
-  Checkbox,
   Pagination,
   PaginationItem,
   Modal,
@@ -77,6 +76,8 @@ const ProductionClientList = () => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         password: "",
+        userType: user.userType,
+        companyName: user.companyName,
       });
     } else {
       setFormData({
@@ -84,6 +85,8 @@ const ProductionClientList = () => {
         email: "",
         phoneNumber: "",
         password: "",
+        userType: "Production",
+        companyName: "",
       });
     }
     setOpen(true);
@@ -111,11 +114,7 @@ const ProductionClientList = () => {
   };
 
   const handleAdd = async () => {
-    if (
-      !formData.userName.trim() ||
-      !formData.email.trim() 
-      // !formData.phoneNumber.trim()
-    ) {
+    if (!formData.userName.trim() || !formData.email.trim()) {
       toast.error(t("All fields are required."));
       return;
     }
@@ -123,7 +122,10 @@ const ProductionClientList = () => {
       const response = await apiRequest("post", "/clients", formData, token);
 
       if (response.data.statusCode === 201) {
-        toast.success(t(response.data.message));
+        const password = response.data.data.generatedPassword;
+        toast.success(
+          `${t(response.data.message)} Password: ${password}`
+        );
         fetchUsers();
         handleClose();
       } else {
@@ -209,7 +211,6 @@ const ProductionClientList = () => {
           setProjecto(response?.data?.data || []);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
@@ -247,13 +248,10 @@ const ProductionClientList = () => {
           <table className="min-w-full text-sm text-left border border-gray-200">
             <thead>
               <tr>
-                <th className="p-4 border-b">
-                  {/* <Checkbox /> */}
-                </th>
+                <th className="p-4 border-b"></th>
                 <th className="p-4 border-b">{t("User_Name")}</th>
                 <th className="p-4 border-b">{t("Email")}</th>
                 <th className="p-4 border-b">{t("Company_Name")}</th>
-                {/* <th className="p-4 border-b">{t("Phone_Number")}</th> */}
                 <th className="p-4 border-b">{t("Role")}</th>
                 <th className="p-4 border-b">{t("Status")}</th>
                 {(hasCLientUpdatePermission || hasCLientDeletePermission) && (
@@ -266,9 +264,7 @@ const ProductionClientList = () => {
                 .filter((user) => user.userType === "Production")
                 .map((user, idx) => (
                   <tr key={user._id} className="hover:bg-gray-50">
-                    <td className="p-4">
-                      {/* <Checkbox /> */}
-                    </td>
+                    <td className="p-4"></td>
                     <td className="p-4">
                       {user.userName
                         .split(" ")
@@ -280,7 +276,6 @@ const ProductionClientList = () => {
 
                     <td className="p-4">{user.email}</td>
                     <td className="p-4">{user.companyName}</td>
-                    {/* <td className="p-4">{user.phoneNumber}</td> */}
                     <td className="p-4">{t(user.userType)}</td>
                     <td className="p-4">
                       <span
@@ -403,22 +398,11 @@ const ProductionClientList = () => {
                 setFormData({ ...formData, email: e.target.value })
               }
             />
-            {/* <TextField
-              label={t("Phone_Number")}
-              variant="outlined"
-              fullWidth
-              placeholder={t("Enter_User_Phone_Number")}
-              value={formData?.phoneNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, phoneNumber: e.target.value })
-              }
-            /> */}
 
-            {/* Choose User Type Dropdown */}
             <FormControl fullWidth variant="outlined">
               <InputLabel>{t("Choose_User_Type")}</InputLabel>
               <Select
-                value={formData?.userType || editData?.userType || ""}
+                value={formData?.userType || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, userType: e.target.value })
                 }
@@ -431,7 +415,7 @@ const ProductionClientList = () => {
             <FormControl fullWidth variant="outlined">
               <InputLabel>{t("Choose_Company")}</InputLabel>
               <Select
-                value={formData?.companyName || editData?.companyName || ""}
+                value={formData?.companyName || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, companyName: e.target.value })
                 }
@@ -448,21 +432,6 @@ const ProductionClientList = () => {
                 )}
               </Select>
             </FormControl>
-
-            {/* Conditionally render the password field */}
-            {/* {!editData && (
-              <TextField
-                label={t("Password")}
-                variant="outlined"
-                fullWidth
-                placeholder={t("Enter_Your_Password")}
-                type="password"
-                value={formData?.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-              />
-            )} */}
 
             <div className="flex justify-end space-x-2">
               <Button
