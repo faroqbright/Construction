@@ -143,6 +143,7 @@
   "delete": "Delete",
   "Access": "Access",
   "All_Users": "All Users",
+  "Activo": "Active",
   "Document_Details": "Document Details",
   "User_Name": "User Name",
   "Email": "Email",
@@ -601,5 +602,13 @@
   "notification_desc_approval_workflows": "Facilitate real-time project approval workflows with instant status updates, automated notifications, and role-based actions to streamline decision-making and enhance transparency.",
 
   "notification_title_financial_updates": "Financial Updates",
-  "notification_desc_financial_updates": "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects."
+  "notification_desc_financial_updates": "Provide real-time financial updates with dynamic dashboards, budget tracking, and instant alerts to ensure informed decision-making and financial transparency across projects.",
+   "error_password_required": "Password is required",
+  "error_confirm_password_required": "Confirm Password is required",
+  "error_passwords_no_match": "Passwords do not match",
+  "error_password_min_length": "Password must be at least 8 characters long",
+  "error_password_uppercase": "Password must contain at least one uppercase letter",
+  "error_password_lowercase": "Password must contain at least one lowercase letter",
+  "error_password_number": "Password must contain at least one number",
+  "error_password_symbol": "Password must contain at least one special character (e.g., !@#$%^&*)"
 }

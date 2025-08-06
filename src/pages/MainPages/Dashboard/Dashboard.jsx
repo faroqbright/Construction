@@ -15,7 +15,6 @@ import "../../../utils/i18n";
 const Dashboard = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.userInfo);
-  // const user1 = useSelector((state) => state);
   const token = useSelector((state) => state.auth.userToken);
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +27,9 @@ const Dashboard = () => {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    mode: "onChange",
+  });
 
   const password = watch("password");
 
@@ -91,8 +92,21 @@ const Dashboard = () => {
                 control={control}
                 defaultValue=""
                 rules={{
-                  required: t("Password is required"),
-                  minLength: { value: 8, message: t("Minimum 8 characters") },
+                  required: t("error_password_required"),
+                  minLength: {
+                    value: 8,
+                    message: t("error_password_min_length"),
+                  },
+                  validate: {
+                    hasUpper: (value) =>
+                      /[A-Z]/.test(value) || t("error_password_uppercase"),
+                    hasLower: (value) =>
+                      /[a-z]/.test(value) || t("error_password_lowercase"),
+                    hasNumber: (value) =>
+                      /\d/.test(value) || t("error_password_number"),
+                    hasSymbol: (value) =>
+                      /[!@#$%^&*]/.test(value) || t("error_password_symbol"),
+                  },
                 }}
                 render={({ field }) => (
                   <TextField
@@ -123,9 +137,9 @@ const Dashboard = () => {
                 control={control}
                 defaultValue=""
                 rules={{
-                  required: t("Confirm Password is required"),
+                  required: t("error_confirm_password_required"),
                   validate: (value) =>
-                    value === password || t("Passwords do not match"),
+                    value === password || t("error_passwords_no_match"),
                 }}
                 render={({ field }) => (
                   <TextField

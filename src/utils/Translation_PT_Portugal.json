@@ -605,5 +605,13 @@
   "notification_desc_approval_workflows": "Facilite fluxos de trabalho de aprovação de projetos em tempo real com atualizações de status instantâneas, notificações automáticas e ações baseadas em funções para agilizar a tomada de decisões e aumentar a transparência.",
 
   "notification_title_financial_updates": "Atualizações Financeiras",
-  "notification_desc_financial_updates": "Forneça atualizações financeiras em tempo real com painéis dinâmicos, acompanhamento de orçamento e alertas instantâneos para garantir uma tomada de decisão informada e transparência financeira em todos os projetos."
+  "notification_desc_financial_updates": "Forneça atualizações financeiras em tempo real com painéis dinâmicos, acompanhamento de orçamento e alertas instantâneos para garantir uma tomada de decisão informada e transparência financeira em todos os projetos.",
+   "error_password_required": "A senha é obrigatória",
+  "error_confirm_password_required": "A confirmação da senha é obrigatória",
+  "error_passwords_no_match": "As senhas não correspondem",
+  "error_password_min_length": "A senha deve ter pelo menos 8 caracteres",
+  "error_password_uppercase": "A senha deve conter pelo menos uma letra maiúscula",
+  "error_password_lowercase": "A senha deve conter pelo menos uma letra minúscula",
+  "error_password_number": "A senha deve conter pelo menos um número",
+  "error_password_symbol": "A senha deve conter pelo menos um caractere especial (ex: !@#$%^&*)"
 }
