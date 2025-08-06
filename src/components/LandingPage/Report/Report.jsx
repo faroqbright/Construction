@@ -14,6 +14,8 @@ import {
   IconButton,
   ListItemIcon,
   Typography,
+  Box,
+  Modal,
 } from "@mui/material";
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineFileDownload } from "react-icons/md";
@@ -26,7 +28,47 @@ import { CheckCircle, XCircle, Trash2, MoreVertical } from "lucide-react";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import ConfirmationModal from "../../../components/ConfirmationModal";
+
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: "8px",
+};
+
+function ConfirmationModal({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText,
+  cancelText,
+}) {
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box sx={modalStyle}>
+        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+          {title}
+        </Typography>
+        <Typography sx={{ mb: 4 }}>{message}</Typography>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={onClose}>
+            {cancelText}
+          </Button>
+          <Button variant="contained" color="error" onClick={onConfirm}>
+            {confirmText}
+          </Button>
+        </Stack>
+      </Box>
+    </Modal>
+  );
+}
 
 const RAW_TAB_VALUES = {
   ALL: "all",
@@ -66,6 +108,7 @@ export default function Report() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentDoc, setCurrentDoc] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -113,7 +156,7 @@ export default function Report() {
 
   const handleViewDashboard = () => navigate("/");
   const recordsPerPage = 10;
-  
+
   const handleTabChange = (tabValue) => {
     setPage(1);
     setSelectedTab(tabValue);
@@ -162,12 +205,19 @@ export default function Report() {
   const handleStatusUpdate = async (docId, newStatus) => {
     const originalDocuments = [...documents];
     setDocuments((prev) =>
-      prev.map((doc) => (doc._id === docId ? { ...doc, status: newStatus } : doc))
+      prev.map((doc) =>
+        doc._id === docId ? { ...doc, status: newStatus } : doc
+      )
     );
     handleMenuClose();
 
     try {
-      await apiRequest("patch", `/documents/${docId}`, { status: newStatus }, token);
+      await apiRequest(
+        "patch",
+        `/documents/${docId}`,
+        { status: newStatus },
+        token
+      );
       if (newStatus === "approved") {
         toast.success(t("report_approved_successfully"));
       } else if (newStatus === "rejected") {
@@ -180,10 +230,13 @@ export default function Report() {
   };
 
   const handleDeleteReport = async () => {
-    if (!currentDoc) return;
-    const docIdToDelete = currentDoc._id;
+    if (!docToDelete) return;
+
+    const docIdToDelete = docToDelete._id;
     const originalDocuments = [...documents];
+
     setDocuments((prev) => prev.filter((doc) => doc._id !== docIdToDelete));
+    setModalOpen(false);
 
     try {
       await apiRequest("delete", `/documents/${docIdToDelete}`, {}, token);
@@ -191,8 +244,9 @@ export default function Report() {
     } catch (error) {
       setDocuments(originalDocuments);
       toast.error(t("report_delete_failed"));
+    } finally {
+      setDocToDelete(null);
     }
-    setModalOpen(false);
   };
 
   const handleSortChange = (e) => setSortOption(e.target.value);
@@ -228,13 +282,17 @@ export default function Report() {
                 <MenuItem
                   value="Chronological"
                   disabled
-                  style={{ display: sortOption !== "Chronological" ? "none" : "flex" }}
+                  style={{
+                    display: sortOption !== "Chronological" ? "none" : "flex",
+                  }}
                 >
                   {t("Sort")}: {t("Chronological")}
                 </MenuItem>
                 <MenuItem
                   value="Chronological"
-                  style={{ display: sortOption === "Chronological" ? "none" : "flex" }}
+                  style={{
+                    display: sortOption === "Chronological" ? "none" : "flex",
+                  }}
                 >
                   {t("Chronological")}
                 </MenuItem>
@@ -281,30 +339,45 @@ export default function Report() {
           />
         </div>
       </div>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} className="mt-4 w-full flex-wrap">
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        className="mt-4 w-full flex-wrap"
+      >
         {Object.values(RAW_TAB_VALUES).map((tabValue) => (
           <Chip
             key={tabValue}
             label={t(TAB_TRANSLATION_KEYS[tabValue])}
             onClick={() => handleTabChange(tabValue)}
             sx={{
-              py: 3, px: 3, borderRadius: "9999px",
+              py: 3,
+              px: 3,
+              borderRadius: "9999px",
               backgroundColor: selectedTab === tabValue ? "#B91724" : "white",
               color: selectedTab === tabValue ? "white" : "black",
               fontWeight: selectedTab === tabValue ? "bold" : "normal",
               cursor: "pointer",
               border: selectedTab !== tabValue ? "1px solid #e0e0e0" : "none",
               "&:hover": {
-                backgroundColor: selectedTab === tabValue ? "#A3131F" : "#f5f5f5",
+                backgroundColor:
+                  selectedTab === tabValue ? "#A3131F" : "#f5f5f5",
               },
             }}
           />
         ))}
       </Stack>
       <div className="flex justify-between items-center w-full md:h-14 px-4 my-4">
-        <h2 className="text-lg font-extrabold my-6">{t("Projects_Report_List")}</h2>
-        <Button variant="contained"
-          sx={{ backgroundColor: "black", color: "white", textTransform: "none", "&:hover": { backgroundColor: "#333333" } }}
+        <h2 className="text-lg font-extrabold my-6">
+          {t("Projects_Report_List")}
+        </h2>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: "black",
+            color: "white",
+            textTransform: "none",
+            "&:hover": { backgroundColor: "#333333" },
+          }}
           onClick={() => navigate("/submitLandlordReport")}
         >
           + {t("Create_New_Report")}
@@ -317,7 +390,9 @@ export default function Report() {
               <tr className="bg-white">
                 <th className="pr-10"></th>
                 <th className="p-4 text-left text-lg">{t("Project_Name")}</th>
-                <th className="p-4 text-left text-lg">{t("Attached_Report")}</th>
+                <th className="p-4 text-left text-lg">
+                  {t("Attached_Report")}
+                </th>
                 <th className="p-4 text-left text-lg">{t("Status")}</th>
                 <th className="p-4 text-left text-lg">{t("Created_By")}</th>
                 <th className="p-4 text-left text-lg">{t("Created_At")}</th>
@@ -326,20 +401,48 @@ export default function Report() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7" className="p-4 text-center">{t("Loading...")}</td></tr>
+                <tr>
+                  <td colSpan="7" className="p-4 text-center">
+                    {t("Loading...")}
+                  </td>
+                </tr>
               ) : paginatedDocuments.length > 0 ? (
                 paginatedDocuments.map((doc) => (
                   <tr key={doc._id} className="hover:bg-gray-50 border-b">
                     <td className="p-5"></td>
                     <td className="p-4 font-semibold">{doc.projName || "-"}</td>
                     <td className="p-4 font-normal">
-                      {doc.fileName ? doc.fileName.length > 20 ? `${doc.fileName.substring(0, 18)}...${doc.fileName.slice(-4)}` : doc.fileName : <span className="text-gray-400 italic">{t("status_no_report")}</span>}
+                      {doc.fileName ? (
+                        doc.fileName.length > 20 ? (
+                          `${doc.fileName.substring(
+                            0,
+                            18
+                          )}...${doc.fileName.slice(-4)}`
+                        ) : (
+                          doc.fileName
+                        )
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          {t("status_no_report")}
+                        </span>
+                      )}
                     </td>
                     <td className="p-4">{getDisplayStatus(doc.status)}</td>
                     <td className="p-4">
-                      {doc.user ? doc.user.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") : "-"}
+                      {doc.user
+                        ? doc.user
+                            .split(" ")
+                            .map(
+                              (w) => w.charAt(0).toUpperCase() + w.slice(1)
+                            )
+                            .join(" ")
+                        : "-"}
                     </td>
-                    <td className="p-4 font-normal">{doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "-"}</td>
+                    <td className="p-4 font-normal">
+                      {doc.uploadedAt
+                        ? new Date(doc.uploadedAt).toLocaleDateString()
+                        : "-"}
+                    </td>
                     <td className="p-4 text-center">
                       <IconButton onClick={(e) => handleMenuOpen(e, doc)}>
                         <MoreVertical size={20} />
@@ -348,41 +451,86 @@ export default function Report() {
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="7" className="p-6 text-center text-gray-500">{t("No_Data_Available")}</td></tr>
+                <tr>
+                  <td colSpan="7" className="p-6 text-center text-gray-500">
+                    {t("No_Data_Available")}
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => { handleOpenFile(currentDoc?.fileUrl); handleMenuClose(); }} disabled={!currentDoc?.fileUrl}>
-          <ListItemIcon><MdOutlineFileDownload size={23} /></ListItemIcon>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem
+          onClick={() => {
+            handleOpenFile(currentDoc?.fileUrl);
+            handleMenuClose();
+          }}
+          disabled={!currentDoc?.fileUrl}
+        >
+          <ListItemIcon>
+            <MdOutlineFileDownload size={23} />
+          </ListItemIcon>
           <Typography variant="inherit">{t("Download_Report")}</Typography>
         </MenuItem>
-        <MenuItem onClick={() => handleStatusUpdate(currentDoc?._id, RAW_TAB_VALUES.APPROVED)} disabled={currentDoc?.status?.toLowerCase() === RAW_TAB_VALUES.APPROVED}>
-          <ListItemIcon><CheckCircle size={20} color="green" /></ListItemIcon>
+        <MenuItem
+          onClick={() =>
+            handleStatusUpdate(currentDoc?._id, RAW_TAB_VALUES.APPROVED)
+          }
+          disabled={
+            currentDoc?.status?.toLowerCase() === RAW_TAB_VALUES.APPROVED
+          }
+        >
+          <ListItemIcon>
+            <CheckCircle size={20} color="green" />
+          </ListItemIcon>
           <Typography variant="inherit">{t("Approve")}</Typography>
         </MenuItem>
-        <MenuItem onClick={() => handleStatusUpdate(currentDoc?._id, RAW_TAB_VALUES.REJECTED)} disabled={currentDoc?.status?.toLowerCase() === RAW_TAB_VALUES.REJECTED}>
-          <ListItemIcon><XCircle size={20} color="orange" /></ListItemIcon>
+        <MenuItem
+          onClick={() =>
+            handleStatusUpdate(currentDoc?._id, RAW_TAB_VALUES.REJECTED)
+          }
+          disabled={
+            currentDoc?.status?.toLowerCase() === RAW_TAB_VALUES.REJECTED
+          }
+        >
+          <ListItemIcon>
+            <XCircle size={20} color="orange" />
+          </ListItemIcon>
           <Typography variant="inherit">{t("Reject")}</Typography>
         </MenuItem>
-        <MenuItem onClick={() => { setModalOpen(true); handleMenuClose(); }}>
-          <ListItemIcon><Trash2 size={20} color="red" /></ListItemIcon>
+        <MenuItem
+          onClick={() => {
+            setDocToDelete(currentDoc);
+            setModalOpen(true);
+            handleMenuClose();
+          }}
+        >
+          <ListItemIcon>
+            <Trash2 size={20} color="red" />
+          </ListItemIcon>
           <Typography variant="inherit">{t("Delete_Report")}</Typography>
         </MenuItem>
       </Menu>
-      
+
       <ConfirmationModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          setDocToDelete(null);
+        }}
         onConfirm={handleDeleteReport}
         title={t("confirm_deletion_title")}
         message={t("confirm_deletion_message")}
         confirmText={t("confirm")}
         cancelText={t("cancel")}
       />
-      
+
       {filteredDocuments.length > recordsPerPage && (
         <div className="flex justify-end items-center mt-4">
           <Pagination
@@ -392,11 +540,34 @@ export default function Report() {
             variant="outlined"
             shape="rounded"
             sx={{
-              "& .Mui-selected": { backgroundColor: "#B91724 !important", color: "white !important", borderRadius: "50%" },
-              "& .MuiPaginationItem-root": { color: "black", borderRadius: "50%", "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } },
-              "& .MuiPaginationItem-previousNext": { border: "none", backgroundColor: "transparent", color: "black", "&.Mui-disabled": { opacity: 0.5 } },
+              "& .Mui-selected": {
+                backgroundColor: "#B91724 !important",
+                color: "white !important",
+                borderRadius: "50%",
+              },
+              "& .MuiPaginationItem-root": {
+                color: "black",
+                borderRadius: "50%",
+                "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+              },
+              "& .MuiPaginationItem-previousNext": {
+                border: "none",
+                backgroundColor: "transparent",
+                color: "black",
+                "&.Mui-disabled": { opacity: 0.5 },
+              },
             }}
-            renderItem={(item) => <PaginationItem {...item} slots={{ previous: () => <span className="px-1">{t("Previous")}</span>, next: () => <span className="px-1">{t("Next")}</span> }} />}
+            renderItem={(item) => (
+              <PaginationItem
+                {...item}
+                slots={{
+                  previous: () => (
+                    <span className="px-1">{t("Previous")}</span>
+                  ),
+                  next: () => <span className="px-1">{t("Next")}</span>,
+                }}
+              />
+            )}
           />
         </div>
       )}
