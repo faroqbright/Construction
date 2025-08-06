@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
-  Checkbox,
   Modal,
   Box,
   TextField,
@@ -12,7 +11,6 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { IoEye, IoEyeOff } from "react-icons/io5";
 import { RiCloseLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import apiRequest from "../../../utils/apiRequest";
@@ -34,8 +32,6 @@ export default function UsersTable() {
   const [usersPerPage] = useState(10);
   const [roleSearchTerm, setRoleSearchTerm] = useState("");
   const [roleSearchTermEdit, setRoleSearchTermEdit] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const modalRef = useRef(null);
   const { clickedItem, setClickedItem } = useSideBar();
 
@@ -64,8 +60,7 @@ export default function UsersTable() {
       if (response.data) {
         setRoles(response.data.data);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }, [token]);
 
   useEffect(() => {
@@ -83,7 +78,10 @@ export default function UsersTable() {
     try {
       const response = await apiRequest("post", "/rolesUser", user, token);
       if (response.data.statusCode === 201) {
-        toast.success(t(response.data.message));
+        const password = response.data.data.generatedPassword;
+        toast.success(
+          `${t(response.data.message)} Password: ${password}`
+        );
         fetchUsers();
         setOpenUser(false);
         setRoleSearchTerm("");
@@ -114,8 +112,7 @@ export default function UsersTable() {
         setRoleSearchTermEdit(response.data.data.role?.roleName || "");
         setOpenEdit(true);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const editUser = async (userId, updatedUser) => {
@@ -151,8 +148,7 @@ export default function UsersTable() {
         toast.success(t("User deleted successfully."));
         fetchUsers();
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -207,7 +203,7 @@ export default function UsersTable() {
     role.roleName.toLowerCase().includes(roleSearchTermEdit.toLowerCase())
   );
 
-    const modalStyles = {
+  const modalStyles = {
     position: "absolute",
     top: "50%",
     left: "50%",
@@ -243,9 +239,7 @@ export default function UsersTable() {
         ) : null}
 
         <Modal open={openUser} onClose={handleCloseUser}>
-          <Box
-            sx={modalStyles}
-          >
+          <Box sx={modalStyles}>
             <div className="flex justify-between items-center mb-4">
               <Typography variant="h6">{t("Add_New_User")}</Typography>
               <IconButton onClick={handleCloseUser}>
@@ -263,7 +257,6 @@ export default function UsersTable() {
                   email: formData.get("email"),
                   phoneNumber: formData.get("phoneNumber"),
                   role: currentUser.role,
-                  password: formData.get("password"),
                   status: t("Active"),
                 };
                 addUser(newUser);
@@ -289,28 +282,6 @@ export default function UsersTable() {
                 variant="outlined"
                 fullWidth
               />
-              {/* <TextField
-                name="password"
-                label={t("Password")}
-                type={showPassword ? "text" : "password"}
-                variant="outlined"
-                fullWidth
-                required
-                InputProps={{
-                  endAdornment: (
-                    <IconButton
-                      onClick={togglePasswordVisibility}
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                      style={{ color: "#DC2626" }}
-                      edge="end"
-                    >
-                      {showPassword ? <IoEye /> : <IoEyeOff />}
-                    </IconButton>
-                  ),
-                }}
-              /> */}
               <Autocomplete
                 options={filteredRoles}
                 getOptionLabel={(option) => option.roleName}
@@ -318,7 +289,6 @@ export default function UsersTable() {
                 onChange={(event, newValue) => {
                   setCurrentUser((prev) => ({
                     ...prev,
-
                     role: newValue?._id || "",
                   }));
                 }}
@@ -365,12 +335,9 @@ export default function UsersTable() {
         <table className="min-w-full text-sm text-left border border-gray-200">
           <thead>
             <tr>
-              <th className="p-4 border-b">
-                {/* <Checkbox /> */}
-              </th>
+              <th className="p-4 border-b"></th>
               <th className="p-4 border-b">{t("User_Name")}</th>
               <th className="p-4 border-b">{t("Email")}</th>
-              {/* <th className="p-4 border-b">{t("Phone_Number")}</th> */}
               <th className="p-4 border-b">{t("Role")}</th>
               <th className="p-4 border-b">{t("Status")}</th>
               {(hasUpdatePermission || hasDeletePermission) && (
@@ -388,9 +355,7 @@ export default function UsersTable() {
             ) : (
               currentUsers.map((user, idx) => (
                 <tr key={user._id} className="hover:bg-gray-50">
-                  <td className="p-4">
-                    {/* <Checkbox /> */}
-                  </td>
+                  <td className="p-4"></td>
                   <td className="p-4">
                     {user.userName
                       .split(" ")
@@ -400,17 +365,16 @@ export default function UsersTable() {
                       .join(" ")}
                   </td>
                   <td className="p-4">{user.email}</td>
-                  {/* <td className="p-4">{user.phoneNumber}</td> */}
                   <td className="p-4">{user?.role?.roleName || "null"}</td>
                   <td className="p-4">
                     <span
                       className={`px-3 py-1 text-xs rounded ${
-                        user?.role?.status === "Active"
+                        user?.status === "Active"
                           ? "bg-green-100 text-green-600"
                           : "bg-red-100 text-red-600"
                       }`}
                     >
-                      {t(user?.role?.status) || "null"}
+                      {t(user?.status) || "null"}
                     </span>
                   </td>
                   {(hasUpdatePermission || hasDeletePermission) && (
@@ -469,15 +433,7 @@ export default function UsersTable() {
       </div>
 
       <Modal open={openEdit} onClose={handleCloseEdit}>
-        <Box
-          sx={{
-            width: 400,
-            margin: "auto",
-            padding: 4,
-            backgroundColor: "white",
-            borderRadius: "8px",
-          }}
-        >
+        <Box sx={modalStyles}>
           <div className="flex justify-between items-center mb-4">
             <Typography variant="h6">Edit User</Typography>
             <IconButton onClick={handleCloseEdit}>
