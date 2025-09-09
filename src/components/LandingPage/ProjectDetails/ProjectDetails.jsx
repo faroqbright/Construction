@@ -980,7 +980,9 @@ const ProjectDetails = () => {
                 />
                 <span className="text-sm text-black-blacknew">
                   {capitalizeWords(member?.userName)}{" "}
-                  {member?.userType ==! "Finance" ? `(${capitalizeWords(t(member?.userType))})`:null}
+                  {member?.role?.roleName
+                    ? `(${capitalizeWords(t(member.role.roleName))})`
+                    : `(${capitalizeWords(t(member?.userType))})`}
                 </span>
               </div>
             ))}
