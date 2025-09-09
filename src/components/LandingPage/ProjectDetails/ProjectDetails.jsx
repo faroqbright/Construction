@@ -45,6 +45,7 @@ const ProjectDetails = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [financialId, setFinancialId] = useState(null);
   const [error, setError] = useState(null);
+  console.log(projectData)
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -979,9 +980,7 @@ const ProjectDetails = () => {
                 />
                 <span className="text-sm text-black-blacknew">
                   {capitalizeWords(member?.userName)}{" "}
-                  {member?.role?.roleName
-                    ? `(${capitalizeWords(t(member.role.roleName))})`
-                    : `(${capitalizeWords(t(member?.userType))})`}
+                  {member?.userType ==! "Finance" ? `(${capitalizeWords(t(member?.userType))})`:null}
                 </span>
               </div>
             ))}

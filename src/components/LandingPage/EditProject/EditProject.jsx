@@ -242,14 +242,17 @@ export default function EditProject() {
   const onSubmit = async (formData) => {
     if (isCreateMode && selectedFiles.length > 3)
       return toast.error(t("You can only have up to 3 banners."));
+    
+    // Validate deadline format
     if (
       !formData.deadline ||
       !formData.deadline.includes(" - ") ||
       formData.deadline.endsWith(" - ") ||
       formData.deadline.startsWith(" - ")
-    )
-      if (formData.deadline)
-        toast.error(t("Please select both the Start Date and End Date."));
+    ) {
+      toast.error(t("Please select both the Start Date and End Date."));
+      return;
+    }
 
     try {
       for (const milestoneId of deletedMilestones) {
@@ -600,18 +603,6 @@ export default function EditProject() {
     );
   };
 
-  const handleDateChange = (startDate, endDate) => {
-    if (startDate && endDate) {
-      setValue(
-        "deadline",
-        `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
-      );
-    } else if (startDate) {
-      setValue("deadline", `${startDate.toLocaleDateString()} - `);
-    } else {
-      setValue("deadline", "");
-    }
-  };
 
   const modalStyle = {
     position: "absolute",
@@ -974,12 +965,17 @@ export default function EditProject() {
               const dates = field.value
                 ? field.value
                     .split(" - ")
-                    .map((date) => (date ? new Date(date) : null))
+                    .map((date) => {
+                      if (!date || date.trim() === '') return null;
+                      const parsedDate = new Date(date.trim());
+                      return isNaN(parsedDate.getTime()) ? null : parsedDate;
+                    })
                 : [null, null];
 
               const formatDate = (date) => {
                 if (!date) return "";
                 const d = new Date(date);
+                if (isNaN(d.getTime())) return "";
                 const year = d.getFullYear();
                 const month = String(d.getMonth() + 1).padStart(2, "0");
                 const day = String(d.getDate()).padStart(2, "0");
@@ -989,6 +985,8 @@ export default function EditProject() {
               const handleDateUpdate = (start, end) => {
                 const formattedStart = formatDate(start);
                 const formattedEnd = formatDate(end);
+
+                console.log('Date Update:', { start, end, formattedStart, formattedEnd });
 
                 if (formattedStart && formattedEnd) {
                   field.onChange(`${formattedStart} - ${formattedEnd}`);
@@ -1262,8 +1260,9 @@ export default function EditProject() {
                       {...field}
                       onClick={openModal}
                       className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                      defaultValue=""
                     >
-                      <option value="" disabled selected hidden>
+                      <option value="" disabled hidden>
                         {t("Add_Team_Members")}
                       </option>
                     </select>
@@ -1500,8 +1499,9 @@ export default function EditProject() {
                       {...field}
                       onClick={openClientModal}
                       className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none"
+                      defaultValue=""
                     >
-                      <option value="" disabled selected hidden>
+                      <option value="" disabled hidden>
                         {t("Add_Client_Members")}
                       </option>
                     </select>
