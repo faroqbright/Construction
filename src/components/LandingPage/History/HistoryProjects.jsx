@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { User } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import logo from "../../../assets/logo1.png";
+import logo from "../../../assets/LogoN.png";
 
 const HistoryProjects = () => {
   const [projects, setProjects] = useState([]);

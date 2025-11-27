@@ -12,7 +12,7 @@ import {
   Button,
 } from "@mui/material";
 import time from "../../../assets/Time Circle.svg";
-import logo from "../../../assets/logo1.png";
+import logo from "../../../assets/LogoN.png";
 import { useSelector } from "react-redux";
 import apiRequest from "../../../utils/apiRequest";
 import { toast } from "react-toastify";

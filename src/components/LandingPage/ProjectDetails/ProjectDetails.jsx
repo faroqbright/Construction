@@ -20,7 +20,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Slider from "react-slick";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { toast } from "react-toastify";
-import logo from "../../../assets/logo1.png";
+import logo from "../../../assets/LogoN.png";
 import {
   Button,
   Modal,
