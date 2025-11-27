@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-circular-progressbar/dist/styles.css";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import logo from "../../../assets/logo1.png";
+import logo from "../../../assets/LogoN.png";
 import Modal from "@mui/material/Modal";
 import pdf from "../../../assets/pdf.svg";
 import Box from "@mui/material/Box";

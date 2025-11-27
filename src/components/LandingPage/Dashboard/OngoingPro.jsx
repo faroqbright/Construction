@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import Notification from "../../../assets/Photo 4.svg";
 import student2 from "../../../assets/Photo 2.svg";
 import student3 from "../../../assets/Photo 3.svg";
-import logo from "../../../assets/logo1.png";
+import logo from "../../../assets/LogoN.png";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-circular-progressbar/dist/styles.css";
